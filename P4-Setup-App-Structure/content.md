@@ -1,9 +1,9 @@
- ---
+---
 title: "Basic App Architecture"
 slug: basic-app-architecture
 ---
 
-Although the term "Architecture" can be intimidating to new programmers, it's not as scary as you think. Architecture can be simply put as a fancy word for organizing your code so that it's easier to build, change and debug.
+Although the term *architecture* can be intimidating to new programmers, it's not as scary as you think. Architecture can be simply explained as how to better organize your code so that it's easier to build, change and debug.
 
 In this step, we'll take some time to think about how we'll build our app and organize our code.
 
@@ -50,37 +50,97 @@ Next move all the related files into the correct subdirectories. This will cause
 
 # Project Structure
 
-Similar to our directory structure, let's go ahead and organize our Xcode project so that we can easily navigate our files. From our rearranging our files in our last step, a lot of our files will be greyed out or red to show that Xcode can't find them. To fix this we'll have to add them all back into our project from thier new subdirectory.
+Within our Xcode workspace, your Project navigator will display a project structure of all your files and resources. The structure of your project navigator is independent of your directory structure. Your project structure will organize your files in your project navigator within Xcode, while your directory structure will organize your files and resources on your computer.
+
+In the last step, we rearranged the files in our Makestagram directory by creating new subdirectories for storing our `.swift` files. Xcode will no longer be able to find the files that we moved around. Your project navigator should have many greyed out files. Notice when you click on these missing files, nothing will happen.
+
+![Missing Files](assets/missing_files.png)
+
+Keep in mind, if you move or rearrange files on computer, your Xcode project will no longer be able to find them unless you add them back into your project.
+
+## Adding Back Missing Files
+
+To add back files that have been rearranged, we'll first need to delete the missing, greyed out files.
+
+![Delete Missing File](assets/delete_missing_file.png)
+
+Next, we'll need to either right-click in our project navigator or click on the plus button in the button left corner of the project navigator and select the option `Add Files to "Makestagram"`:
 
 ![Adding Existing Files](assets/add_existing_files.png)
 
-After we've added back all our files into our project, Xcode will complain that's it's missing the info.plist file. This is because we moved it into supporting files and didn't tell our Xcode project. Navigate to the General tab of your project and choose your `info.plist` file from your file system. Make sure it's the correct info.plist!
+Next select the correct file you're trying to add in your file directory and click add:
 
-![Setting Info.plist](assets/setting_info_plist.png)
+![Add Missing File](assets/add_missing_file.png)
 
-Last, we'll organize our project structure and group our files so we can easily navigate between files. Change your project structure as below:
+Repeat this process until you've added back all of the files you've rearranged. You should have deleted and re-added each of the following files:
+
+- ViewController.swift
+- Main.storyboard
+- LaunchScreen.storyboard
+- Info.plist
+- GoogleService-Info.plist
+
+After you've added each file back, you should be able to select each file and open it in Xcode:
+
+![Re-added File](assets/readded_file.png)
+
+Build and run the app to make sure everything's working as expected.
+
+## Setting our Info.plist
+
+Oops! Our app doesn't run and returns the following error:
+
+![Missing Info.plist](assets/missing_info_plist.png)
+
+Our Info.plist file is a XML representation of many of our app's settings. After moving it into the *supporting* folder, we need to reconfigure our project with the Info.plist file.
+
+To reset the Info.plist file, select your `Makestagram` project in your project navigator.
+
+![Project Settings](assets/project_settings.png)
+
+By default, you should land on the *General* tab. The first section in *General* will be *Identity*. You'll notice a prompt to set your Info.plist by choosing a file added to the project. Select the correct Info.plist and re-run your app:
+
+![Selecting Info.plist](assets/resetting_info_plist.png)
+
+## Organize our Project Structure
+
+At this point, our app should now be running again and all our files and resources in our file directory are stored in the correct folders.
+
+Last we'll want to organize the files in our project navigator into groups. Organizing our files will make it easier to find files we're looking for as we start building our app.
+
+We'll do this by creating groups of similar files. Select a file you want to add to a group and right-click. You'll see a menu option for creating a new group from selection:
+
+![Creating Group](assets/creating_group.png)
+
+You can also select and drag files into their appropriate group. Remember that the project navigator structure and file directory structure are completely independent of each other. Rearranging files in one won't organize the structure of the other.
+
+Repeat the previous steps until you've organized our project navigator as below:
 
 ![Organizing Project Structure](assets/project_structure.png)
+
+As we build our project and add more files, we'll continue to create and reorganize our files into groups.
 
 # Intro to App Architecture
 
 When we build apps, we want to try our best to think about architecture, or how we organize our code. Benefits of good software architecture include:
 
 - Code is easy for other developers and yourself to understand
-- Can easily change, add and/or remove code
-- Can be reused and shared with other projects
-- Reduces and manages complexity
+- Code can easily be changed, added and removed
+- Code can be reused and shared with other projects
+- Reduces and manages complexity (you don't have to remember why you did the things you did)
 
-One big shift in thinking is from objects to domains. Each domain will have a single responsiblity. We'll be using the MVC architectural pattern where we separate our models, views and controllers.
+As we think about architecture, one of the most important points to remember is to break the functionality of our code into layers that are independent can be re-used.
+
+In our project, we'll be using a very common architectural design called Model View Controller, or MVC for short. We will separate our code into the following:
 
 - **Models** store and represent data
 - **Views** display the data as UI to the user
 - **Controllers** will manage the logic between our models and views
 
-We'll also create service layers to manage networking code between the Firebase SDK and our Controllers and helper objects to make specific actions like paginating or taking photos reusable.
+In addition to MVC, we'll create a service layer between our app and Firebase. Our service layer will manage how our app interacts with Firebase, mainly concerning reading and writing data to our database.
 
-If that sounds like a lot, don't worry. Basically all we're doing is organizing our code into different files that each have a single responsibility and work together.
+We'll also create a few helper objects to make certain tasks separate and reusable in our apps.
 
-<!-- insert an image about our architecture -->
+![Basic Architecture](assets/basic_architecture.png)
 
-This is a high level overview of our architecture. You'll learn more as we begin to code.
+TLDR; We'll be organizing code we write using the Model View Controller architectural pattern. Having good architecture will make it easy to build new features and debug bugs.

@@ -3,18 +3,18 @@ title: "Setting up the Xcode Project / CocoaPods"
 slug: set-up-xcode-project
 ---
 
-To start building, we'll first need to create a new Xcode project.
+As always, we'll need to create a new Xcode project.
 
-## Create a new XCode project
+## Create a new Xcode project
 
-1. Open XCode and create a new project.
+1. Open Xcode and create a new project.
 2. Choose the Single View Application as template. Click next.
 3. Fill out the remaining info for your project. See the example provided below:
 4. Save your Xcode project somewhere you'll be able to easily find later. i.e. ~/Code/
 
 ![Sample Project Info](assets/sample-project-info.png)
 
-Next we need to integrate Firebase into our project. To do this, we'll use a tool called _CocoaPods_. This will take care of all the third party libraries we rely on. 
+Next we need to integrate Firebase into our project. To do this, we'll use a tool called _CocoaPods_. This will take care of all the third party libraries we rely on.
 
 # What Is a Dependency Manager?
 

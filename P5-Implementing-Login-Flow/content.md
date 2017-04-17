@@ -17,7 +17,7 @@ To make sure we have access to these APIs and components, make sure you have Fir
 
 # Creating a Login storyboard
 
-Let's start building our login flow by creating a new storyboard, specifically for signup and logins. Create a new storyboard file and name it `login.storyboard`. Make sure you've created the new .storyboard file in the Storyboard directory. 
+Let's start building our login flow by creating a new storyboard, specifically for signup and logins. Create a new storyboard file and name it `login.storyboard`. Make sure you've created the new .storyboard file in the Storyboard directory.
 
 ## Why multiple storyboards?
 
@@ -29,7 +29,7 @@ Imagine if you had 30 view controllers in a single storyboard! Not only would it
 
 When the user opens the app for the first time, we want them to see the login screen. To achieve that, let's first create a new view controller within the login storyboard.
 
-Navigate to the Login storyboard and open the object library. Drag a new view controller from the object library onto your Login storyboard. Click on the new view controller and open the attributes inspector. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step. 
+Navigate to the Login storyboard and open the object library. Drag a new view controller from the object library onto your Login storyboard. Click on the new view controller and open the attributes inspector. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step.
 
 ![Login Initial View Controller](assets/login_initial_view_controller.png)
 
@@ -108,7 +108,7 @@ Also create a IBAction for when your login button is tapped. Control-drag from t
 
 <!-- show image below -->
 
-Let's test our code is working. Running our code frequently is a great way to make sure we haven't missed steps or accidentally introduced bugs into our code. 
+Let's test our code is working. Running our code frequently is a great way to make sure we haven't missed steps or accidentally introduced bugs into our code.
 
 Place a print statement the following text: `login button tapped` within the IBAction. Run the app and tap the login button. If the print statement shows up in the console, you've successfully setup your login screen.
 
