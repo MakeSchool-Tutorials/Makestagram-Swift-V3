@@ -3,37 +3,81 @@ title: "Adding Authentication"
 slug: adding-authentication
 ---
 
-This step will focus on connecting the login screen we built with some pre-built Firebase UI components that will help us sign up or log in the user. We'll use FirebaseUI to make development easier, but it's also possible to implement your own custom authentication flow.
+Up to this point, we've created and hooked up the UI elements for the initial login screen in our authentication process. In this section, we'll look at authenticating users through FirebaseAuth and FirebaseUI.
+
+FirebaseUI is a pre-built UI component made by the Firebase team to help us easily handle sign up and log in functionality. It was made as an quick and easy, drop-in UI component for setting up authentication.
+
+FirebaseAuth is an SDK for easier authenticating users through Firebase. FirebaseAuth will abstract handling and storing sensitive information that usually comes with implementing authentication.
+
+Together, these libraries will make it extremely easy for us to setup and implement the authentication process for our Makestagram app. Keep in mind, it's also possible to implement your own custom authentication flow.
 
 # Setting up FirebaseUI
 
-First, we'll need to import FirebaseAuthUI in order to access the library that will help us with authentication. Add the following line to the top of your file.
+Import the FirebaseAuth and FirebaseAuthUI library to `LoginViewController.swift` right below `import UIKit`. Whenever we want to use a third-party library that we've downloaded from Cocoapods, we'll need to import it to use it in our code.
 
+    import UIKit
+    import FirebaseAuth
     import FirebaseAuthUI
 
-Now, when the user clicks on the Login button, we can hand off authentication to Firebase's pre-built authViewController. In the `loginButtonTapped(sender:)`, add the following code:
+    // ...
+
+Now that we can access the `FirebaseAuthUI` library, our next focus will be to hand-off the authentication process to FirebaseUI.
+
+## Enabling Firebase Sign-in Providers
+
+To use FirebaseUI to manage our user accounts, we'll need to tell Firebase which sign-in methods it accepts. Open your Firebase project in your browser and navigate to the Authentication tab. Click the `SET UP SIGN-IN METHOD` button and enable the email/password sign-in provider.
+
+![Setup Sign-in Method Button](assets/sign_in_button.png)
+
+You should see a list of *Sign-In Providers* that are all currently disabled:
+
+![Sign-In Providers](assets/sign_in_providers.png)
+
+Click on and enable the Email/Password provider:
+
+![Email Provider](assets/email_provider.png)
+
+After enabling the Email/Password provider, your have a status of `Enabled`:
+
+![Enabled Email Provider](assets/enabled_email.png)
+
+## Using FirebaseUI's AuthViewController
+
+Within FirebaseUI, we'll be using the AuthViewController. To implement the `AuthViewController`, we'll need to
+
+1. access the `FUIAuth` default auth UI singleton
+2. set the `FUIAuth`'s singleton's delegate
+3. present the auth view controller
+4. implement `FUIAuthDelegate` protocol
+
+Within our `LoginViewController`, add the following to our `loginButtonTapped(sender:)` method:
+
+    // MARK: - IBActions
 
     @IBAction func loginButtonTapped(_ sender: UIButton) {
         // 1
-        if let authUI = FUIAuth.defaultAuthUI() {
-            // 2
-            authUI.delegate = self
-            
-            // 3
-            let authViewController = authUI.authViewController()
-            present(authViewController, animated: true)
-        }
+        guard let authUI = FUIAuth.defaultAuthUI()
+            else { return }
+
+        // 2
+        authUI.delegate = self
+
+        // 3
+        let authViewController = authUI.authViewController()
+        present(authViewController, animated: true)
     }
-   
-Let's break this apart:
 
-1. We reference the FUIAuth.defaultAuthUI() singleton and make sure it isn't nil.
-2. We set the delegate of the authUI singleton to the LoginViewController.
-3. We present the authViewController that is a property of authUI.
+You'll notice each line of code corresponds closely to each of the steps we previously defined:
 
-When authViewController is presented, Firebase presents it's own UI to handle signing up or logging in the user. In addition, Firebase's authViewController can be customized to include different types of login. i.e. Facebook, Google, Github
+1. access the `FUIAuth` default auth UI singleton
+2. set `FUIAuth`'s singleton delegate
+3. present the auth view controller
 
-Since we've set the delegate of authUI to be the LoginViewController, we need to conform LoginViewController to the protocol. Add the following code to the bottom of the file (after the closing }).
+When `authViewController` is presented, Firebase presents it's own UI to handle signing up or logging in the user. Keep in mind that Firebase's authViewController can also be customized to include different types of login. i.e. Facebook, Google, Github
+
+However, we haven't finished all 4 steps we previously defined and that's why Xcode is yelling at us with a compiler error. In step 2, we set our `LoginViewController` to be a delegate of `authUI`, however our `LoginViewController` hasn't conformed to the `FUIAuthDelegate` protocol. Let's do that now!
+
+Before the closing curly brace of the `LoginViewController` class, add the following extension:
 
     class LoginViewController: UIViewController {
         // ...
@@ -41,55 +85,55 @@ Since we've set the delegate of authUI to be the LoginViewController, we need to
 
     extension LoginViewController: FUIAuthDelegate {
         func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            // handle user signup / login
+            print("handle user signup / login")
         }
     }
 
-# Enabling Firebase Sign-in Providers
-
-Before we can use FirebaseUI to manage our user accounts, we need to tell Firebase which sign-in methods it accepts. Open your Firebase project, and navigate to the Authentication tab. Once you're on the Authentication tab, Firebase should prompt you to setup your sign-up method. Click the `SET UP SIGN-IN METHOD` button and enable the email/password sign-in provider.
-
-![Email Auth Provider](assets/firebase_authentication.png)
-
-Now, if you run the app, you should be able to create new user accounts with Firebase. Run the app and create a new account. Then click the authentication tab to see if your user acconut has been created.
+We've implemented the beginnings of our authentication logic. Run the app and sign up with a new user account. Go back to the authentication tab in your Firebase dashboard and verify that you've created a new user. If everything goes well you should see the following:
 
 ![Newly Created User](assets/first_user.png)
 
-## FIRAuth Singleton
+## Basic Error Handling in FUIAuthDelegate
 
-When a new account is created, our delegate method that we implemented will get called. The main thing to keep in mind is that the delegate returns the FIRUser that just signed up / logged in and an error if it occured. Let's go ahead do some very basic error handling so we'll know if an error occurs. Add the following code below:
+As you'll notice through running the app, each time you sign up or log into an existing accounts, the `FUIAuthDelegate` method `authUI(_:didSignInWith:error:)` will be called. This method's parameters are the FirebaseAuth user that was authenticated and/or an error that occurred. Let's implement some basic error handling that will let us know if something went wrong. Modify your `FUIAuthDelegate` as follows:
 
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-        if let error = error {
-            print("Error signing in: \(error.localizedDescription)")
+    extension LoginViewController: FUIAuthDelegate {
+        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+            if let error = error {
+                assertionFailure("Error signing in: \(error.localizedDescription)")
+            }
+
+            print("handle user signup / login")
         }
-
-        // handle user signup / login
     }
-    
-You'll notice that we're also returned a user of type `FIRUser?`. This will allow us to access some basic information associated with our FIRUser such as displayName and email. The most important property of FIRUser is uid.
+
+Now, whenever there's an error while we're in development, the app will crash with an formatted error message of what went wrong. In production code, assertions are ignored and are a nice tool to let us know if something's going unexpectedly while we're building our apps.
+
+## FIRUser
+
+Another important parameter is the `FIRUser` object as defined in `FIRAuth`. Each `FIRUser` represents an authenticated user within our Firebase dashboard. There's a few bits of information stored within the `FIRUser` object, but the most important is the user's UID.
 
 ## What is an UID?
 
 UID is an acronym for unique identifier and represents a way to uniquely identify each of our users. When a user creates an account with FirebaseAuth, Firebase will assign each new user a unique string for that user account. We don't have to worry about creating the string ourselves, Firebase will manage that for us.
 
-## FIRUser Singleton
+# Accessing the FIRUser Singleton
 
-One thing that we want to keep in might is that once there is a user that is logged into Firebase, we can access it through the FIRAuth singleton. We can access the currently logged in user with the following code:
+Whenever a user is authenticated with Firebase, the current `FIRUser` object can be accessed through the `FIRUser` singleton. This allows easy access to our `FIRUser` object anywhere within our app. The `FIRUser` single can be accessed with the following code snippet:
 
     let user: FIRUser? = FIRAuth.auth()?.currentUser
 
-## What is a singleton?
+The type of the singleton is `FIRUser?`, which is an optional. This singleton can be nil when there is no user that is currently logged in with Firebase.
 
-A singleton is similar to a global variable in that it provides an easy way for us to access a shared resource. Although singletons are used widely through the iOS ecosystem, we want to be careful and deliberate when creating our own singletons. Singletons are usually a sign of bad code architecture.
+## What is a Singleton?
+
+A singleton is similar to a global variable in that it provides an easy way for us to access a shared resource. Although singletons are used widely through the iOS ecosystem, we want to be careful and deliberate when creating our own singletons. Singletons are usually a sign of bad code architecture because they introduce tight coupling and hard-to-follow code.
 
 # Handling User Signup / Login
 
-After the user authenticated with Firebase, we want to redirect the user to a different view controller depending on whether they are a new user or an existing user. 
+After the user is authenticated, we'll want to redirect the user to a different view controller depending on whether they are a new user or an existing user:
 
-1. **New users** should be sent to choose thier username.
-2. **Existing users** should be sent to the home view controller of thier feed.
+1. **New users** will be sent to choose their username
+2. **Existing users** will be sent to the home view controller that displays their feed
 
-To determine if the user is a new user, we'll need to have some way to retrieve previous data about the user. Your first instinct might be to see if the FUIAuthDelegate returns any information that'll tell us if the user is a new or existing user. Unfortunately, it doesn't provide us much information outside of confirming that a new or existing user with authenticated by Firebase. FirebaseAuth doesn't help us much outside of providing a easy way to authenticate users. Instead we'll have to use the Firebase realtime database!
-
-
+To determine if the user is a new user, we'll need to have some way to retrieve previous data about the user. Your first instinct might be to see if the FUIAuthDelegate returns any information that'll tell us if the user is a new or existing user. Unfortunately, it doesn't provide us much information outside of confirming that a new or existing user with authenticated by Firebase. FirebaseAuth doesn't help us much outside of providing a easy way to authenticate users. Instead we'll have to make use the Firebase realtime database!
