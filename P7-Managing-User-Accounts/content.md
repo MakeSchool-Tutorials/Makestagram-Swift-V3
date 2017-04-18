@@ -159,7 +159,7 @@ Let's break down the code we just added:
 
 Now we'll need to handle the user data to check that the user exists.
 
-# Retrieving Data
+# Retrieving Data #
 
 When we retrieve data from Firebase, we recieve a `FIRSnapshot` object that contains the data we retrieved. We can now access the data through it's value property:
 
@@ -187,6 +187,26 @@ To retrieve the user data from `FIRDataSnapshot` we:
 
 1. We check that the snapshot exists, and that it is of the expected Dictionary type
 2. Handle and execute the appropriate logic based on whether the user dictionary exists. Based on whether the user dictionary exists, we'll know that the current user is a new or returning user.
+
+# Testing our Logic
+
+Run the app a couple times and sign up to create a few new users. Each time you sign-up with a new user, you should see `New user!` printed to the debug console. You should be able to verify the creation of these new `FIRAuth` users in your Firebase project dashboard.
+
+Now write down the email/password credentials for one of the new `FIRUser` you recently signed up with so we can test logging in with an existing user. 
+
+Run the app a couple more times and try testing the login functionality.
+
+You'll notice that even though we're logging in as an existing user, our logic is entering the else clause and printing `New user!` to the console. 
+
+This isn't what we expected! When we log in with an existing `FIRUser` we want it to enter the if clause that prints `User already exists \(userDict.debugDescription)`.
+
+Can you guess why our code isn't working like we expect it to?
+
+If you open your Firebase overview in your browser and click on the database tab, you'll notice that it's currently empty. Even when we sign up with new users, our database still remains empty.
+
+Our current code reads from the `users/#{uid}` relative path to see if a user JSON object exists in the database, but because we never write any data when users first sign up with `FIRAuth`, and reads from the Firebase database will always return `nil`.
+
+We'll fix this by handling the new user login flow in the next section, but before we move on, we'll first refactor some of the code that we've written.
 
 # Refactoring Users
 
@@ -222,7 +242,7 @@ Here we've created a basic user class that has two properties, a UID and usernam
 
 Next, we'll look at creating our first failable initializer to initialize a user from a `FIRDataSnapshot`.
 
-## What is a failable initializer?
+## What is a Failable Initializer?
 
 Failable initializers allow the initialization of an object to fail. If an initializer fails, it'll return nil instead. This is useful for requiring the initialization to have key information. In our case, if a user doesn't have a UID or a username, we'll fail the initialization and return nil. Add the following to your User init methods:
 
