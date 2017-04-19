@@ -3,11 +3,13 @@ title: "Refactoring Stringly Typed Code"
 slug: refactoring-stringly-typed-code
 ---
 
-In the last sections, we successfully setup our authentication system. Now let's take a second to go back and refactor some of our code so it'll be easier to build and debug later.
+In the previous few sections we implemented our first feature: authentication and managing new/existing users. Before we move on to building out the main flow of the app, we'll pause to refactor our current code. Refactoring and cleaning up your code will make it easier to build and debug your app in the future.
 
 # Refactoring Show User
 
-We refactored create user to our UserService but we didn't refactor our `LoginViewController` to remove the networking logic as well. Let's go ahead and do this. We'll create a new method in our service class to read a user from the database.
+We refactored the method for creating an user to our UserService but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `FIRDatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
+
+Create a new class method in our `UserService` for reading a user from the database:
 
     struct UserService {
         static func show(forUID uid: String, completion: @escaping (User?) -> Void) {
@@ -24,7 +26,7 @@ We refactored create user to our UserService but we didn't refactor our `LoginVi
         // ...
     }
 
-Now we can remove the networking code in Login View Controller like the following:
+Now we can remove the networking code in `LoginViewController` like the following:
 
     UserService.show(forUID: user.uid) { (user) in
         if let user = user {
@@ -44,9 +46,27 @@ Now we can remove the networking code in Login View Controller like the followin
 
 # Stringly Typed Constants
 
-You may have noticed, several times within our code we use strings as identifiers for storyboards, segues, dictionary keys, etc. Although it clearly works, it's bad practice to have what's referred to as "stringly-typed" code because it's very error-prone to misspelling and the compiler can't help us catch these bugs. The two most common ways to remedy this are creating static constants and/or using enums.
+You may have noticed, several times within our code we use strings as identifiers for storyboards, segues, dictionary keys, etc. Although our code works, it's bad practice to have what's referred to as "stringly-typed" code because it's very error-prone to misspelling and the compiler can't help us catch these bugs. 
 
-Let's start with the easier of the two and create a Constants.swift file. We'll put this in the Supporting subdirectory. In here, we'll create static constants that we can use throughout our code.
+A common example you might run into is misspelling the name of a segue identifier in storyboard. Previously we set the segue identifer from our `LoginViewController` to the `CreateUsernameViewController` to be `toCreateUsername`.
+
+It's a very common mistake to type:
+
+    self.performSegue(withIdentifier: "createUsername", sender: self)
+
+Instead of:
+
+    self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+    
+You can see how these mistakes are very easy to make. Let's take a look at the two most common ways of protecting ourselves from stringly typed code: static constants and enums!
+
+## Creating Constants
+
+Let's start with the more basic of the two solutions: constants. Create a new `Constants.swift` file in your Supporting directory. We'll store our string identifiers as static constants so we can reuse throughout the app without worrying about misspelling them. In fact, Xcode can now help us out with autocomplete!
+
+![Create Constants File](asssets/create_constants_file.png)
+
+Create a Constants struct inside of your `Constants.swift` file:
 
     import Foundation
 
@@ -54,7 +74,7 @@ Let's start with the easier of the two and create a Constants.swift file. We'll 
 
     }
 
-Let's add a constant to get rid of our stringly typed segue identifier in our LoginViewController. Let's add the following to our constants file:
+Let's add our first constant to get rid of our stringly typed segue identifier in our LoginViewController. Let's add the following to our constants file:
 
     struct Constants {
         struct Segue {
@@ -62,7 +82,7 @@ Let's add a constant to get rid of our stringly typed segue identifier in our Lo
         }
     }
 
-Now back in our LoginViewController file we can change the following:
+Now back in our `LoginViewController` file we can change the following:
 
     ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
         if let user = User(snapshot: snapshot) {
@@ -78,13 +98,27 @@ Now back in our LoginViewController file we can change the following:
         }
     })
 
-As you can see, we've removed the string identifier for `toCreateUsername` and replaced it with a Constant. Now we can reuse in other view controllers if needed, use autocomplete and the compiler will throw an error if we make any spelling mistakes.
+As you can see, we've removed the string identifier for `toCreateUsername` and replaced it with a constant from our `Constants.swift` file. As you can see the main benefits of storing stringly typed identifiers are:
+
+- constants can be reused in other code
+- Xcode will allow us to quickly remember and fill in constants with autocomplete
+- the compiler will throw a error if we misspell an identifier
+
+Pretty handy! Let's take look at the second way of handling stringly typed code: enums!
 
 # Using Enums
 
-The other method we can use is enums. Let's use enums to clean up our references initialize storyboards. First we'll create a new extension file to extend UIStoryboard. We'll name it `Storyboard+Utility.swift`. 
+Enums are a powerful data-type in Swift that can be used in many cool ways. Let's use enums to clean up our references to initialize storyboards. Currently, the way we initialize a storyboard is with the following code:
 
-Inside let's extend UIStoryboard with the following enum:
+    let storyboard = UIStoryboard(name: "Main", bundle: .main)
+    
+You can see we have a stringly typed identifier of Main that refers to the filename of our `Main.storyboard` file.
+
+Let's see how enums help solve this problem. First create a new file called `Storyboard+Utility.swift` to contain some useful extensions for the `UIStoryboard` class. Make sure you create the new file in the appropriate directory and create a new group for it as well:
+
+![Extension Group](assets/extension_group.png)
+
+Inside our new `Storyboard.Utility.swift` file, extend `UIStoryboard` with the following enum:
 
     import UIKit
 
@@ -99,7 +133,11 @@ Inside let's extend UIStoryboard with the following enum:
         }
     }
 
-We need to add a filename computed variable so we can create a convenience initializer that will initialize the correct storyboard based on filename. Let's now create a convenience initializer in UIStoryboard:
+You'll notice we created a new enum within the `UIStoryboard` class called `MGType`. If you're wondering about the name, `MG` are simply initials for Makestagram to identify that this enum was created by our app. This will help avoid potential naming conflicts with Apple or other third-party libraries.
+
+Our enum contains a case for each of our app's storyboards. We also create a computed variable that capitalizes the `rawValue` of each case. This computed variable returns the corresponding filename for each storyboard.
+
+Next, we create a convenience initializer that will make user of our enum. It'll allow use initialize the correct storyboard based each enum case. Right below the closing curly brace of `MGType` add the following convenience initializer:
 
     extension UIStoryboard {
         // ...
@@ -109,7 +147,7 @@ We need to add a filename computed variable so we can create a convenience initi
         }
     }
 
-Now whenever we want to access a storyboard we can use the following initializer:
+Now whenever we want to access a storyboard we can use the following:
 
     let loginStoryboard = UIStoryboard(type: .login)
 
@@ -144,8 +182,12 @@ And change it to the following:
     self.view.window?.rootViewController = initialViewController
     self.view.window?.makeKeyAndVisible()
 
-Not only do we no longer need to create a instance of the storyboard, we also don't need to optionally unwrap the initial view controller for our storyboard. In addition, if our storyboard doesn't have a initial view controller, our app will crash with an error message that directly points us to the problem of what we need to fix.
+We no longer have to optionally unwrap the initial view controller and instead can use our convenience class method for getting a reference to the initial view controller of a storyboard. On top of that, everything is type safe!
 
-Let's go back through our code and change all cases where we're initializing storyboards with a string identifier to use our new initializer. Don't forget about the AppDelegate!
+# Wrapping Up
 
-<!-- should we abstract away? hard to, make just explain what makeKeyAndVisible does -->
+In this section, we refactored our existing code so that it's more managable as we continue to build. Refactoring may seem tedious in the moment, but pays off as we add more and more features and our app becomes more and more complex.
+
+As you advance in iOS development, you'll realize that you're not only building the codebase to add more features, but you're also building reusable components and evolving the Swift language itself to make it easier to build your app.
+
+Before you move onto the next section, remember to refactor all of your stringly typed code for changing root view controllers in your `AppDelegate`, `LoginViewController` and `CreateUsernameViewController` to use our new extensions.
