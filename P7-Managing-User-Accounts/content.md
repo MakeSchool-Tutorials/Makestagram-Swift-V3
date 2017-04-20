@@ -55,7 +55,7 @@ To read data, we'll first need to create a location to where we want to read fro
         // 2
         let rootRef = FIRDatabase.database().reference()
         // 3
-        let userRef = rootRef.child("users").child(user.uid)  
+        let userRef = rootRef.child("users").child(user.uid)
 
         // 4 read from database with userRef
     }

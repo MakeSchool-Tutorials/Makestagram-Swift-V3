@@ -157,7 +157,7 @@ Modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swift` as
 
     @IBAction func nextButtonTapped(_ sender: UIButton) {
         // 1
-        guard let user = FIRAuth.auth()?.currentUser,
+        guard let firUser = FIRAuth.auth()?.currentUser,
             let username = usernameTextField.text,
             !username.isEmpty else { return }
 
@@ -279,7 +279,7 @@ Let's make sure everything works as expected. Run the app and create a new user 
 
 # Changing the Root View Controller
 
-After creating a new user in our view controller, we want to let the user into the main flow of the app. To do that we need to change the current window's root view controller. Just as we initially set the root view controller in the app delegate to the intial view controller of the login storyboard, after the user has logged in, we need to change it back to the main storyboard.
+After creating a new user in our `CreateUsernameViewController`, we want to let the user into the main storyboard of the app. To do that we need to change the current window's root view controller. Just as we initially set the root view controller in the `AppDelegate` to the intial view controller of the login storyboard, after the user has logged in, we need to change it back to the main storyboard.
 
 Add the following code below:
 
@@ -290,13 +290,13 @@ Add the following code below:
         }
 
         // 1
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        let storyboard = uistoryboard(name: "main", bundle: .main)
 
         // 2
-        if let initialViewController = storyboard.instantiateInitialViewController() {
+        if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
             // 3
-            self.view.window?.rootViewController = initialViewController
-            self.view.window?.makeKeyAndVisible()
+            self.view.window?.rootviewcontroller = initialviewcontroller
+            self.view.window?.makekeyandvisible()
         }
     }
 
@@ -312,14 +312,14 @@ Let's run the app and test it out! You may need to delete the user JSON object i
 
 Simliarly to our approach to new users, if we recieved an existing user on our login view controller, we also want to redirect them to the main storyboard by setting the window's root view controller.
 
-Go ahead and add the following code to our login view controller. This is the exact same code we used to set the root view controller after a new user was created.
+Go ahead and add the following code to our `LoginViewController`. This is the exact same code we used to set the root view controller after a new user was created.
 
     ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
         if let _ = User(snapshot: snapshot) {
-            let storyboard = UIStoryboard(name: "Main", bundle: .main)
-            if let initialViewController = storyboard.instantiateInitialViewController() {
-                self.view.window?.rootViewController = initialViewController
-                self.view.window?.makeKeyAndVisible()
+            let storyboard = uistoryboard(name: "main", bundle: .main)
+            if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
+                self.view.window?.rootviewcontroller = initialviewcontroller
+                self.view.window?.makekeyandvisible()
             }
         } else {
             self.performSegue(withIdentifier: "toCreateUsername", sender: self)
