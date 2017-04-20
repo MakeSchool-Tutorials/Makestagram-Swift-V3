@@ -3,30 +3,46 @@ title: "Keeping Users Logged In"
 slug: keeping-users-logged-in
 ---
 
-When testing the previous step, you may have noticed that each time we ran the app, we were redirected back to the login screen. This makes it slow to test whenever we add new features. From a user's perspective, once they sign up or log in for an app, they don't want to have to enter thier credidentials to log in again every time they open the app.
+When testing our code in the previous section, we were forced to reauthenticate ourselves every time we ran the app. The process of reauthenticating over and over again is tedious and makes us less likely to run our code often! We want to make it fast and easy to test new features.
 
-In other words, once a user is authenticated, they should stay logged into the app until they delete the app or log out. To make this work, we'll need some sort of local persistence on the app that can tell us on app launch if the user is already logged in. A perfect job for UserDefaults.
+From the perspective of a user who downloaded your app, it would be annoying to have to remember my email/password and typing it out each time I open your app. Imagine if if you had to reauthenticate yourself every time you opened your favorite app?
+
+For both reasons, once a user is authenticated into your app, we want their authentication to persist between app uses. They should stay logged in and authenticated until they delete the app or log out. To implement this functionality, we'll need to use local persistance to store some data on the user's device that tells us whether the user has previously authenticated.
+
+Let's learn about `UserDefaults` and how it can help us do this!
 
 # What is UserDefaults?
 
-UserDefaults is an easy way to store a small amount of non-sensitive data locally on the user's phone. It should typically be used to store flags. If you're looking to persist large amounts of information, a solution like CoreData or Realm is much more suitable.
+`UserDefaults` is an quick way to store small amounts of non-sensitive data on the user's phone. It is typically used to store flags such as whether the user has logged in. 
 
-Using UserDefaults to store data is really easy. To write data, you access the UserDefaults singleton and use the provided instance methods to store various types of information like so:
+`UserDefaults` is not for storing large amounts of data on the user's device. Use *Core Data* or *Realm* instead.
+`UserDefaults` is not for storing important, sensitive information like passwords or auth tokens. Use *Keychain* instead.
+
+Using UserDefaults to store data is really easy. To write data, access the `UserDefault` singleton and use the provided instance methods to store various types of information like so:
 
     // write data
     UserDefaults.standard.set(false, forKey: Constants.UserDefaults.isFirstTimeUser)
 
-To read information from UserDefaults:
+To read information from `UserDefaults`:
 
     // read data
     let isFirstTimeUser = UserDefaults.standard.bool(forKey: Constants.UserDefaults.isFirstTimeUser)
 
-Keep in mind that all contents of UserDefaults is deleted when an user deletes the app from their phone.
+If a user removes your app from their phone, all content stored within `UserDefault`s will also be deleted.
 
 # Persisting our User
 
-To manage whether the user is logged in, we'll be storing our current user object. In order to archive a custom class, we need to use `NSKeyedArchiver` to turn our user object into a `Data` type. In order to do so, we'll need to make sure `User` inherits from `NSObject`. Also we'll need to add `super.init()` to our initializers to make sure we're using NSObject's initializer.
+To persist authentication, we'll use `UserDefaults` to store our `User` singleton between sessions. Storing a custom class in `UserDefaults` requires a little additional setup. We'll need to use `NSKeyedArchiver` to convert our class from type `User` to the `Data` type.
 
+To use `NSKeyedArchiver` to archive our `User`, we'll need to:
+
+1. Have `User` must subclass `NSObject`
+2. `User` implement the `NSCoding` protocol
+
+## Subclassing NSObject
+
+Add the `NSObject` superclass to your `User` class. We'll also need to add `super.init()` to our initializers to make sure we're calling `NSObject`'s initializer to initialize the class.
+ 
     class User: NSObject {
 
         // ...
@@ -46,7 +62,7 @@ To manage whether the user is logged in, we'll be storing our current user objec
 
 ## Implementing the NSCoding Protocol
 
-Next we'll need to implementing the `NSCoding` protocol so the user object can properly be archived as Data. Add the following extension to the bottom of the `User.swift` file.
+Next we'll need to implementing the `NSCoding` protocol so the user object can properly be encoded as `Data`. Add the following extension to the bottom of the `User.swift` source file:
 
     extension User: NSCoding {
         func encode(with aCoder: NSCoder) {
@@ -78,9 +94,11 @@ If you try to build the app right now, the compiler with throw an error saying o
         
         self.uid = uid
         self.username = username
+
+        super.init()
     }
     
-Great! Now we've successfully implemented the `NSCoding` protocol. Now we can store our current user in UserDefaults.
+Great! Now we've successfully implemented the `NSCoding` protocol. Now we can store our current user in `UserDefaults`.
 
 # Storing our Current User in User Defaults
 
@@ -102,12 +120,12 @@ We'll create an option in our `setCurrent(_:)` method to persist the current use
     
 Let's break this down:
 
-1. We add another parameter that takes a Bool on whether the user should be written to UserDefaults. We give this value a default value of false.
-2. We check if the boolean value for `writeToUserDefaults` is true. If so, we write the user object to UserDefaults.
+1. We add another parameter that takes a `Bool` on whether the user should be written to `UserDefaults`. We give this value a default value of `false`.
+2. We check if the boolean value for `writeToUserDefaults` is `true`. If so, we write the user object to `UserDefaults`.
 3. We use `NSKeyedArchiver` to turn our user object into `Data`. We needed to implement the `NSCoding` protocol and inherit from `NSObject` to use `NSKeyedArchiver`.
-4. We store the data for our current user with the key for our current user in `UserDefaults`.
+4. We store the data for our current user with the correct key in `UserDefaults`.
 
-Great, now we can use this method to store our current user in UserDefaults. Let's go to our `LoginViewController` to make use of this method when an existing user logs in.
+Great, now we can use this method to store our current user in `UserDefaults`. Let's go to our `LoginViewController` to make use of this method when an existing user logs in.
 
     UserService.show(forUID: user.uid) { (user) in
         if let user = user {
@@ -142,8 +160,12 @@ Now whenever a user signs up or logs in, the user will be stored in UserDefaults
 
 # Keeping Users Logged In on Launch
 
-To finish up, we need to add some logic that checks user defaults to see if data with the currentUser key exists and set the rootViewController accordingly. In our `AppDelegate` add the following code to the bottom of the file:
+To finish up, we need to add some logic that checks `UserDefaults` for the `currentUser` key when the app first launches. If the the data exists, we'll know that the user has been previously authenticated and set the rootViewController accordingly. 
 
+
+> [action]
+In our `AppDelegate` add the following code to the bottom of the file:
+>
     extension AppDelegate {
         func configureInitialRootViewController(for window: UIWindow?) {
             let defaults = UserDefaults.standard
@@ -165,7 +187,9 @@ To finish up, we need to add some logic that checks user defaults to see if data
         }
     }
     
-Here we figure out which initial view controller from each respective storyboard users should use based on whether the FIRUser single exists and if we can successfully unarchive our current user from `UserDefaults`.
+In our new method, we determine which storyboard's initial view controller should be set as the `rootViewController` of the window.
+
+If the `FIRUser` singleton already exists and we unarchive data for the `currentUser` key from `UserDefaults`, we know the user has previously been authenticated on the current device. This allows us to skip the login flow.
 
 Now we can change our `application(_:didFinishLaunchingWithOptions:)` method to look like this:
 
@@ -177,6 +201,6 @@ Now we can change our `application(_:didFinishLaunchingWithOptions:)` method to 
         return true
     }
     
-If we run the app and authenticate ourselves, we'll find that if we close the app and run it again that we're directed to the appropriate initial view controller. Try it out a few times. If want to get back to the authentication screen, simply delete the app and all the information stored in `UserDefaults` will be deleted.
+Run the app and go through the login flow. Terminate the app and run it again. You'll notice that we're now directed to the appropriate initial view controller based on whether we previously authenticated with Firebase.
 
-<!-- next i need to do take picture, home screen, and follows -->
+Currently, we haven't implemented a way to log out, switch users, and get back to the `LoginViewController`. However, a easy hack around this is deleting the app and installing it again on your phone. Remember each user's `UserDefaults` will be cleared when the app is deleted from their phone.
