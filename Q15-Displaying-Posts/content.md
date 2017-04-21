@@ -3,24 +3,32 @@ title: "Fetching Data from Firebase and Building the Timeline"
 slug: fetching-data-firebase-timeline
 ---
 
-We have spent the last few steps discussing how to store data in Firebase. In this step we will look at how to fetch it!
-Throughout this step we will discuss the basics of querying data, while starting to work on the important _Timeline_ feature of **Makestagram**.
+Our app is now able to create and store posts in Firebase. In this section, we'll look at building the next feature: the timeline. Our timeline will retrieve post data from our database and display it to our user.
 
 As a first step in implementing the _Timeline_ feature, we will set up the basic UI for the `HomeViewController`.
 
-# Adding a Navigation Controller
+# Creating a Home Storyboard
 
-Before we do anything else, let's first add a navigation controller to the hiearchy of our `HomeViewController`. Select the `HomeViewController` and click on the menu item `Editor`>`Embed In`>`Navigation Controller`.
+As we've discussed in previous sections, we want to keep our storyboard files small and contained to individual user flows of the app. We'll begin by refactoring our existing `HomeViewController` into it's own storyboard file.
 
-Your storyboard should now look like this:
+## Adding a Navigation Controller
 
+First, we'll add a navigation controller to our `HomeViewController`. This will give our `HomeViewController` a navigation bar and allow us to easily segue to new view controllers in the future.
+
+> [action]
+Open `Main.storyboard` and select the `HomeViewController`; click on top menu item `Editor`>`Embed In`>`Navigation Controller`:
 ![Embed Home View Controller](assets/nav_controller_home.png)
 
-# Refactoring to Storyboard
+## Refactoring to Storyboard 
 
-Let's keep our storyboards small and keep separate parts of our app organized. Select the `NavigationController` and `HomeViewController` and click on the menu item `Editor`>`Refactor to Storyboard`. This will prompt you to create a new storyboard. Create a new storyboard in the Storyboard folder called `Home.storyboard`. You now have refactor one of the tab bar view controllers into another storyboard.
+Next we'll repeat a similar process. 
 
-Your `Main.storyboard` file should now look like this:
+> [action]
+1. Select both the `UINavigationController` and `HomeViewController` by clicking and dragging so that both are selected
+2. Click on the top menu item `Editor`>`Refactor to Storyboard`
+3. Create your new `Home.storyboard` file in the Storyboards folder
+
+You have now refactored one of the tab bar view controllers into another storyboard. Your `Main.storyboard` file should now look like this:
 
 ![Refactored Storyboard](assets/refactored_storyboard.png)
 
@@ -37,20 +45,23 @@ Open _Main.storyboard_ and add a Table View to the _HomeViewController_. The res
 >
 ![image](assets/tableview_hiearchy.png)
 
-Next we want to set the constraints. Make sure that the tableView's top and bottom constraints are to the view, not the top and bottom layout guide respectively.
+Next we want to set the constraints. Make sure that the tableView's top and bottom constraints are to the view controller's view, not the top and bottom layout guides.
 
-##Defining a Table View Data Source
+## Defining a Table View Data Source
 
 In order to fill this table view with data, we need to define a data source (just as we did in the _Make School Notes_ app).
 
 > [action]
 Set the `HomeViewController` to be the data source of the table view.
 
-<!-- insert image of setting up tableview datasource -->
-
 # Creating the Home View Controller
 
-Let's create the associated code file with our `HomeViewController`. Add a new file to your project called `HomeViewController.swift`. Make sure you set the class of the `HomeViewController` scene in the storyboard under the identity inspector.
+Let's create the associated source file with our `HomeViewController`. 
+
+> [action]
+Create a new file called `HomeViewController.swift`. Make sure you set the class of the `HomeViewController` scene in the storyboard under the identity inspector.
+
+<!-- can insert image here of code create and class set -->
 
 ## Defining a Referencing Outlet
 
@@ -66,52 +77,61 @@ We'll need a cell to display the posts that we download. Let's add it to the Tab
 
 ![Add Storyboard Cell](assets/add_cell.png)
 
-Next, select the cell and open the attributes inspector. We want to add a `Reuse Identifer` so we can reference our cell in code. First set the reference to `PostCell`.
+Next, select the cell and open the attributes inspector. We want to add a `Reuse Identifer` so we can reference our cell in code. Set the identifier to `PostCell`.
 
-# Basics of Querying in Firebase
+# Reading Data from Firebase
 
 We retrieve data the same way we did in our login flow. First we'll setup a way to retrieve all of our user's post. Later in this tutorial, we'll setup building a timeline of posts from followers.
 
-Here we'll create another class method in our `UserService`. This method will retrieve all of a user's post from Firebase.
+Similar to our `User` model, let's create a failable initialer in our `Post` class to take a `FIRDataSnapshot`. 
 
-First let's create a failable initialer in our `Post` class to take a `FIRDataSnapshot`. Open your `Post.swift` class and add the following:
-
+> [action]
+Open your `Post.swift` class and add the following:
+>
     init?(snapshot: FIRDataSnapshot) {
         guard let dict = snapshot.value as? [String : Any],
             let imageURL = dict["image_url"] as? String,
             let imageHeight = dict["image_height"] as? CGFloat,
             let createdAgo = dict["created_at"] as? TimeInterval
             else { return nil }
-        
+>
         self.key = snapshot.key
         self.imageURL = imageURL
         self.imageHeight = imageHeight
         self.creationDate = Date(timeIntervalSince1970: createdAgo)
     }
 
-Next we'll add the following to our `UserService` for fetching all of a user's posts from Firebase.
+Next we need a service method that will retrieve all of a user's posts from Firebase. This will be the data that we display in our timeline.
 
+> [action]
+Add the following class method to `UserService`:
+>
     static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
         let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
-        
+>
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
                 return completion([])
             }
-            
+>
             let posts = snapshot.reversed().flatMap(Post.init)
             completion(posts)
         })
     }
     
+We follow the same steps as previously discussed from reading from Firebase. Look through and make sure you understand what's going on!
+    
 Great! Now we have a method that will fetch and return all of our posts from Firebase from a given user. We can use this to display the posts we've made so far. Let's go back to our `HomeViewController` and display our posts.
 
 # Displaying our Posts
 
-In the future, we want our `HomeViewController` to display a timeline of posts from people we're following, but for now we're going just dispay our own.
+In the future, we want our `HomeViewController` to display a timeline of posts from people we're following, but for now we're going just display our own posts that we've made.
 
-First we'll need to setup our `HomeViewController` to have a datasource. Let's go ahead and initialize an empty array of posts.
+First we'll need to setup our `HomeViewController` to have a data source. 
 
+> [action]
+Create an empty array of posts in `HomeViewController`:
+>
     var posts = [Post]()
     
 Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` array.
@@ -124,7 +144,7 @@ Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` arra
         }
 
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath)
             cell.backgroundColor = .red
 
             return cell
@@ -150,4 +170,4 @@ If you open your Firebase project and navigate to the database, you should be ab
 
 # Conclusion
 
-Admittedly the app is still looking pretty boring - but with the timeline query you have implemented a very important feature! To make our progress a little bit more visual, we will focus on displaying posts with images in the next step!
+Admittedly the app is still looking pretty boring - but you have implemented the foundation for a very important feature. To make our progress more visual, we'll focus on displaying the posts with images in the next step.

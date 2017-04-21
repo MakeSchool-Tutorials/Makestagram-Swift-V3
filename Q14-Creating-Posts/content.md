@@ -3,6 +3,9 @@ title: "Improving the Upload Code and Adding a Post Class"
 slug: improving-photo-upload-firebase
 ---
 
+<!-- need to add images -->
+<!-- rethink about image height calculation -->
+
 Now it's time to move from a working solution to a good one. We need to store more information along with the `Post` that we're creating. Right now we are only storing the image file, but we also need to store the `User` to which the post belongs. 
 
 This means that we'll need to create a `Post` class.
