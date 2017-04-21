@@ -3,52 +3,66 @@ title: "Uploading Photos to Firebase"
 slug: uploading-photos-to-firebase
 ---
 
-Up until now, we have interacted mainly with FirebaseAuth and the Firebase Realtime Database. Moving forward, we'll take our first look at Firebase Storage which is built on Google's cloud storage platform. Both Snapchat and Spotify use the same technologies in production. In this step you will learn how to store media using Firebase. Later on, you'll also learn how to retrieve and download your media.
+Up until now, we have interacted mainly with `FirebaseAuth` and the `Firebase Realtime Database`. Moving forward, we'll take our first look at `Firebase Storage` which is built on Google's cloud storage platform. Both *Snapchat* and *Spotify* are using the same *Google* infrastructure in production. In this section you will learn how to store media, specifically photos, using Firebase. Later on, you'll also learn how to retrieve and download your media.
 
-In this step we will write the code that uploads our photo to Firebase!
+Let's start coding the functionality that uploads our photo to Firebase!
 
-# Writing Information to Firebase
+# Writing Media to Firebase
 
-Which steps are involved in writing media to Firebase? In most cases, it is a three step process. Here's the simplest example from the Firebase Storage docs:
+In most cases, writing media to Firebase includes three steps. Here's the simplest example from the *Firebase Storage* documentation:
 
-    // Media Data in memory
+    // 1 Media Data in memory
     let data = Data()
 
-    // Create a reference to the file you want to upload
+    // 2 Create a reference to the file you want to upload
     let riversRef = storageRef.child("images/rivers.jpg")
 
-    // Upload the file to the path "images/rivers.jpg"
+    // 3 Upload the file to the path "images/rivers.jpg"
     let uploadTask = riversRef.put(data, metadata: nil) { (metadata, error) in
       guard let metadata = metadata else {
-        // Uh-oh, an error occurred!
+        // 4 Uh-oh, an error occurred!
         return
       }
-      // Metadata contains file metadata such as size, content-type, and download URL.
+      // 5 Metadata contains file metadata such as size, content-type, and download URL.
       let downloadURL = metadata.downloadURL
     }
 
 The three steps in this code snippet are:
 
 1. First we need to convert our media to type `Data`
-2. We need to create a relative path for where we're going to store our media and what we'll name the data
-3. Last we upload it to the specified location
+2. We need to create a relative path to the location at which we'll store our media and what we'll name the data. In this example, data is being stored in the `/images` location with a filename of `rivers.jpg`
+3. With `Data` and a location to store the data, we can upload our `Data` to the location specified in the previous step
+4. After the upload has completed, if there an error, we'll be able to handle it here
+5. If there was no error, we'll be able to access a download URL for where our `Data` was stored
 
-After the last step completes, your data is stored in Firebase's cloud storage. If you go to your Firebase project overview and click on the Storage tab, you can see all your folders and media stored in Firebase.
+You can confirm that your data is stored in `Firebase Storage` by opening your Firebase dashboard in your browser and navigating to the `Storage` tab. Here, you'll be able to see an overview of all media files store in `Firebase Storage`. You can also view, delete and download files stored here:
 
-#Adding the Upload Code
+![Firebase Storage Overview](assets/firebase_storage.png)
 
-Why is our use case a little bit more complicated than the one shown above? Primarily because not only do we want to upload an image, but we also want to create an instance of a `Post` class.
+# Adding the Upload Code
 
-Instead of storing the image data itself with our `Post`, we'll be storing the image URL to download the image. To do this, we'll first need to create some methods to help us upload our image to Firebase. Let's create a service layer as an interface between our app and Firebase Storage. Create a new file called `StorageService.swift` in the `Services` folder.
+Our code will follow the same steps above to upload an image to Firebase, however, we'll add some more code to handle creating a `Post` object in our database after the upload is completed.
+
+Our strategy for creating a new `Post` object in our database will be:
+
+1. Upload the image to `Firebase Storage`
+2. Write a new `Post` object in our database that stores the image URL returned in the previous step
+
+You can see that our media data and database JSON object will be stored in separate Firebase services. We cannot store `Data` in the `Firebase Realtime Database`, just as we cannot store our accompanying `Post` JSON in `Firebase Storage`. Instead we'll use the `Firebase Storage` and `Firebase Realtime Database` together to build the functionality we want.
+
+First, let's create a method that will help us upload an image to Firebase. We'll create a new service as an inteface between our app and `Firebase Storage`.
+
+> [action]
+Create a new file called `StorageService.swift` in the `Services` directory:
 
     import UIKit
     import FirebaseStorage
 
     struct StorageService {
-        // provide methods for uploading images
+        // provide method for uploading images
     }
 
-Next we'll create a class method that will help us upload images to Firebase Storage. Add the following code in `StorageService.swift`:
+Next we'll create a class method that will help us upload images to `Firebase Storage`. Add the following code in `StorageService.swift`:
 
     static func uploadImage(_ image: UIImage, at reference: FIRStorageReference, completion: @escaping (URL?) -> Void) {
         // 1
@@ -71,14 +85,14 @@ Next we'll create a class method that will help us upload images to Firebase Sto
 
 Let's break down the code:
 
-1. First we change the image from an `UIImage` to `Data` and reduce the quality of the image. If we can't convert the image into `Data`, we return nil to the completion callback to signal something went wrong.
+1. First we change the image from an `UIImage` to `Data` and reduce the quality of the image. It is important to reduce the quality of the image because otherwise the images will take a long time to upload and download from `Firebase Storage`. If we can't convert the image into `Data`, we return nil to the completion callback to signal something went wrong.
 2. We upload our media data to the path provided as a parameter to the method.
 3. After the upload completes, we check if there was an error. If there is an error, we return nil to our completion closure to signal there was an error. Our `assertFailure` will crash the app and print the error when we're running in debug mode.
 4. If everything was successful, we return the download URL for the image.
 
 ## Creating a Post
 
-We want to create a post whenever we upload a new image. Let's first start by create a `PostService.swift` file to keep our code clean. Add the follow to your `PostService.swift` file:
+Accompanying each image upload will be a new post. Let's create a new service for our `PostService`. Add the follow to our `PostService.swift` source file:
 
     import UIKit
     import FirebaseStorage
@@ -87,7 +101,7 @@ We want to create a post whenever we upload a new image. Let's first start by cr
 
     }
 
-Next let's create a class method for creating a `Post` from an image. 
+Next let's create a class method within our new service for creating a `Post` from an image:
 
     static func create(for image: UIImage) {
         let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
@@ -101,26 +115,30 @@ Next let's create a class method for creating a `Post` from an image.
         }
     }
 
-Last, to tie things together, let's use our new class method in our `PostService` in our `MainTabBarController`.
+To tie things together, let's use our new service to upload a new image to `Firebase Storage`. Once the user selected an image from the `UIImagePickerController`, the `completionHandler` property of our `MGPhotoHelper` will be executed. Let's change the closure we pass to upload the image once it's selected. Open `MainTabBarController` and change the following in `viewDidLoad`:
 
     photoHelper.completionHandler = { image in
         PostService.create(for: image)
     }
 
-##Testing the Uploading Code
+## Testing the Uploading Code
 
-Now it's time to test our solution! Run the app and select an image. 
+Now it's time to test our solution! Run the app and select an image from `UIImagePickerController`. After selecting an image, you should see the following in your debug console:
 
-Let's see if our upload actually worked as expected.
+![Debug Output](assets/debug_output.png)
 
-The best way to do that is to go to our Firebase project and navigate to the storage tab. If everything went right, we should see the `test_image.jpg`. This page will give us a nice overview of all the objects that are created on our server.
+Another way to confirm our image upload worked is through our Firebase dashboard. Open your Firebase project overview in your browser and click the `Storage` tab. You should see `test_image.jpg` in the root directory of your `Firebase Storage`:
 
-To be 100% sure that everything worked correctly, you can double-click onto the file column, and Firebase will download the image that you have uploaded from the simulator.
+![Test Image](assets/stored_test_image.png)
 
-#Conclusion
+If you select the checkbox, you can download the image and confirm that it is the same image you uploaded previously:
+
+![Download Image](assets/download_image.png)
+
+# Conclusion
 
 **Congratulations!** This means you have successfully uploaded data to Firebase! This is an important step towards building **Makestagram**.
 
-Right now we are only uploading the image file, however we'll need to create a representation in of our new `PostService` in our database so we can store other information such as the user.
+Right now we are only uploading the image file, however we'll also need to create a `Post` object in our database so we can store other related information such as which user owns the post.
 
-In the next step we will move from this very simple upload code to a more mature solution.
+In the next section we will move from this very simple upload code to a more mature solution for creating new posts.
