@@ -3,35 +3,49 @@ title: "Improving the UI"
 slug: improving-the-ui
 ---
 
-In this section, we're going to take our `PostImageCell` and add some more UI elements to make our `HomeViewController` look better. Let's finish creating the UI for our post. Aside from our `PostImageCell`, we'll also need a post header above each image, as well as an action cell so users can give likes to posts.
+In this section, we'll focus on completing the UI elements for the `HomeViewController`. We're going to add two new cells to make each `Post` more like the final designs. In addition to the existing `PostImageCell`, we'll create a post header cell and an action cell where users can give likes to each post.
+
+We'll start by creating a new cell for the post header.
 
 # Creating a Post Header Cell
 
-We're going to implement a post header that follows the following design:
+Let's review the design we'll implement for each post:
 
 ![Post Design](aseets/post_design.png)
 
-We've created custom cells a couple of times now. Let's start by adding a new prototype cell in our Home storyboard. Select the cell and open the properties inspector. We're going to disable `Selection` style to `None` and give the cell an `Identifer` of `PostHeaderCell`.
+In this step we'll be focused on creating the header, or the UI above the image.
 
+Create a new custom cell:
+
+> [action]
+1. Open `Home.storyboard` and find the `HomeViewController`
+2. Drag a new prototype cell from the object library to the table view on `HomeViewController`
+3. Open the attributes inspector and change the cell style, selection style, and set the `Identifier` to `PostHeaderCell`
+>
 ![Post Header Properties](assets/header_properties.png)
 
-Next, let's customize the height of the cell on storyboard. Open the size inspector and set a custom `Row Height` of 54.
+Next, let's customize the height of the cell on storyboard. 
 
+> [action]
+Open the size inspector and set a custom `Row Height` of 54
 ![Header Row Height](assets/header_row_height.png)
 
-After we've finished configuring our cell, let's add some subviews onto our prototype cell. We'll add a `UILabel` to display the username of the poster and a options button for users to report inappropriate content.
+## Adding Subviews
+
+We've now created a new cell with some custom attributes. Let's move on to adding some subviews onto our prototype cell. In this step, we'll add a `UILabel` to display the username of the poster and a options button for users to report inappropriate content.
 
 ![Post Header Prototype Cell](assets/header_prototype.png)
 
+> [action]
 Drag a `UIButton` from the object library onto the prototype cell. Add the following constraints:
-
+>
 ![Options Button Constraints](assets/options_constraints.png)
-
+>
 Next, we'll do the same with a `UILabel` and add the following constraints:
-
+>
 ![Username Label Constraints](assets/username_constraints.png)
 
-Now that we've setup our subviews, we'll need to connect them to code. Create a new `PostHeaderCell.swift` that is a subclass of `UITableViewCell`. Make your file containts the following:
+After setting up our subviews, we'll need to connect them to code. Create a new `PostHeaderCell.swift` that is a subclass of `UITableViewCell`. Make your file containts the following:
 
     import UIKit
 
@@ -43,7 +57,7 @@ Now that we've setup our subviews, we'll need to connect them to code. Create a 
 
     }
 
-Next, let's add an IBOutlet for the username label. Open your Home storyboard and `PostHeaderCell` side by side with the assistant navigator and ctrl-drag from the username label to right above the `awakeFromNib` method:
+Add an IBOutlet for the username label. Open your Home storyboard and `PostHeaderCell` side by side with the assistant navigator and ctrl-drag from the username label to right above the `awakeFromNib` method:
 
     @IBOutlet weak var usernameLabel: UILabel!
 
@@ -72,9 +86,13 @@ Great! We've finished creating our `PostHeaderCell`. Now we'll move on to creati
 
 We'll repeat similar steps to do the same for creating a `PostActionCell` that will be displayed below each `PostImageCell`. Add another prototype cell in our Home storyboard below the `PostImageCell`.
 
-Make sure the `Selection` style is `None`, the cell `Identifier` is `PostActionCell` and the row height is 46. If you don't remember how to configure a custom table view go back to the last step to refresh your memory.
+Make sure the `Selection` style is `None`, the cell `Identifier` is `PostActionCell` and the row height is 46. If you don't remember how to configure a custom table view review the last step to refresh your memory.
 
-On our action cell, we'll add a button for users to like a post, a label to display the number of likes a post has, another label for a timestamp, and finally a custom separator. After adding the subviews, you prototype cell should look like the following:
+On our action cell, we'll add a button for users to like a post, a label to display the number of likes a post has, another label for a timestamp, and finally a custom separator. 
+
+Go ahead and add all of the subviews and set contraints that follow the design.
+
+After adding the subviews, you prototype cell should look like the following:
 
 [Action Cell Hiearchy](assets/action_cell_hiearchy.png)
 
@@ -108,9 +126,9 @@ We've successfully created two more cells that will help display our cell. Next 
 
 To display our newly added header and action cells, we'll need to reconfigure our table view data source and delegate. Instead of displaying a single cell, we now need to display 3 cells for each post: a header, image and action cell.
 
-To do this, we'll group table view into sections. Each section will represent a `Post`, with 3 rows for each respective cell.
+To do this, we'll group the table view into sections. Each `Post` will be it's own section with 3 rows for each respective cell.
 
-Add the following to our `UITableViewDataSource`:
+Add the following to the `UITableViewDataSource` extension:
 
     func numberOfSections(in tableView: UITableView) -> Int {
         return posts.count
@@ -153,7 +171,7 @@ Now that we've set up the data source to display the correct number of sections 
         }
     }
     
-Now that we've setup our data source, we'll need to move onto our `UITableViewDelegate`. The main thing we'll need to make sure of is that the height of each cell is being displayed correctly. Change your `UITableViewDelegate` to the following:
+We've successfully setup our data source and will move on to modifying our `UITableViewDelegate`. The main thing we'll need to make sure of is that the height of each cell is being displayed correctly. Change your `UITableViewDelegate` to the following:
 
     // MARK: - UITableViewDelegate
 
@@ -180,8 +198,12 @@ Run the app and see if your post now displays. It should look like the image bel
 
 ![Home View Controller](assets/home_working.png)
 
-# Adding a Navigation Bar title
+# Adding a Navigation Bar Title
 
-Let's add a navigation bar title at the top that says `Makestagram`. Go to your storyboard, click on the `HomeViewController` and set the title to `Makestagram`.
+Before moving on, we'll set a title for our `HomeViewController` navigation bar.
+
+> [action]
+Open `Home.storyboard` and select the `HomeViewController`. Open the property inspector and change the `Title` property of `View Controller` to `Makestagram`.
+![Set Nav Bar Title](assets/set_title.png)
 
 Great, now we've successfully setup some more UI for our posts. Let's move on and add the ability to like posts.
