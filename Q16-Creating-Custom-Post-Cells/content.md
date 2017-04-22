@@ -3,15 +3,21 @@ title: "Creating a Custom Post Table View Cell"
 slug: custom-table-view-cell-post
 ---
 
-As promised, this step will focus on displaying the photos associated with each post. To display the posts we will need to switch from the default table view cell that we are using right now to a custom one. Whenever you want to create a table view cell that doesn't use one of the few default layouts that iOS has to offer, you will end up creating a custom one.
+As promised, this step will focus on displaying the photos associated with each post. The design for our each `Post` will look like the following:
 
-#Setting up a Custom Table View Cell
+![Post Design](assets/post_design.png)
 
-First we want to set the view controller to respond to the `UITableViewDelegate`. Open your `Home.storyboard` and ctrl-drag from your storyboard to your view controller. Make sure the delegate is setup.
+In this section we'll go through the process of create a custom image cell that will display each post image.
 
-# Implementing UITableViewDelegate
+# Implementing the Table View Delegate
 
-Next, add the following to your view controller:
+Each `Post` image will be of varying size depending on the aspect height of the image. We'll need a way to dynamically adjust height of each image cell. We'll do this using the `tableView(_:heightForRowAt:)` method of `UITableViewDelegate`. This will first require us to make sure the table view's delegate property is set.
+
+> [action]
+Open `Home.storyboard` and select the table view of your `HomeViewController`. Ctrl-drag from from your storyboard to your view controller to set the delegate:
+![Set Table View Delegate](assets/set_delegate.png)
+
+Next we'll need to conform `HomeViewController` to `UITableViewDelegate`. Open `HomeViewController.swift` and add the following:
 
     // MARK: - UITableViewDelegate
 
@@ -23,41 +29,58 @@ Next, add the following to your view controller:
         }
     }
 
-This fetches the post associated with the cell that will be displayed. We then return the aspect height that we calculated for the post when creating the post.
+Implementing this method returns the height that each cell should be given an index path. This allows us to have cells that are varying heights within the same table view.
+
+# Setting up a Custom Table View Cell
+
+Next, to implement our custom cells, we'll need to configure the table view cell style from `Basic` to `Custom`. In addition, we'll switch the selection style from `Default` to `None`.
+
+> [action]
+Select your table view cell and update it's attributes in the attributes inspector:
+![Cell Attributes](assets/cell_attributes.png)
 
 Next we'll need to install a pod to download our image and display it in our table view cell.
 
-# Installing Kingfisher
+## Installing Kingfisher
 
-Navigate to the following [github link](https://github.com/onevcat/Kingfisher) and follow the instructions for downloading Kingfisher. You'll have to add `Kingfisher` to your pod file and type `pod install` to download the associated pod.
+Navigate to the following [github link](https://github.com/onevcat/Kingfisher) and follow the instructions for downloading *Kingfisher*. You'll have to add *Kingfisher* to your pod file and type `pod install` to download the associated pod.
 
-Kingfisher is a popular Swift library for asychronously downloading and caching images. We'll be able to use it like this:
+*Kingfisher* is a popular Swift library for asychronously downloading and caching images. We'll be able to use it like this:
 
     let url = URL(string: "https://domain.com/image.jpg")!
     imageView.kf.setImage(with: url)
     
-# Setting up our PostImageCell
+As you can see, *Kingfisher* allows us to easily download and turn `URL`s into `UIImage`s.
 
-Now that we have the ability to download images from URLs we're going to open our `Home.storyboard` and configure our prototype post cell. The way we'll build our cell, is that we'll have one cell for the header, one for the image, and one more for the actions. We'll group posts by sections and each section will have 3 rows for each respective cells.
+## Creating the PostImageCell
 
-The first one we'll configure is the `PostImageCell`. First let's create a new class for our cell. Create a new file called `PostImageCell.swift` that is a subclass of `UITableViewCell`. Replace the contents of the file with the following:
+Next we're going to implement displaying images for our `PostImageCell`. First, we'll need to create a source file for `PostImageCell`.
 
+> [action]
+Create a new source file in the `Views` directory called `PostImageCell` that is a subclass of `UITableViewCell`; replace the contents of the file with the following:
+>
     import UIKit
-
+>
     class PostImageCell: UITableViewCell {
-
+>
         override func awakeFromNib() {
             super.awakeFromNib()
         }
     }
-    
-Let's navigate to our Home storyboard and set the class of our prototype cell to be of type `PostImageCell`. Next let's change the default height of the prototype cell in the size inspector to be 375. After, we'll add an imageview to our cell and hook up the IBOutlet in our code. You should have the following:
 
+Next open `Home.storyboard` and do the following:
+
+
+> [action]
+1. Set the class of the cell to `PostImageCell` in the Identity Inspector
+2. Open the Size Inspector and change the default height of the prototype cell to be 375
+3. Drag an `UIImageView` from the object library onto your `PostImageCell`
+4. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
 ![Post Image Cell](assets/post_image_cell.png)
 
-Additionally we need to change the Content Mode of the image view. Currently it is set to the default value which is Scale To Fill. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the Content Mode to Aspect Fit.
+Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fit`.
 
-# Configuring the Post Image Cell
+# Displaying the Image
 
 Last, let's update our tableview's datasource to show our image. First let's import the Kingfisher library with the following line:
 
@@ -77,7 +100,7 @@ Change your `UITableViewDataSource` in your `HomeViewController` to the followin
 
 # Configuring our TableView
 
-Next let's add some configuration for our table:
+Next let's add some UI configuration for our table:
 
     func configureTableView() {
         // remove separators for empty cells
@@ -88,7 +111,7 @@ Next let's add some configuration for our table:
     
 Next let's call the method in our `viewDidLoad`:
 
-override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         
         configureTableView()
