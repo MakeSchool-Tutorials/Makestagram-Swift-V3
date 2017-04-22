@@ -70,7 +70,6 @@ Create a new source file in the `Views` directory called `PostImageCell` that is
 
 Next open `Home.storyboard` and do the following:
 
-
 > [action]
 1. Set the class of the cell to `PostImageCell` in the Identity Inspector
 2. Open the Size Inspector and change the default height of the prototype cell to be 375
@@ -90,7 +89,7 @@ Change your `UITableViewDataSource` in your `HomeViewController` to the followin
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let post = posts[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostImageCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as! PostImageCell
         
         let imageURL = URL(string: post.imageURL)
         cell.postImageView.kf.setImage(with: imageURL)

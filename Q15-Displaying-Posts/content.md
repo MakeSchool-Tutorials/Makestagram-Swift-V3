@@ -61,7 +61,7 @@ Let's create the associated source file with our `HomeViewController`.
 > [action]
 Create a new file called `HomeViewController.swift`. Make sure you set the class of the `HomeViewController` scene in the storyboard under the identity inspector.
 
-<!-- can insert image here of code create and class set -->
+![Create Home View Controller](assets/create_home_vc.png)
 
 ## Defining a Referencing Outlet
 
