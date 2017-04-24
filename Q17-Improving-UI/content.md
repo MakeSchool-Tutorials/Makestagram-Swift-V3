@@ -3,15 +3,15 @@ title: "Improving the UI"
 slug: improving-the-ui
 ---
 
-In this section, we'll focus on completing the UI elements for the `HomeViewController`. We're going to add two new cells to make each `Post` more like the final designs. In addition to the existing `PostImageCell`, we'll create a post header cell and an action cell where users can give likes to each post.
+In this section, we'll focus on completing the UI elements for the `HomeViewController`. Let's review the design we'll implement for each post:
+
+![Post Design](assets/post_design.png)
+
+In addition to the existing `PostImageCell`, we'll create a post header cell and an action cell where users can give likes to each post.
 
 We'll start by creating a new cell for the post header.
 
 # Creating a Post Header Cell
-
-Let's review the design we'll implement for each post:
-
-![Post Design](aseets/post_design.png)
 
 In this step we'll be focused on creating the header, or the UI above the image.
 
@@ -45,7 +45,7 @@ Next, we'll do the same with a `UILabel` and add the following constraints:
 >
 ![Username Label Constraints](assets/username_constraints.png)
 
-After setting up our subviews, we'll need to connect them to code. Create a new `PostHeaderCell.swift` that is a subclass of `UITableViewCell`. Make your file containts the following:
+After setting up our subviews, we'll need to connect them to code. Create a new `PostHeaderCell.swift` that is a subclass of `UITableViewCell`. Make your file contains the following:
 
     import UIKit
 
@@ -100,11 +100,11 @@ Let's create our IBOutlets and IBAction methods. Create a new `PostActionCell.sw
 
     import UIKit
 
-    class PostActionsCell: UITableViewCell {
+    class PostActionCell: UITableViewCell {
 
         // MARK: - Subviews
 
-        @IBOutlet weak var likesCountLabel: UILabel!
+        @IBOutlet weak var likeCountLabel: UILabel!
         @IBOutlet weak var timeAgoLabel: UILabel!
 
         // MARK: - Cell Lifecycle
@@ -115,8 +115,8 @@ Let's create our IBOutlets and IBAction methods. Create a new `PostActionCell.sw
 
         // MARK: - IBActions
 
-        @IBAction func likesButtonTapped(_ sender: UIButton) {
-            print("likes button tapped")
+        @IBAction func likeButtonTapped(_ sender: UIButton) {
+            print("like button tapped")
         }
     }
 
@@ -162,7 +162,7 @@ Now that we've set up the data source to display the correct number of sections 
             return cell
             
         case 2:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionsCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
             
             return cell
             
@@ -171,7 +171,29 @@ Now that we've set up the data source to display the correct number of sections 
         }
     }
     
-We've successfully setup our data source and will move on to modifying our `UITableViewDelegate`. The main thing we'll need to make sure of is that the height of each cell is being displayed correctly. Change your `UITableViewDelegate` to the following:
+We've successfully setup our data source and will move on to modifying our `UITableViewDelegate`. The main thing we'll need to make sure of is that the height of each cell is being displayed correctly. We'll need to add cell heights for the `PostHeaderCell` and `PostActionCell`.
+
+> [action]
+Add the following class method to `PostHeaderCell`:
+>
+    class PostHeaderCell: UITableViewCell {
+>
+        static let height: CGFloat = 54
+>
+        // ...
+    }
+    
+> [action]
+Repeat the following for `PostActionCell`:
+>
+    class PostActionCell: UITableViewCell {
+>
+        static let height: CGFloat = 46
+>
+        // ...
+    }
+
+Next, change your `UITableViewDelegate` to the following:
 
     // MARK: - UITableViewDelegate
 
