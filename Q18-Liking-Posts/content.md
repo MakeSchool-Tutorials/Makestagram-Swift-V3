@@ -3,15 +3,15 @@ title: "Liking Posts"
 slug: liking-posts
 ---
 
-Users on our app can now create new posts and see them displayed in the `HomeViewController`. In this section, we'll work on the like feature, allowing users to like posts and displaying the number of likes each post has.
+Users on our app can now create new posts and see them displayed in the `HomeViewController`. In this section, we'll work on the like feature that allows users to like posts and displays the number of likes each post has.
 
-Whenever we add new data that will be stored in our database, it's important to take some time to thinking about the best way to structure the new data into the existing JSON tree.
+To begin, we'll need to store new like data in our Firebase database. We'll need to store which posts are liked by which users and the total number of likes each post current has. Whenever we add new data, it's important to think about the best way to structure the new data into the existing JSON tree.
 
 # Structuring our Likes Data
 
 Similar to how we flattened our database JSON tree by separating the `posts` from `users` into separate subtrees, we'll follow the same strategy for `likes`. In our database we'll create a new subtree for `likes` that will look like:
 
-    root: {
+    makestagram: {
         postLikes: {
             postKey: {
                 user1_uid: true,
@@ -29,7 +29,7 @@ In Firebase, our JSON structure will look like:
 
 ## Adding a Like Count
 
-In addition to storing the likes for each user, we'll also story a like count property for each post. This property will return the number of likes each post currently has. Implementing count properties is convenient because it'll allow us to read the number of likes a post has, without having to read and sum likes from the `postLikes` node. We'll story the like count property with each post inside of the `posts` JSON subtree.
+In addition to storing the likes for each user, we'll also story a like count property for each post. This property will return the number of likes each post currently has. Implementing count properties is convenient because it'll allow us to read the number of likes a post has, without having to read and sum likes from the `postLikes` node. We'll store the like count property with each post inside of the `posts` JSON subtree.
 
 # Creating a Like Service
 
@@ -178,7 +178,7 @@ Change the `dictValue` property of `Post`:
                 "poster" : userDict]
     }
 
-We've successfully setup our model so that new post we create will include a copy of the poster who created the post. In additional, when we read posts from the database, we'll be able to easily access the `poster` property in-memory. To keep the database consistent, you might need to delete any current posts inside of your database's `posts` subtree that don't contain it's poster's data.
+We've successfully setup our model so that new post we create will include a copy of the poster who created the post. In additional, when we read posts from the database, we'll be able to easily access the `poster` property in-memory. To keep the database consistent, you will need to delete any current posts inside of your database's `posts` subtree that don't contain it's poster's data.
 
 ## Adding Transaction Blocks
 
@@ -338,27 +338,104 @@ Here we rewrite our code to check whether each of our posts is liked by the curr
 
 ## What are Dispatch Groups?
 
-<!-- add description of dispatch groups -->
+Dispatch groups are an advanced GCD topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed. They work by matching the number of items that have been started with the number that have been finished. You can begin and complete a new item by calling `enter()` and `leave()` on the dispatch group instance respectively. When the number of tasks that have been started equal the number completed, the dispatch group can notify you that all tasks have been executed. 
+
+In the code we just wrote, notice we add a new item to the dispatch group as we run a async network call to determine whether the post is liked by the current user. We complete the item after we get a response from Firebase.
 
 ## Hooking up the UI
 
-<!-- missing section of implementing delegate -->
+Now that we've finished implementing our service methods for liking and displaying posts, we'll need to hook up our UI to display our changes.
 
-Now we can move on to the UI part. Let's go to our home view controller and add the following when we are configuring our cell:
+## Handling Like Button Events
 
-    case 2:
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
-        cell.delegate = self
-        cell.likeButton.isSelected = post.isLiked
-        cell.likeCountLabel.text = "\(post.likeCount) likes"
+We'll start by creating a delegate for our `PostActionCell` to communicate with our `HomeViewController`. Whenever the `likeButton` on the `PostActionCell` is tapped, it'll notify it's delegate to handle the event.
 
-        return cell
+> [action]
+Add the following protocol to your `PostActionCell` above the class definition:
+>
+    protocol PostActionCellDelegate: class {
+        func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell)
+    }
+>
+    class PostActionCell: UITableViewCell {
+        // ...
+    }
 
-Then let's go to our storyboard to set the image of the selected button.
+The `PostActionCellDelegate` allows us to define a protocol that any delegate of `PostActionCell` must conform to. This will allow the delegate to handle the event of the `likeButton` being tapped.
 
+Next, we'll add a delegate property of type `PostActionCellDelegate?`:
+
+    class PostActionCell: UITableViewCell {
+
+        // MARK: - Properties
+        weak var delegate: PostActionCellDelegate?
+
+        // ...
+    }
+
+Last, to notify the delegate when a user taps the like button, we'll call the delegate's `didTapLikeButton(_:on:)` whenever `likeButtonTapped` is executed:
+
+    class PostActionCell: UITableViewCell {
+
+        // ...
+
+        // MARK: - IBActions
+        @IBAction func likeButtonTapped(_ sender: UIButton) {
+            delegate?.didTapLikeButton(sender, on: self)
+        }
+    }
+
+## Configuring the PostActionCell UI
+
+Now that we can set our `HomeViewController` as the delegate of `PostActionCell`, we'll need to implement the protocol `PostActionCellDelegate` and set the delegate.
+
+> [action]
+Open `HomeViewController` and add the following extension at the bottom of the source file:
+>
+    extension HomeViewController: PostActionCellDelegate {
+        func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
+            print("did tap like button")
+        }
+    }
+    
+Next, we'll refactor our `tableView(_:cellForRowAt:)` method for our `PostActionCell`:
+
+Find the correct case for your `PostActionCell` in `tableView(_:cellForRowAt:)` and change it to the following: 
+
+    extension HomeViewController: UITableViewDataSource {
+        // ...
+
+        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            // ...
+
+            case 2:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
+                cell.delegate = self
+                configureCell(cell, with: post)
+
+                return cell
+
+            // ...
+        }
+
+        func configureCell(_ cell: PostActionCell, with post: Post) {
+            cell.likeButton.isSelected = post.isLiked
+            cell.likeCountLabel.text = "\(post.likeCount) likes"
+        }
+    }
+    
+We'll move the configuring of our cell outside into another method so we can reference it later to redisplay our cell.
+
+You'll notice that if the post is liked, we set the `isSelected` of the `UIButton` to true. For this to work and change the button UI, we'll need to add an image for the selected state of our button.
+
+> [action]
+Open `Home.storyboard` and set the image of the selected `likeButton`:
 ![Selected Like Properties](assets/selected_like_button_properties.png)
 
-Next we'll add the logic for handling setting and removing the like. Let's create another service class in our `LikeService` to interface with liking and unliking posts:
+Next we'll need to add the logic to handle the event when the `likeButton` of the `PostActionCell` is tapped. But first we'll add a convenience method to our like service that we'll use the easily like and unlike posts.
+
+> [action]
+Open `LikeService` and add the following method:
 
     static func setIsLiked(_ isLiked: Bool, for post: Post, success: @escaping (Bool) -> Void) {
         if isLiked {
@@ -368,34 +445,57 @@ Next we'll add the logic for handling setting and removing the like. Let's creat
         }
     }
 
-And to wrap things up, we'll need to handle the logic of when the button is pressed by the user:
+To finish up, we'll need to implement the logic for when the `likeButton` of a `PostActionCell` is tapped. Implement the following in your `PostActionCellDelegate` extension in `HomeViewController`:
 
-    func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
-        guard let indexPath = tableView.indexPath(for: cell)
-            else { return }
-
-        likeButton.isUserInteractionEnabled = false
-        let post = posts[indexPath.section]
-
-        LikeService.setIsLiked(!post.isLiked, for: post) { (success) in
-            defer {
-                likeButton.isUserInteractionEnabled = true
-            }
-
-            guard success
+> [action]
+Open `HomeViewController` and add the following in `didTapLikeButton(_:on:)`:
+>
+        func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
+            // 1
+            guard let indexPath = tableView.indexPath(for: cell)
                 else { return }
-
-            post.likesCount += !post.isLiked ? 1 : -1
-            post.isLiked = !post.isLiked
-
-            guard let cell = self.tableView.cellForRow(at: indexPath) as? PostActionCell
-                else { return }
-
-            DispatchQueue.main.async {
-                self.configureCell(cell, with: post)
+>
+            // 2
+            likeButton.isUserInteractionEnabled = false
+            // 3
+            let post = posts[indexPath.section]
+>
+            // 4
+            LikeService.setIsLiked(!post.isLiked, for: post) { (success) in
+                // 5
+                defer {
+                    likeButton.isUserInteractionEnabled = true
+                }
+>
+                // 6
+                guard success
+                    else { return }
+>
+                // 7
+                post.likeCount += !post.isLiked ? 1 : -1
+                post.isLiked = !post.isLiked
+>
+                // 8
+                guard let cell = self.tableView.cellForRow(at: indexPath) as? PostActionCell
+                    else { return }
+>
+                // 9
+                DispatchQueue.main.async {
+                    self.configureCell(cell, with: post)
+                }
             }
-
         }
-    }
+        
+Let's walk through the code we just added step by step:
 
-Great, we're now done with liking and unliking posts! Congrats!
+1. First we make sure that an index path exists for the the given cell. We'll need the index path of the cell later on to reference the correct post.
+2. Set the `isUserInteractionEnabled` property of the `UIButton` to `false` so the user doesn't accidentally send multiple requests by tapping too quickly.
+3. Reference the correct post corresponding with the `PostActionCell` that the user tapped.
+4. Use our `LikeService` to like or unlike the post based on the `isLiked` property.
+5. Use defer to set `isUserInteractionEnabled` to `true` whenever the closure returns.
+6. Basic error handling if something goes wrong with our network request.
+7. Change the `likeCount` and `isLiked` properties of our post if our network request was successful.
+8. Get a reference to the current cell.
+9. Update the UI of the cell on the main thread. Remember that all UI updates must happen on the main thread.
+
+Congrats, we've implemented our likes feature! We'll move on next to implementing followers.
