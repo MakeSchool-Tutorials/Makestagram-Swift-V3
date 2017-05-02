@@ -120,6 +120,8 @@ Repeat the previous steps until you've organized our project navigator as below:
 
 As we build our project and add more files, we'll continue to create and reorganize our files into groups.
 
+<!-- Link to a outline of groups vs folders. "It's a bit of initial work but this is a good way to make sure your file system and Xcode project structure both stay organized": http://vocaro.com/trevor/blog/2012/10/21/xcode-groups-vs-folder-references/ -->
+
 # Intro to App Architecture
 
 When we build apps, we want to try our best to think about architecture, or how we organize our code. Benefits of good software architecture include:
@@ -131,7 +133,7 @@ When we build apps, we want to try our best to think about architecture, or how 
 
 As we think about architecture, one of the most important points to remember is to break the functionality of our code into layers that are independent can be re-used.
 
-In our project, we'll be using a very common architectural design called Model View Controller, or MVC for short. We will separate our code into the following:
+In our project, we'll be using a very common architectural design called _Model View Controller_, or MVC for short. We will separate our code into the following:
 
 - **Models** store and represent data
 - **Views** display the data as UI to the user
@@ -143,4 +145,4 @@ We'll also create a few helper objects to make certain tasks separate and reusab
 
 ![Basic Architecture](assets/basic_architecture.png)
 
-TLDR; We'll be organizing code we write using the Model View Controller architectural pattern. Having good architecture will make it easy to build new features and debug bugs.
+TLDR; We'll be organizing code we write using the _Model View Controller_ architectural pattern. Having good architecture will make it easy to build new features and debug bugs.

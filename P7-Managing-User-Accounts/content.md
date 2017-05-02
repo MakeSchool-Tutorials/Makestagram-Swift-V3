@@ -50,15 +50,17 @@ First, we'll need to import the appropriate library to use the Firebase Realtime
 
 To read data, we'll first need to create a location to where we want to read from in the database. Let's look at an example where we want to read the current user's data from Firebase:
 
-    // 1
-    if let user = FIRAuth.auth()?.currentUser {
-        // 2
-        let rootRef = FIRDatabase.database().reference()
-        // 3
-        let userRef = rootRef.child("users").child(user.uid)
+```
+// 1
+if let user = FIRAuth.auth()?.currentUser {
+    // 2
+    let rootRef = FIRDatabase.database().reference()
+    // 3
+    let userRef = rootRef.child("users").child(user.uid)
 
-        // 4 read from database with userRef
-    }
+    // 4 read from database with userRef
+}
+```
 
 Let's break this down:
 
@@ -192,11 +194,11 @@ To retrieve the user data from `FIRDataSnapshot` we:
 
 Run the app a couple times and sign up to create a few new users. Each time you sign-up with a new user, you should see `New user!` printed to the debug console. You should be able to verify the creation of these new `FIRAuth` users in your Firebase project dashboard.
 
-Now write down the email/password credentials for one of the new `FIRUser` you recently signed up with so we can test logging in with an existing user. 
+Now write down the email/password credentials for one of the new `FIRUser` you recently signed up with so we can test logging in with an existing user.
 
 Run the app a couple more times and try testing the login functionality.
 
-You'll notice that even though we're logging in as an existing user, our logic is entering the else clause and printing `New user!` to the console. 
+You'll notice that even though we're logging in as an existing user, our logic is entering the else clause and printing `New user!` to the console.
 
 This isn't what we expected! When we log in with an existing `FIRUser` we want it to enter the if clause that prints `User already exists \(userDict.debugDescription)`.
 

@@ -10,7 +10,7 @@ As always, we'll need to create a new Xcode project.
 1. Open Xcode and create a new project.
 2. Choose the Single View Application as template. Click next.
 3. Fill out the remaining info for your project. See the example provided below:
-4. Save your Xcode project somewhere you'll be able to easily find later. i.e. ~/Code/
+4. Save your Xcode project somewhere you'll be able to easily find later. i.e. `~/Code/`
 
 ![Sample Project Info](assets/sample-project-info.png)
 
@@ -39,7 +39,9 @@ As a first step, we need to install the _CocoaPods_ software.
 > [action]
 > Open a terminal and enter the following line:
 >
-    sudo gem install cocoapods
+```
+sudo gem install cocoapods
+```
 
 After a while the installation should complete successfully!
 
@@ -50,7 +52,9 @@ Now we can create a _Podfile_ that will allow us to declare dependencies for our
 > [action]
 > Open the root directory of your project in a terminal and type:
 >
-    pod init
+```
+pod init
+```
 
 <!--  -->
 
@@ -80,19 +84,21 @@ Now we are ready to add our dependencies to this file.
 > Update your _Podfile_ so that it looks like this. Note that we uncommented the `platform :ios, '9.0'` line. Also pay attention that you're using the correct single quotes.
 
 >
-	# Uncomment this line to define a global platform for your project
-	platform :ios, '9.0'
+```
+# Uncomment this line to define a global platform for your project
+platform :ios, '9.0'
 >
-	target 'Makestagram' do
-	  # Comment this line if you're not using Swift and don't want to use dynamic frameworks
-	  use_frameworks!
+target 'Makestagram' do
+  # Comment this line if you're not using Swift and don't want to use dynamic frameworks
+  use_frameworks!
 >
-      pod 'Firebase/Core'
-      pod 'Firebase/Auth'
-      pod 'FirebaseUI/Auth', '~> 3.0'
-      pod 'Firebase/Database'
-      pod 'Firebase/Storage'
-	end
+    pod 'Firebase/Core'
+    pod 'Firebase/Auth'
+    pod 'FirebaseUI/Auth', '~> 3.0'
+    pod 'Firebase/Database'
+    pod 'Firebase/Storage'
+end
+```
 >
 > Then, return to the command line and run:
 >

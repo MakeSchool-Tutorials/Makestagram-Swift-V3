@@ -15,11 +15,13 @@ Together, these libraries will make it extremely easy for us to setup and implem
 
 Import the FirebaseAuth and FirebaseAuthUI library to `LoginViewController.swift` right below `import UIKit`. Whenever we want to use a third-party library that we've downloaded from Cocoapods, we'll need to import it to use it in our code.
 
-    import UIKit
-    import FirebaseAuth
-    import FirebaseAuthUI
+```
+import UIKit
+import FirebaseAuth
+import FirebaseAuthUI
 
-    // ...
+// ...
+```
 
 Now that we can access the `FirebaseAuthUI` library, our next focus will be to hand-off the authentication process to FirebaseUI.
 
