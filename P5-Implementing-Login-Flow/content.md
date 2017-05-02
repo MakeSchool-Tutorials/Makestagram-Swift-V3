@@ -10,7 +10,7 @@ In the previous steps, we've setup a new Firebase and Xcode project for our Make
 Authentication is the process of identifying which user is using the app. By verifying an user's identity, we can:
 
 - keep track of which data belongs to who
-- prevent people without permission from stealing, modifying or deleting data
+- prevent people without permission from accessing, stealing, modifying or deleting data
 - protect users from being impersonated by others
 
 In addition, if a user logs out, their data will be safely stored in our database when they return.
@@ -21,8 +21,10 @@ Firebase provides us with an easy way of authenticating users with their built i
 
 To make sure we have access to these APIs and components, confirm you have `FirebaseAuth` and `FirebaseUI/Auth` listed and installed in your `Podfile`. Refer to the previous section `Setup Xcode Project` for details on how to setup your `Podfile`. If the following lines are missing from your `Podfile`, be sure to add them and run `pod install` before continuing:
 
-    pod 'Firebase/Auth'
-    pod 'FirebaseUI/Auth', '~> 3.0'
+```
+pod 'Firebase/Auth'
+pod 'FirebaseUI/Auth', '~> 3.0'
+```
 
 # Building a Login Flow
 
@@ -30,7 +32,7 @@ Our *login flow* will allow new users to sign up and existing users to login. Th
 
 ![Login Flow Designs](assets/login_flow.png)
 
-Before building a feature, it's always helpful to an idea of how the feature will work and what it will look like. Paper prototypes or wireframes are great tools to use so that we're able to focus just on engineering as we're building.
+Before building a feature, it's always helpful to an idea of how the feature will work and what it will look like. Paper prototypes and wireframes are great tools to use so that we're able to focus on engineering as we're building.
 
 # Creating a Login storyboard
 
@@ -60,9 +62,14 @@ When a new user opens the app for the first time, we want them to see the login 
 
 To begin, we'll need to create a new view controller within the `Login.storyboard`.
 
-Navigate to the Login storyboard and open the object library. Drag a new view controller from the object library onto your Login storyboard. Click on the new view controller and open the attributes inspector. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step.
-
-![Login Initial View Controller](assets/login_initial_view_controller.png)
+> [action]
+>
+> 1. Navigate to the Login storyboard and open the object library.
+> 1. Drag a new view controller from the object library onto your Login storyboard.
+> 1. Click on the new view controller and open the attributes inspector.
+> 1. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step.
+>
+> ![Login Initial View Controller](assets/login_initial_view_controller.png)
 
 ## What's the initial view controller?
 
@@ -118,21 +125,23 @@ The App Delegate is a singleton object that handles important events in the life
 
 To direct users to the correct storyboard, we'll add code into our `AppDelegate` method `application(_:didFinishLaunchingWithOptions:)`. This method is performed at launch time and can be used for additional setup before the app has launched. Add the following code in your `AppDelegate`:
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        FIRApp.configure()
+```
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    FIRApp.configure()
 
-        // 1
-        let storyboard = UIStoryboard(name: "Login", bundle: .main)
+    // 1
+    let storyboard = UIStoryboard(name: "Login", bundle: .main)
 
-        // 2
-        if let initialViewController = storyboard.instantiateInitialViewController() {
-            // 3
-            window?.rootViewController = initialViewController
-            window?.makeKeyAndVisible()
-        }
-
-        return true
+    // 2
+    if let initialViewController = storyboard.instantiateInitialViewController() {
+        // 3
+        window?.rootViewController = initialViewController
+        window?.makeKeyAndVisible()
     }
+
+    return true
+}
+```
 
 As our app launches, we redirect the user to the `Login.storyboard`'s initial view controller:
 
@@ -165,7 +174,7 @@ Most of the heavy lifting will be done by a pre-made UI component created by Fir
 
 Before we start, revert the background color of the `LoginViewController` back to white. Next we'll work on creating a header view that will display the name of our app and a short tagline for what our app does.
 
-Drag a new view from the object library onto the view controller and set it's background color to #FF6A95:
+Drag a new view from the object library onto the view controller and set it's background color to `#FF6A95`:
 
 ![New Header View](assets/new_header_view.png)
 
@@ -187,10 +196,10 @@ Drag and drop two `UILabels` from the object library onto the header view.
 
 Change the text of the title label to:
 
-Title: Makestagram
-Font: Apple SD Gothic Neo, Bold 36
-Color: White
-Text Alignment: Center
+- Title: Makestagram
+- Font: Apple SD Gothic Neo, Bold 36
+- Color: White
+- Text Alignment: Center
 
 After changing the font, you might need to resize the label to see the full title:
 
@@ -198,11 +207,11 @@ After changing the font, you might need to resize the label to see the full titl
 
 Next change the tagline label to:
 
-Text: Sign up to see photos and videos from your friends.
-Font: System, Semibold 15
-Color: White
-Text Alignment: Center
-Number of Lines: 2
+- Text: Sign up to see photos and videos from your friends.
+- Font: System, Semibold 15
+- Color: White
+- Text Alignment: Center
+- Number of Lines: 2
 
 You'll also need to resize the label to see the full text after changing it's properties:
 
@@ -232,11 +241,11 @@ Last, we'll format our stack view's size ratio. Select the tagline label and set
 
 To finish the designs for our Login screen, we'll add a button that hands-off authentication to FirebaseUI. Drag an `UIButton` from the object library right under your header view. Change the following properties of the button:
 
-Button Type: Custom
-Button Title: Register or Log In
-Font: System, Semibold 15
-Text Color: White
-Background Color: #3897F0
+- Button Type: Custom
+- Button Title: Register or Log In
+- Font: System, Semibold 15
+- Text Color: White
+- Background Color: `#3897F0`
 
 ![Login Button Properties](assets/login_button_properties.png)
 

@@ -42,7 +42,7 @@ Go to the Firebase website by [clicking here.](https://firebase.google.com/) You
 
 ![Empty Firebase Console](assets/02_empty_firebase_console.png)
 
-3. Set your project name to "Makestagram" and select your country. 
+3. Set your project name to "Makestagram" and select your country.
 
 ![Create New Project](assets/03_create_new_project.png)
 
@@ -54,4 +54,4 @@ Once you have finished the steps above, you should have a new Firebase project s
 
 ![Firebase Initial Project Overview](assets/05_initial_project_overview.png)
 
-Next we'll need create a new XCode project!
+Next we'll need create a new Xcode project!
