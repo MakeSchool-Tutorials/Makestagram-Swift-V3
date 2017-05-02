@@ -258,10 +258,61 @@ Create a few new user accounts and have them follow each other. Create a couple 
 
 You'll notice that if you follow and unfollow new users or create a new post, your timeline doesn't refresh and display new changes. It only display the changes the first time the view controller loads. In this last step, we'll add `UIRefreshController` so that users can pull the refresh whenever they like.
 
-<!-- add refresh control -->
+`UIRefreshControl` is a premade UI component in UIKit that adds an activity indicator that is used to allow users to pull down on a table view and refresh their data. We'll implement this component to allow users to reload their timelines.
+
+> [action]
+Open `HomeViewController` and add the following subview:
+>
+let refreshControl = UIRefreshControl()
+
+Next, we'll need to set up method that reloads our timeline.
+
+> [action]
+Modify `HomeViewController` to the following:
+
+    override func viewDidLoad() {
+        // ...
+        
+        reloadTimeline()
+    }
+
+    func reloadTimeline() {
+        UserService.timeline { (posts) in
+            self.posts = posts
+            
+            if self.refreshControl.isRefreshing {
+                self.refreshControl.endRefreshing()
+            }
+            
+            self.tableView.reloadData()
+        }
+    }
+
+Here we create a new method to `reloadTimeline` to retrieve our timeline and refresh the table view. You'll notice the method also checks if the `refreshControl` is refreshing. This will stop and hide the acitivity indicator of the refresh control if it is currently being displayed to the user.
+
+Last we'll tie things together by configuring the refresh control with our table view. In our `configureTableView` method add the following lines of code:
+
+    func configureTableView() {
+        // ...
+        
+        refreshControl.addTarget(self, action: #selector(reloadTimeline), for: .valueChanged)
+        tableView.addSubview(refreshControl)
+    }
+    
+After initializing our `refreshControl` and creating a new method to reload the timeline, we have to configure it to work properly with our table view.
+
+Run the app and test out our new refresh control. Add a new post pull to refresh to see your new content!
 
 Congratulations, you've complete the tutorial and complete a basic implementation of Instagram with Firebase!
 
-<!-- probably need conclusion section -->
+# Conclusion
 
-<!-- make pagination into it's own tutorial -->
+In this section, you learned two important concepts: 
+
+First, we implemented a timeline sevice method to display posts of users we're following.
+
+You have also used to implement a `UIRefreshControl`. This component is extremely useful for displaying a loading indicator when the table view is reloading data and letting the user refresh data on their own.
+
+If you happen to build an app that contains a timeline, these components will be very useful.
+
+In the next step we will take a little step back and review all the things you have learned through this tutorial so far.
