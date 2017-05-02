@@ -3,47 +3,49 @@ title: "Setting-Followers"
 slug: setting-followers
 ---
 
-Now we're onto building the timeline. Building the timeline is complicated because you need to think about how you want to structure your data. 
+In the previous section, we set up the functionality for followers. However, having followers isn't useful if you can't see a timeline of your follower's posts. In this section, we'll be focused on using the followers functionality to display a timeline of posts.
 
+As always, we'll begin by thinking about how to structure new timeline data into our existing database.
 
-# Thinking about our JSON structure
+# Timeline JSON structure
 
-We're going to build firebase with a different JSON structure.
+We're going to build a new timeline JSON tree that contains each user's timeline. Each timeline will contain post keys, along with additional information to fetch the post from the post JSON tree.
 
-<!-- insert image of json structure -->
+To create this JSON structure, we'll need to implement the following:
 
-Next, we're going to look at the steps for creating a timelime for this structure. First, whenever a user creates a post, we'll need to write the post in multiple locations, for every single follower's timeline. Also we'll need to add and remove each post from a user's timeline everytime that user follows and unfollows a user. Because of the way we've architected our code, we'll only need to change some of our service classes and most of our UI will stay exactly the same. Let's get started:
+- Whenever a user creates a new post, write the post to each of the user's follower's timelines
+- Whenever a user is followed, add all of thier posts into the current user's timeline
+- Whenever a user is unfollowed, remove all of thier posts from the current user's timeline
+
+Let's get started on implementing the timeline!
 
 # Creating our Timeline
 
-This first thing we'll need to do is make sure every time our use creates a post, it's added to all of our follower's timelines. Let's work on that first. Let's go to the `PostService` for our `create(forURLString:aspectHeight:)` method. Right now we take a post that we've created and write it to our database. We'll be changing this functionality to accommodate our timeline. The first thing we'll need to do fetch all of the current user's followers. We'll need to add a new method in our `UserService` to do this:
+We'll begin by focusing on the first subtask: making sure that every new post created by the current user is added to all of their follower's timelines. To do this we'll need to be able to fetch all of a user's followers.
 
+> [action]
+Open `UserService` and add the following new service method:
+>
     static func followers(for user: User, completion: @escaping ([String]) -> Void) {
         let followersRef = FIRDatabase.database().reference().child("followers").child(user.uid)
-        
+>
         followersRef.observeSingleEvent(of: .value, with: { (snapshot) in
             guard let followersDict = snapshot.value as? [String : Bool] else {
                 return completion([])
             }
-            
+>
             let followersKeys = Array(followersDict.keys)
             completion(followersKeys)
         })
     }
+
+Here we grab all of the uids of the user's followers and return it as an array of uid strings. Now we can use this fetch the uid of all of our followers.
+
+Next, navigate to our `PostService`. We'll need to change the service method `create(forURLString:aspectHeight:)`. Currently the method only writes the new post to the `post` JSON tree in our database. We'll modify it to also add the post to all of our follower's timelines.
+
+> [action]
+Change `create(forURLString:aspectHeight:)` to the following:
     
-Here we grab all of the uids of the user's followers and return it as an array of uid strings. Now we can use this fetch the uid of all of our followers. Let's modify our `PostService` to use our new class. Right now our class method that writes our new post to the database looks like this:
-
-    private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
-        let currentUser = User.current
-        let post = Post(imageURL: urlString, imageHeight: aspectHeight)
-        let postDict = post.dictValue
-
-        let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
-        postRef.updateChildValues(postDict)
-    }
-    
-We'll change it to make a multi-location update to all of our follower's timelines:
-
     private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
         let currentUser = User.current
         let post = Post(imageURL: urlString, imageHeight: aspectHeight)
@@ -75,7 +77,7 @@ We'll change it to make a multi-location update to all of our follower's timelin
         }
     }
     
-Let's go over our steps in detail:
+Notice the multi-location update to all of our follower's timelines. Let's go over these steps in detail:
 
 1. We create references to the important locations that we're planning to write data.
 2. Use our class method to get an array of all of our follower UIDs
@@ -169,27 +171,37 @@ We'll do the same thing for unfollowing a user:
     
 Here we follow the same steps, except we write `NSNull()` to delete posts in our timeline of a followee that we're removing. See how easy that was?
 
-# Updating the timeline
+# Reading the Timeline
 
-Now that we have all of the methods in our service layer working, let's replace our `HomeViewController` with the correct data. Instead of displaying our own posts, let's display our timeline. Before we do that, we'll have to make a few more service methods to display our timeline. The first will be to read the data for a single post. Navigate to our `PostService` and create the following class method:
+We've now added all of the service methods for writing and creating our timeline in our database. Next, we'll need to set up a few more service methods to read the timeline from our database.
 
+First, since we don't store the entire post object in our timeline JSON tree, we'll need to perform a *join*. This means we'll need to use the information provided by the timeline data to fetch more data from our database. In our case, we'll use the `postKey` and `poster_uid` of each timeline post object to read the corresponding post.
+
+We'll start by create a new service method in our `PostService` that fetches a single post based on the `postKey` and `posterUID`. 
+
+> [action]
+Add the following method to your `PostService`:
+>
     static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
         let ref = FIRDatabase.database().reference().child("posts").child(posterUID).child(postKey)
-            
+>
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             guard let post = Post(snapshot: snapshot) else {
                 return completion(nil)
             }
-            
+>
             LikeService.isPostLiked(post) { (isLiked) in
                 post.isLiked = isLiked
                 completion(post)
             }
         })
     }
-    
-Here we'll read a single post from the database and returned the associated post. This will allow us to read each post from our timeline. Add the following to our `UserService`:
 
+This method reads a single post from the database and returns the associated post. This will help us read each post from our timeline. Next we'll need to create a service method in our `UserService` for fetching the current user's timeline. 
+
+> [action]
+Open `UserService.swift` and implementing the following:
+    
     static func timeline(completion: @escaping ([Post]) -> Void) {
         let currentUser = User.current
         
@@ -224,6 +236,32 @@ Here we'll read a single post from the database and returned the associated post
         })
     }
     
-Here we grab our timeline and then join each post in our timeline with the actual post by reading each individual post from our `PostService`. You might be thinking this is suboptimal, but it's very common to do joins like this in NoSQL databases. We'll eventually clean this up by adding pagination. Let's hook up our new method to our UI and see if it works. You might have to delete all of your posts, create a few new user accounts, and have each follow each other to fully test the timeline capabilities.
+Using these two previous service methods, we're able to read the current user's timeline and return an array of posts. First we read the timeline, and then we join each post timeline object with the corresponding post object. Creating joins like this are very common for NoSQL databases. Let's hook up our new service method in our `HomeViewController` so we can see our timeline!
 
-You might notice, after adding followers or new photos and our timeline doesn't refresh. Also it's bad practice to grab all posts in our timeline. What if our timeline has 1 million posts in it? We'd probably crash our app by bringing all of that data into memory. In the next section we'll wrap things up with our last section: pagination and refresh our data.
+> [action]
+Open `HomeViewController` and replace `viewDidLoad` with the following:
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        configureTableView()
+        
+        UserService.timeline { (posts) in
+            self.posts = posts
+            self.tableView.reloadData()
+        }
+    }
+
+Create a few new user accounts and have them follow each other. Create a couple of new posts with each account to make sure everything works!
+
+# Adding Refresh Controller
+
+You'll notice that if you follow and unfollow new users or create a new post, your timeline doesn't refresh and display new changes. It only display the changes the first time the view controller loads. In this last step, we'll add `UIRefreshController` so that users can pull the refresh whenever they like.
+
+<!-- add refresh control -->
+
+Congratulations, you've complete the tutorial and complete a basic implementation of Instagram with Firebase!
+
+<!-- probably need conclusion section -->
+
+<!-- make pagination into it's own tutorial -->

@@ -280,14 +280,14 @@ We'll give this a default value of `false` because initially when we first read 
 > [action]
 Create a new service method for determining whether the current `Post` is liked:
 >
-    static func isPost(_ post: Post, likedByUser user: User, completion: @escaping (Bool) -> Void) {
+    static func isPostLiked(_ post: Post, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
         guard let postKey = post.key else {
             assertionFailure("Error: post must have key.")
             return completion(false)
         }
 >
         let likesRef = FIRDatabase.database().reference().child("postLikes").child(postKey)
-        likesRef.queryEqual(toValue: nil, childKey: user.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+        ref.queryEqual(toValue: nil, childKey: User.current.uid).observeSingleEvent(of: .value, with: { (snapshot) in
             if let _ = snapshot.value as? [String : Bool] {
                 completion(true)
             } else {
@@ -318,12 +318,11 @@ We'll need to update our reading from posts to check if each post returned is li
 
                         dispatchGroup.enter()
 
-                        LikeService.isPost(post, likedByUser: User.current, completion: { (isLiked) in
+                        LikeService.isPostLiked(post) { (isLiked) in
                             post.isLiked = isLiked
-
+                            
                             dispatchGroup.leave()
-
-                        })
+                        }
 
                         return post
                     }

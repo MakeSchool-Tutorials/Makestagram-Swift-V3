@@ -3,11 +3,11 @@ title: "Setting-Followers"
 slug: setting-followers
 ---
 
-In the last step we setup likes functionality. Now we can view the posts that we've made and like / unlike them. But a social network isn't very social if you're only able to interact with your own content. So in this section we're going to focus on following and unfollowing users.
+In the last section, we set up like functionality. Now we can view the posts that we've made and like / unlike them. But a social network isn't very social if you're only able to interact with your own content. So in this section we're going to focus on following and unfollowing users.
 
 # Structuring our data
 
-For storing information following other users, we'll need to create new subtrees in our Firebase database. The first will be for `Followers` and the other will be `Following`. We need two subtrees to store this information because if we don't store this information, then in order to figure out who's following a given user, we'd have to go through each user's list of users that they are following and verify whether each is following the given user. A smart way of doing this is using the technique of denormalization as we discuessed earlier.
+For storing information following other users, we'll need to create new subtrees in our Firebase database. The first will be for `Followers` and the other will be `Following`. We need two subtrees to store this information because if we don't store this information, then in order to figure out who's following a given user, we'd have to go through each user's list of users that they are following and verify whether each is following the given user. 
 
 Let's see what that would look like:
 
@@ -23,21 +23,38 @@ following: {
     }
 }
 
-Great, now we'll build our service classes to follow and unfollow users. Create a new service struct for your `FollowService`:
+Now that we have an idea of how we want to structure our new data, let's start implementing a new follow service.
 
+# Creating our Follow Service
+
+> [action]
+Create a new source file named `FollowService.swift`:
+>
+    import Foundation
+    import FirebaseDatabase
+>
+    struct FollowService {
+        // ...
+    }
+
+Next let's implement our first method for following a user.
+
+> [action]
+Add the class method in your `FollowService`:
+>
     private static func followUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
         // 1
         let currentUID = User.current.uid
         let followData = ["followers/\(user.uid)/\(currentUID)" : true,
                           "following/\(currentUID)/\(user.uid)" : true]
-        
+>
         // 2
         let ref = FIRDatabase.database().reference()
         ref.updateChildValues(followData) { (error, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
             }
-            
+>
             // 3
             success(error == nil)
         }
@@ -68,7 +85,7 @@ Now, let's do the same for unfollowing a user:
         }
     }
 
-Here we're doing the same thing but delete multiple parts of our JSON tree by setting the relative paths to NSNull(). Note that we can't use nil, otherwise we'll get an error because `updateChildValues` is expecting a parameter of `[String : Any]`. Last we'll create a method where we can directly set whether we want a user to be followed or unfollowed:
+By setting the value of multiple relative paths in our database to `NSNull()` we're able to simuntaneously delete multiple parts of our JSON tree. Note that we can't use `nil`, otherwise we'll get an error because `updateChildValues` is expecting a parameter of `[String : Any]`. Last we'll create a method where we can directly set whether we want a user to be followed or unfollowed. This is a convenience method that makes our service layer easier to use.
 
     static func setIsFollowing(_ isFollowing: Bool, fromCurrentUserTo followee: User, success: @escaping (Bool) -> Void) {
         if isFollowing {
@@ -82,15 +99,23 @@ Great! Now that we've setup our initial service methods for following and unfoll
 
 # Setting the UI
 
-Instead of making a profile, for now we're going to create a find friends view controller to find and follow other friends. When our design is finished, it'll look like this:
+Instead of making a profile, we're going to create a `FindFriendsViewController` to find and follow other users on our app. When our design is finished, it'll look like this:
 
 ![Find Friends](assets/find_friends_design.png)
 
-Let's get started by creating a `FindFriendViewController.swift` file. After creating the file, we'll want to set the class for our third tab view controller in our main storyboard.
+Let's get started by creating a `FindFriendsViewController.swift` file. After creating the file, we'll want to set the class for our third tab view controller in our main storyboard.
 
+> [action]
+Open `Main.storyboard` and set the class of the `FindFriendsViewController`:
 ![Find Friends Class Inspector](assets/find_friends_class_inspector.png)
 
-Next, we'll embed our `FindFriendsViewController` within a navigation controller. This will give us a navigation bar for our view controller. Let's set the title of our navigation bar to `Find Friends`.
+Next, we'll embed our `FindFriendsViewController` within a navigation controller. This will give us a navigation bar for our view controller. 
+
+Let's set the title for the navigation bar to `Find Friends`.
+
+> [action]
+Select the navigation bar of the `FindFriendsViewController`. Open the Attributes Inspector and set the `Title` property of the `Navigation Item` to `Find Friends`:
+![Set Find Friends Nav Bar](assets/set_nav_title.png)
 
 Now we'll refactor our `FindFriendsViewController` into it's own storyboard. Select the `FindFriendsViewController` view controller in your main storyboard and click the `Editor`>`Refactor to Storyboard...` button in the top menu. Name this storyboard `FindFriends.storyboard`.
 
@@ -100,16 +125,28 @@ When your done your `FindFriends.storyboard` should look like the image below:
 
 We'll now add our `UITableView` to our view controller. Make sure you constraint the top and bottom of the table view to the view, not the top and bottom layout guides:
 
-![TableView Constriants](assets/tableview_constraints.png)
+![TableView Constraints](assets/tableview_constraints.png)
 
-Now we're going to create our prototype cell that will represent other users. For each user we need a label for thier username and a button for whether they're being followed or not. Drag and drop a prototype cell from the object library to the `UITableView`. Set the cell to have a custom row height of 71 and give it a cell identifier of `FindFriendCell`.
+Now we're going to create our prototype cell that will represent other users. For each user we need:
+1. A `UILabel` to display the user's username
+2. A `UIButton` to follow or unfollow each user
 
-Add a `UILabel` with the following with the following constraints:
+> [action]
+Drag and drop a new prototype cell from the object library onto the new `UITableView` of the `FindFriendsViewController`:
+![Add New Cell](assets/new_cell.png)
 
+Next we'll begin configuring the cell:
+
+> [action]
+1. Select the cell and open the size inspector. Add a custom row height of 71:
+![Set Row Height](assets/row_height.png)
+>
+2. Open the Attributes Inspector and set the `Cell Identifier` as `FindFriendsCell`:
+![Set Cell Identifier](assets/cell_identifier.png)
+>
+3. Add a `UILabel` with the following with the following constraints:
 ![Username Label Constraints](assets/username_constraints.png)
-
-Next we'll add a button to follow and unfollow other users. Add a button with the following constraints:
-
+4. Add a follow/unfollow button with the following constraints:
 ![Follow Button Constraints](assets/button_constraints.png)
 
 Now let's create the `FindFriendsCell.swift` file to go along with our cell. Let's make IBOutlets for both the label and the button. In addition, we'll create an IBAction for the follow button. Your code should look like the following:
@@ -195,7 +232,7 @@ We create a empty array of users to hold all of our users. Next we'll need to se
         }
     }
     
-Now we need to fetch all of the users on the server and display them. But first we'll add a isFollowed property to our user:
+Now we need to fetch all of the users on the server and display them. But first we'll add a `isFollowed` property to our `User` class:
 
     var isFollowed = false
     
@@ -245,11 +282,11 @@ Here, we fetch all users from our database and set them to our datasource. Then 
 
 You might notice that we haven't handled the state for our follow buttons. Let's go ahead and do that now. We'll need to create a new class method in our service class, to tell whether a user is being followed by the current users. Let's created that in the `FollowService` now:
 
-    static func isUser(_ user: User, followedByCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
+    static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
         let currentUID = User.current.uid
-        let userRef = FIRDatabase.database().reference().child("users").child(user.uid)
+        let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
         
-        userRef.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
+        ref.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
             if let _ = snapshot.value as? [String : Bool] {
                 completion(true)
             } else {
