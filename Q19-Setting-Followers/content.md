@@ -68,32 +68,36 @@ Let's walk through our code:
 
 Now, let's do the same for unfollowing a user:
 
-    private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
-        let currentUID = User.current.uid
-        // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
-        // http://stackoverflow.com/questions/38462074/using-updatechildvalues-to-delete-from-firebase
-        let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
-                          "following/\(currentUID)/\(user.uid)" : NSNull()]
-        
-        let ref = FIRDatabase.database().reference()
-        ref.updateChildValues(followData) { (error, ref) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-            }
-            
-            success(error == nil)
+```
+private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
+    let currentUID = User.current.uid
+    // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
+    // http://stackoverflow.com/questions/38462074/using-updatechildvalues-to-delete-from-firebase
+    let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
+                      "following/\(currentUID)/\(user.uid)" : NSNull()]
+
+    let ref = FIRDatabase.database().reference()
+    ref.updateChildValues(followData) { (error, ref) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
         }
+
+        success(error == nil)
     }
+}
+```
 
 By setting the value of multiple relative paths in our database to `NSNull()` we're able to simuntaneously delete multiple parts of our JSON tree. Note that we can't use `nil`, otherwise we'll get an error because `updateChildValues` is expecting a parameter of `[String : Any]`. Last we'll create a method where we can directly set whether we want a user to be followed or unfollowed. This is a convenience method that makes our service layer easier to use.
 
-    static func setIsFollowing(_ isFollowing: Bool, fromCurrentUserTo followee: User, success: @escaping (Bool) -> Void) {
-        if isFollowing {
-            followUser(followee, forCurrentUserWithSuccess: success)
-        } else {
-            unfollowUser(followee, forCurrentUserWithSuccess: success)
-        }
+```
+static func setIsFollowing(_ isFollowing: Bool, fromCurrentUserTo followee: User, success: @escaping (Bool) -> Void) {
+    if isFollowing {
+        followUser(followee, forCurrentUserWithSuccess: success)
+    } else {
+        unfollowUser(followee, forCurrentUserWithSuccess: success)
     }
+}
+```
 
 Great! Now that we've setup our initial service methods for following and unfollowing users, we'll need to create some UI to display the relationship. Let's go to our Main storyboard.
 
@@ -151,229 +155,259 @@ Next we'll begin configuring the cell:
 
 Now let's create the `FindFriendsCell.swift` file to go along with our cell. Let's make IBOutlets for both the label and the button. In addition, we'll create an IBAction for the follow button. Your code should look like the following:
 
-    import UIKit
+```
+import UIKit
 
-    class FindFriendsCell: UITableViewCell {
+class FindFriendsCell: UITableViewCell {
 
-        // MARK: - Properties
+    // MARK: - Properties
 
-        @IBOutlet weak var followButton: UIButton!
-        @IBOutlet weak var usernameLabel: UILabel!
+    @IBOutlet weak var followButton: UIButton!
+    @IBOutlet weak var usernameLabel: UILabel!
 
-        // MARK: - Cell Lifecycle
-
-        override func awakeFromNib() {
-            super.awakeFromNib()
-        }
-
-        // MARK: - IBActions
-
-        @IBAction func followButtonTapped(_ sender: UIButton) {
-            print("follow button tapped")
-        }
-    }
-
-We've created the basic structure for our cell, now it's time to add some small customizations. We're going to add different titles based on the selection of the cell. Change `awakeFromNib` to the following:
+    // MARK: - Cell Lifecycle
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        followButton.layer.borderColor = UIColor.lightGray.cgColor
-        followButton.layer.borderWidth = 1
-        followButton.layer.cornerRadius = 6
-        followButton.clipsToBounds = true
-        
-        followButton.setTitle("Follow", for: .normal)
-        followButton.setTitle("Following", for: .selected)
     }
+
+    // MARK: - IBActions
+
+    @IBAction func followButtonTapped(_ sender: UIButton) {
+        print("follow button tapped")
+    }
+}
+```
+
+We've created the basic structure for our cell, now it's time to add some small customizations. We're going to add different titles based on the selection of the cell. Change `awakeFromNib` to the following:
+
+```
+override func awakeFromNib() {
+    super.awakeFromNib()
+
+    followButton.layer.borderColor = UIColor.lightGray.cgColor
+    followButton.layer.borderWidth = 1
+    followButton.layer.cornerRadius = 6
+    followButton.clipsToBounds = true
+
+    followButton.setTitle("Follow", for: .normal)
+    followButton.setTitle("Following", for: .selected)
+}
+```
     
 Now let's hook up the datasource of the tableview. We'll need an IBOutlet for our tableview and to connect the tableview's datasource to the view controller. First add the following to your `FindFriendsViewController`:
 
-    class FindFriendsViewController: UIViewController {
+```
+class FindFriendsViewController: UIViewController {
 
-        // MARK: - Properties
+    // MARK: - Properties
 
-        var users = [User]()
+    var users = [User]()
 
-        // MARK: - Subviews
+    // MARK: - Subviews
 
-        @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var tableView: UITableView!
 
-        // MARK: - VC Lifecycle
+    // MARK: - VC Lifecycle
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-            // remove separators for empty cells
-            tableView.tableFooterView = UIView()
-        }
+        // remove separators for empty cells
+        tableView.tableFooterView = UIView()
     }
+}
+```
 
 We create a empty array of users to hold all of our users. Next we'll need to setup our `UITableViewDataSource`. Add the following add the bottom of your file:
 
-    // MARK: - UITableViewDataSource
+```
+// MARK: - UITableViewDataSource
 
-    extension FindFriendsViewController: UITableViewDataSource {
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return users.count
-        }
-
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "FindFriendsCell") as! FindFriendsCell
-            configure(cell: cell, atIndexPath: indexPath)
-
-            return cell
-        }
-
-        func configure(cell: FindFriendsCell, atIndexPath indexPath: IndexPath) {
-            let user = users[indexPath.row]
-
-            cell.usernameLabel.text = user.username
-        }
+extension FindFriendsViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return users.count
     }
-    
-Now we need to fetch all of the users on the server and display them. But first we'll add a `isFollowed` property to our `User` class:
 
-    var isFollowed = false
-    
-Next, we'll edit our `configure(cell:atIndexPath:)` with the following:
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FindFriendsCell") as! FindFriendsCell
+        configure(cell: cell, atIndexPath: indexPath)
+
+        return cell
+    }
 
     func configure(cell: FindFriendsCell, atIndexPath indexPath: IndexPath) {
         let user = users[indexPath.row]
-        
+
         cell.usernameLabel.text = user.username
-        cell.followButton.isSelected = user.isFollowed
     }
+}
+```
+    
+Now we need to fetch all of the users on the server and display them. But first we'll add a `isFollowed` property to our `User` class:
+
+```
+var isFollowed = false
+```
+    
+Next, we'll edit our `configure(cell:atIndexPath:)` with the following:
+
+```
+func configure(cell: FindFriendsCell, atIndexPath indexPath: IndexPath) {
+    let user = users[indexPath.row]
+
+    cell.usernameLabel.text = user.username
+    cell.followButton.isSelected = user.isFollowed
+}
+```
     
 Now to finish things up, let's create a service to fetch all users on the app and display them. We'll add the following class method to our `UserService` struct:
 
-    static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
-        let currentUser = User.current
-        let ref = FIRDatabase.database().reference().child("users")
-        
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
-                else { return completion([]) }
-            
-            let users =
-                snapshot
-                    .flatMap(User.init)
-                    .filter { $0.uid == currentUser.uid }
-            
-            completion(users)
-        })
-    }
+```
+static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
+    let currentUser = User.current
+    let ref = FIRDatabase.database().reference().child("users")
+
+    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
+            else { return completion([]) }
+
+        let users =
+            snapshot
+                .flatMap(User.init)
+                .filter { $0.uid == currentUser.uid }
+
+        completion(users)
+    })
+}
+```
 
 Let's hook this up in our `FindFriendsViewController`. Add the following in `viewWillAppear(_:)`:
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+```
+override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
 
-        UserService.usersExcludingCurrentUser { [unowned self] (users) in
-            self.users = users
-            
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
+    UserService.usersExcludingCurrentUser { [unowned self] (users) in
+        self.users = users
+
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
     }
+}
+```
 
 Here, we fetch all users from our database and set them to our datasource. Then we refresh the UI on the main thread because all UI updates must be on the main thread. If everything works correctly you should see all others you've created on the database. If you don't have any other users, delete the app and create a couple to see your progress.
 
 You might notice that we haven't handled the state for our follow buttons. Let's go ahead and do that now. We'll need to create a new class method in our service class, to tell whether a user is being followed by the current users. Let's created that in the `FollowService` now:
 
-    static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
-        let currentUID = User.current.uid
-        let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
-        
-        ref.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
-            if let _ = snapshot.value as? [String : Bool] {
-                completion(true)
-            } else {
-                completion(false)
-            }
-        })
-    }
+```
+static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
+    let currentUID = User.current.uid
+    let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
+
+    ref.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
+        if let _ = snapshot.value as? [String : Bool] {
+            completion(true)
+        } else {
+            completion(false)
+        }
+    })
+}
+```
 
 Now, we'll need to go back to our `UserService` and change our method that fetches all users from the database. Let's do that now:
 
-    static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
-        let currentUser = User.current
-        let ref = FIRDatabase.database().reference().child("users")
-        
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
-                else { return completion([]) }
-            
-            let users =
-                snapshot
-                    .flatMap(User.init)
-                    .filter { $0.uid != currentUser.uid }
-            
-            let dispatchGroup = DispatchGroup()
-            users.forEach { (user) in
-                dispatchGroup.enter()
-                
-                FollowService.isUserFollowed(user) { (isFollowed) in
-                    user.isFollowed = isFollowed
-                    dispatchGroup.leave()
-                }
+```
+static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
+    let currentUser = User.current
+    let ref = FIRDatabase.database().reference().child("users")
+
+    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
+            else { return completion([]) }
+
+        let users =
+            snapshot
+                .flatMap(User.init)
+                .filter { $0.uid != currentUser.uid }
+
+        let dispatchGroup = DispatchGroup()
+        users.forEach { (user) in
+            dispatchGroup.enter()
+
+            FollowService.isUserFollowed(user) { (isFollowed) in
+                user.isFollowed = isFollowed
+                dispatchGroup.leave()
             }
-            
-            dispatchGroup.notify(queue: .main, execute: {
-                completion(users)
-            })
+        }
+
+        dispatchGroup.notify(queue: .main, execute: {
+            completion(users)
         })
-    }
+    })
+}
+```
 
 Here we add a dispatch group to asynchronously tell if each user is being followed before returning all of the users.
 
 Now we can move on to the last part of configuring our UI: enabling our button to work. To do so, let's create a delegate for our `FindFriendsCell`. Add the following to the top of your `FindFriendsCell` class:
 
-    protocol FindFriendsCellDelegate: class {
-        func didTapFollowButton(_ followButton: UIButton, on cell: FindFriendsCell)
-    }
+```
+protocol FindFriendsCellDelegate: class {
+    func didTapFollowButton(_ followButton: UIButton, on cell: FindFriendsCell)
+}
+```
     
 Next we'll add a delegate to the cell itself:
 
-    weak var delegate: FindFriendsCellDelegate?
+```
+weak var delegate: FindFriendsCellDelegate?
+```
     
 And call the delegate when the follow button is tapped:
 
-    @IBAction func followButtonTapped(_ sender: UIButton) {
-        delegate?.didTapFollowButton(sender, on: self)
-    }
+```
+@IBAction func followButtonTapped(_ sender: UIButton) {
+    delegate?.didTapFollowButton(sender, on: self)
+}
+```
     
 Last we'll implement the delegate in our `tableView(_:cellForRowAt:)` datasource method:
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FindFriendsCell") as! FindFriendsCell
-        cell.delegate = self
-        configure(cell: cell, atIndexPath: indexPath)
-        
-        return cell
-    }
+```
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "FindFriendsCell") as! FindFriendsCell
+    cell.delegate = self
+    configure(cell: cell, atIndexPath: indexPath)
+
+    return cell
+}
+```
 
 And make sure our `FindFriendsViewController` conforms to the protocol:
 
-    extension FindFriendsViewController: FindFriendsCellDelegate {
-        func didTapFollowButton(_ followButton: UIButton, on cell: FindFriendsCell) {
-            guard let indexPath = tableView.indexPath(for: cell) else { return }
+```
+extension FindFriendsViewController: FindFriendsCellDelegate {
+    func didTapFollowButton(_ followButton: UIButton, on cell: FindFriendsCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
 
-            followButton.isUserInteractionEnabled = false
-            let followee = users[indexPath.row]
+        followButton.isUserInteractionEnabled = false
+        let followee = users[indexPath.row]
 
-            FollowService.setIsFollowing(!followee.isFollowed, fromCurrentUserTo: followee) { (success) in
-                defer {
-                    followButton.isUserInteractionEnabled = true
-                }
-
-                guard success else { return }
-
-                followee.isFollowed = !followee.isFollowed
-                self.tableView.reloadRows(at: [indexPath], with: .none)
+        FollowService.setIsFollowing(!followee.isFollowed, fromCurrentUserTo: followee) { (success) in
+            defer {
+                followButton.isUserInteractionEnabled = true
             }
+
+            guard success else { return }
+
+            followee.isFollowed = !followee.isFollowed
+            self.tableView.reloadRows(at: [indexPath], with: .none)
         }
     }
+}
+```
 
 We're done! Test it out. Try following and unfollowing users and see the changes in your Firebase database. You should also see the UI change from follow to following whether a user is being followed.

@@ -16,7 +16,7 @@ Here are the most important things you will learn:
 - How to architect a complex iOS app
 - How to use libraries built by other developers to speed up development
 
-After finishing the tutorial you will have a good understanding of building complex iOS apps that tie into a backend - from there you will be able to move on and create your original iPhone App!
+After finishing the tutorial you will have a good understanding of building complex iOS apps that tie into a backend - from there you will be able to move on and create your original iPhone app!
 
 <!-- Here's a video that will give you a brief overview of what you will be learning: -->
 <!-- TODO: add overview video for Makestagram -->

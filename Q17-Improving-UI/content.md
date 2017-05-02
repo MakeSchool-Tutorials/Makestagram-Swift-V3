@@ -47,17 +47,32 @@ Next, we'll do the same with a `UILabel` and add the following constraints:
 
 After setting up our subviews, we'll need to connect them to code. Create a new `PostHeaderCell.swift` that is a subclass of `UITableViewCell`. Make your file contains the following:
 
-    import UIKit
+```
+import UIKit
 
-    class PostHeaderCell: UITableViewCell {
+class PostHeaderCell: UITableViewCell {
 
-        override func awakeFromNib() {
-            super.awakeFromNib()
-        }
-
+    override func awakeFromNib() {
+        super.awakeFromNib()
     }
 
+}
+```
+
 Add an IBOutlet for the username label. Open your Home storyboard and `PostHeaderCell` side by side with the assistant navigator and ctrl-drag from the username label to right above the `awakeFromNib` method:
+
+```
+@IBOutlet weak var usernameLabel: UILabel!
+
+override func awakeFromNib() {
+    super.awakeFromNib()
+}
+```
+
+Next, we'll add an IBAction for when the options button is tapped. Ctrl-drag from the options button right below `awakeFromNib`. This type, we'll change the connection type from an outlet to an action. Your `PostHeaderCell` should look like the following:
+
+```
+class PostHeaderCell: UITableViewCell {
 
     @IBOutlet weak var usernameLabel: UILabel!
 
@@ -65,20 +80,11 @@ Add an IBOutlet for the username label. Open your Home storyboard and `PostHeade
         super.awakeFromNib()
     }
 
-Next, we'll add an IBAction for when the options button is tapped. Ctrl-drag from the options button right below `awakeFromNib`. This type, we'll change the connection type from an outlet to an action. Your `PostHeaderCell` should look like the following:
-
-    class PostHeaderCell: UITableViewCell {
-
-        @IBOutlet weak var usernameLabel: UILabel!
-
-        override func awakeFromNib() {
-            super.awakeFromNib()
-        }
-
-        @IBAction func optionsButtonTapped(_ sender: UIButton) {
-            print("options button tapped")
-        }
+    @IBAction func optionsButtonTapped(_ sender: UIButton) {
+        print("options button tapped")
     }
+}
+```
 
 Great! We've finished creating our `PostHeaderCell`. Now we'll move on to creating our `PostActionCell`.
 
@@ -98,27 +104,29 @@ After adding the subviews, you prototype cell should look like the following:
 
 Let's create our IBOutlets and IBAction methods. Create a new `PostActionCell.swift` class and add the following:
 
-    import UIKit
+```
+import UIKit
 
-    class PostActionCell: UITableViewCell {
+class PostActionCell: UITableViewCell {
 
-        // MARK: - Subviews
+    // MARK: - Subviews
 
-        @IBOutlet weak var likeCountLabel: UILabel!
-        @IBOutlet weak var timeAgoLabel: UILabel!
+    @IBOutlet weak var likeCountLabel: UILabel!
+    @IBOutlet weak var timeAgoLabel: UILabel!
 
-        // MARK: - Cell Lifecycle
+    // MARK: - Cell Lifecycle
 
-        override func awakeFromNib() {
-            super.awakeFromNib()
-        }
-
-        // MARK: - IBActions
-
-        @IBAction func likeButtonTapped(_ sender: UIButton) {
-            print("like button tapped")
-        }
+    override func awakeFromNib() {
+        super.awakeFromNib()
     }
+
+    // MARK: - IBActions
+
+    @IBAction func likeButtonTapped(_ sender: UIButton) {
+        print("like button tapped")
+    }
+}
+```
 
 We've successfully created two more cells that will help display our cell. Next we'll look at configuring our `UITableViewDataSource` and `UITableViewDelegate` so that our two new cells display before and after our `PostImageCell`.
 
@@ -130,46 +138,52 @@ To do this, we'll group the table view into sections. Each `Post` will be it's o
 
 Add the following to the `UITableViewDataSource` extension:
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return posts.count
-    }
+```
+func numberOfSections(in tableView: UITableView) -> Int {
+    return posts.count
+}
+```
     
 Next, we'll reconfigure `tableView(_:numberOfRowsInSection)` to the following:
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
-    }
+```
+func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return 3
+}
+```
     
 This method will now return 3 rows for each section to correspond with our header, image and action cells.
 
 Now that we've set up the data source to display the correct number of sections and rows, we'll need to return the corresponding cell in `tableView(_:cellForRowAt:)`:
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let post = posts[indexPath.section]
-        
-        switch indexPath.row {
-        case 0:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "PostHeaderCell") as! PostHeaderCell
-            cell.usernameLabel.text = User.current.username
-            
-            return cell
-            
-        case 1:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "PostImageCell") as! PostImageCell
-            let imageURL = URL(string: post.imageURL)
-            cell.postImageView.kf.setImage(with: imageURL)
-            
-            return cell
-            
-        case 2:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
-            
-            return cell
-            
-        default:
-            fatalError("Error: unexpected indexPath.")
-        }
+```
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let post = posts[indexPath.section]
+
+    switch indexPath.row {
+    case 0:
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostHeaderCell") as! PostHeaderCell
+        cell.usernameLabel.text = User.current.username
+
+        return cell
+
+    case 1:
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostImageCell") as! PostImageCell
+        let imageURL = URL(string: post.imageURL)
+        cell.postImageView.kf.setImage(with: imageURL)
+
+        return cell
+
+    case 2:
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
+
+        return cell
+
+    default:
+        fatalError("Error: unexpected indexPath.")
     }
+}
+```
     
 We've successfully setup our data source and will move on to modifying our `UITableViewDelegate`. The main thing we'll need to make sure of is that the height of each cell is being displayed correctly. We'll need to add cell heights for the `PostHeaderCell` and `PostActionCell`.
 
@@ -195,26 +209,28 @@ Repeat the following for `PostActionCell`:
 
 Next, change your `UITableViewDelegate` to the following:
 
-    // MARK: - UITableViewDelegate
+```
+// MARK: - UITableViewDelegate
 
-    extension HomeViewController: UITableViewDelegate {
-        func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-            switch indexPath.row {
-            case 0:
-                return PostHeaderCell.height
+extension HomeViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch indexPath.row {
+        case 0:
+            return PostHeaderCell.height
 
-            case 1:
-                let post = posts[indexPath.section]
-                return post.imageHeight
+        case 1:
+            let post = posts[indexPath.section]
+            return post.imageHeight
 
-            case 2:
-                return PostActionsCell.height
+        case 2:
+            return PostActionsCell.height
 
-            default:
-                fatalError()
-            }
+        default:
+            fatalError()
         }
     }
+}
+```
 
 Run the app and see if your post now displays. It should look like the image below:
 

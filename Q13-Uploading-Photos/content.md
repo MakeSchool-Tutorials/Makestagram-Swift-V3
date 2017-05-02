@@ -11,21 +11,23 @@ Let's start coding the functionality that uploads our photo to Firebase!
 
 In most cases, writing media to Firebase includes three steps. Here's the simplest example from the *Firebase Storage* documentation:
 
-    // 1 Media Data in memory
-    let data = Data()
+```
+// 1 Media Data in memory
+let data = Data()
 
-    // 2 Create a reference to the file you want to upload
-    let riversRef = storageRef.child("images/rivers.jpg")
+// 2 Create a reference to the file you want to upload
+let riversRef = storageRef.child("images/rivers.jpg")
 
-    // 3 Upload the file to the path "images/rivers.jpg"
-    let uploadTask = riversRef.put(data, metadata: nil) { (metadata, error) in
-      guard let metadata = metadata else {
-        // 4 Uh-oh, an error occurred!
-        return
-      }
-      // 5 Metadata contains file metadata such as size, content-type, and download URL.
-      let downloadURL = metadata.downloadURL
-    }
+// 3 Upload the file to the path "images/rivers.jpg"
+let uploadTask = riversRef.put(data, metadata: nil) { (metadata, error) in
+  guard let metadata = metadata else {
+    // 4 Uh-oh, an error occurred!
+    return
+  }
+  // 5 Metadata contains file metadata such as size, content-type, and download URL.
+  let downloadURL = metadata.downloadURL
+}
+```
 
 The three steps in this code snippet are:
 
@@ -55,33 +57,37 @@ First, let's create a method that will help us upload an image to Firebase. We'l
 > [action]
 Create a new file called `StorageService.swift` in the `Services` directory:
 
-    import UIKit
-    import FirebaseStorage
+```
+import UIKit
+import FirebaseStorage
 
-    struct StorageService {
-        // provide method for uploading images
-    }
+struct StorageService {
+    // provide method for uploading images
+}
+```
 
 Next we'll create a class method that will help us upload images to `Firebase Storage`. Add the following code in `StorageService.swift`:
 
-    static func uploadImage(_ image: UIImage, at reference: FIRStorageReference, completion: @escaping (URL?) -> Void) {
-        // 1
-        guard let imageData = UIImageJPEGRepresentation(image, 0.1) else {
+```
+static func uploadImage(_ image: UIImage, at reference: FIRStorageReference, completion: @escaping (URL?) -> Void) {
+    // 1
+    guard let imageData = UIImageJPEGRepresentation(image, 0.1) else {
+        return completion(nil)
+    }
+
+    // 2
+    reference.put(imageData, metadata: nil, completion: { (metadata, error) in
+        // 3
+        if let error = error {
+            assertionFailure(error.localizedDescription)
             return completion(nil)
         }
-        
-        // 2
-        reference.put(imageData, metadata: nil, completion: { (metadata, error) in
-            // 3
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                return completion(nil)
-            }
-            
-            // 4
-            completion(metadata?.downloadURL())
-        })
-    }
+
+        // 4
+        completion(metadata?.downloadURL())
+    })
+}
+```
 
 Let's break down the code:
 
@@ -94,32 +100,38 @@ Let's break down the code:
 
 Accompanying each image upload will be a new post. Let's create a new service for our `PostService`. Add the follow to our `PostService.swift` source file:
 
-    import UIKit
-    import FirebaseStorage
+```
+import UIKit
+import FirebaseStorage
 
-    struct PostService {
+struct PostService {
 
-    }
+}
+```
 
 Next let's create a class method within our new service for creating a `Post` from an image:
 
-    static func create(for image: UIImage) {
-        let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
-        StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
-            guard let downloadURL = downloadURL else {
-                return
-            }
-            
-            let urlString = downloadURL.absoluteString
-            print("image url: \(urlString)")
+```
+static func create(for image: UIImage) {
+    let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
+    StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
+        guard let downloadURL = downloadURL else {
+            return
         }
+
+        let urlString = downloadURL.absoluteString
+        print("image url: \(urlString)")
     }
+}
+```
 
 To tie things together, let's use our new service to upload a new image to `Firebase Storage`. Once the user selected an image from the `UIImagePickerController`, the `completionHandler` property of our `MGPhotoHelper` will be executed. Let's change the closure we pass to upload the image once it's selected. Open `MainTabBarController` and change the following in `viewDidLoad`:
 
-    photoHelper.completionHandler = { image in
-        PostService.create(for: image)
-    }
+```
+photoHelper.completionHandler = { image in
+    PostService.create(for: image)
+}
+```
 
 ## Testing the Uploading Code
 

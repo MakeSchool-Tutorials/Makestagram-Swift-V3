@@ -136,32 +136,36 @@ Create an empty array of posts in `HomeViewController`:
     
 Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` array.
 
-    // MARK: - UITableViewDataSource
+```
+// MARK: - UITableViewDataSource
 
-    extension HomeViewController: UITableViewDataSource {
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return posts.count
-        }
-
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath)
-            cell.backgroundColor = .red
-
-            return cell
-        }
+extension HomeViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return posts.count
     }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath)
+        cell.backgroundColor = .red
+
+        return cell
+    }
+}
+```
 
 Now our table view will display the same number of cells as in our `posts` array. Last, we'll add the following code to our `viewDidLoad` to fetch our posts from Firebase:
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        UserService.posts(for: User.current) { (posts) in
-            self.posts = posts
-            self.tableView.reloadData()
-        }
+```
+override func viewDidLoad() {
+    super.viewDidLoad()
+
+    UserService.posts(for: User.current) { (posts) in
+        self.posts = posts
+        self.tableView.reloadData()
     }
-    
+}
+```
+
 Let's run our code and see if it's working. If all goes right, you should see some of the posts that are stored in your database.
 
 If you open your Firebase project and navigate to the database, you should be able to expand your JSON tree and see your posts. If everything has gone right your project should look like this:

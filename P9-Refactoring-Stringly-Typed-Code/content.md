@@ -11,38 +11,42 @@ We refactored the method for creating an user to our UserService but we haven't 
 
 Create a new class method in our `UserService` for reading a user from the database:
 
-    struct UserService {
-        static func show(forUID uid: String, completion: @escaping (User?) -> Void) {
-            let ref = FIRDatabase.database().reference().child("users").child(uid)
-            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                guard let user = User(snapshot: snapshot) else {
-                    return completion(nil)
-                }
+```
+struct UserService {
+    static func show(forUID uid: String, completion: @escaping (User?) -> Void) {
+        let ref = FIRDatabase.database().reference().child("users").child(uid)
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+            guard let user = User(snapshot: snapshot) else {
+                return completion(nil)
+            }
 
-                completion(user)
-            })
-        }
-
-        // ...
+            completion(user)
+        })
     }
+
+    // ...
+}
+```
 
 Now we can remove the networking code in `LoginViewController` like the following:
 
-    UserService.show(forUID: user.uid) { (user) in
-        if let user = user {
-            // handle existing user
-            User.setCurrent(user)
+```
+UserService.show(forUID: user.uid) { (user) in
+    if let user = user {
+        // handle existing user
+        User.setCurrent(user)
 
-            let storyboard = UIStoryboard(name: "Main", bundle: .main)
-            if let initialViewController = storyboard.instantiateInitialViewController() {
-                self.view.window?.rootViewController = initialViewController
-                self.view.window?.makeKeyAndVisible()
-            }
-        } else {
-            // handle new user
-            self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        if let initialViewController = storyboard.instantiateInitialViewController() {
+            self.view.window?.rootViewController = initialViewController
+            self.view.window?.makeKeyAndVisible()
         }
+    } else {
+        // handle new user
+        self.performSegue(withIdentifier: "toCreateUsername", sender: self)
     }
+}
+```
 
 # Stringly Typed Constants
 
@@ -52,11 +56,15 @@ A common example you might run into is misspelling the name of a segue identifie
 
 It's a very common mistake to type:
 
-    self.performSegue(withIdentifier: "createUsername", sender: self)
+```
+self.performSegue(withIdentifier: "createUsername", sender: self)
+```
 
 Instead of:
 
-    self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+```
+self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+```
     
 You can see how these mistakes are very easy to make. Let's take a look at the two most common ways of protecting ourselves from stringly typed code: static constants and enums!
 
@@ -68,35 +76,41 @@ Let's start with the more basic of the two solutions: constants. Create a new `C
 
 Create a Constants struct inside of your `Constants.swift` file:
 
-    import Foundation
+```
+import Foundation
 
-    struct Constants {
-
-    }
+struct Constants {
+    // ...
+}
+```
 
 Let's add our first constant to get rid of our stringly typed segue identifier in our LoginViewController. Let's add the following to our constants file:
 
-    struct Constants {
-        struct Segue {
-            static let toCreateUsername = "toCreateUsername"
-        }
+```
+struct Constants {
+    struct Segue {
+        static let toCreateUsername = "toCreateUsername"
     }
+}
+```
 
 Now back in our `LoginViewController` file we can change the following:
 
-    ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-        if let user = User(snapshot: snapshot) {
-            User.setCurrent(user)
+```
+ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+    if let user = User(snapshot: snapshot) {
+        User.setCurrent(user)
 
-            let storyboard = UIStoryboard(name: "Main", bundle: .main)
-            if let initialViewController = storyboard.instantiateInitialViewController() {
-                self.view.window?.rootViewController = initialViewController
-            }
-        } else {
-            // 1
-            self.performSegue(withIdentifier: Constants.Segue.toCreateUsername, sender: self)
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        if let initialViewController = storyboard.instantiateInitialViewController() {
+            self.view.window?.rootViewController = initialViewController
         }
-    })
+    } else {
+        // 1
+        self.performSegue(withIdentifier: Constants.Segue.toCreateUsername, sender: self)
+    }
+})
+```
 
 As you can see, we've removed the string identifier for `toCreateUsername` and replaced it with a constant from our `Constants.swift` file. As you can see the main benefits of storing stringly typed identifiers are:
 
@@ -110,7 +124,9 @@ Pretty handy! Let's take look at the second way of handling stringly typed code:
 
 Enums are a powerful data-type in Swift that can be used in many cool ways. Let's use enums to clean up our references to initialize storyboards. Currently, the way we initialize a storyboard is with the following code:
 
-    let storyboard = UIStoryboard(name: "Main", bundle: .main)
+```
+let storyboard = UIStoryboard(name: "Main", bundle: .main)
+```
     
 You can see we have a stringly typed identifier of Main that refers to the filename of our `Main.storyboard` file.
 
@@ -120,18 +136,20 @@ Let's see how enums help solve this problem. First create a new file called `Sto
 
 Inside our new `Storyboard.Utility.swift` file, extend `UIStoryboard` with the following enum:
 
-    import UIKit
+```
+import UIKit
 
-    extension UIStoryboard {
-        enum MGType: String {
-            case main
-            case login
+extension UIStoryboard {
+    enum MGType: String {
+        case main
+        case login
 
-            var filename: String {
-                return rawValue.capitalized
-            }
+        var filename: String {
+            return rawValue.capitalized
         }
     }
+}
+```
 
 You'll notice we created a new enum within the `UIStoryboard` class called `MGType`. If you're wondering about the name, `MG` are simply initials for Makestagram to identify that this enum was created by our app. This will help avoid potential naming conflicts with Apple or other third-party libraries.
 
@@ -139,48 +157,58 @@ Our enum contains a case for each of our app's storyboards. We also create a com
 
 Next, we create a convenience initializer that will make user of our enum. It'll allow use initialize the correct storyboard based each enum case. Right below the closing curly brace of `MGType` add the following convenience initializer:
 
-    extension UIStoryboard {
-        // ...
+```
+extension UIStoryboard {
+    // ...
 
-        convenience init(type: MGType, bundle: Bundle? = nil) {
-            self.init(name: type.filename, bundle: bundle)
-        }
+    convenience init(type: MGType, bundle: Bundle? = nil) {
+        self.init(name: type.filename, bundle: bundle)
     }
+}
+```
 
 Now whenever we want to access a storyboard we can use the following:
 
-    let loginStoryboard = UIStoryboard(type: .login)
+```
+let loginStoryboard = UIStoryboard(type: .login)
+```
 
 Wait! But we can do even better. If you notice all the times we use storyboard, there's other boilerplate code that we use that we can get rid of with our extension.
 
 Inside our extension, we can add the following:
 
-    extension UIStoryboard {
-        // ...
-    
-        static func initialViewController(for type: MGType) -> UIViewController {
-            let storyboard = UIStoryboard(type: type)
-            guard let initialViewController = storyboard.instantiateInitialViewController() else {
-                fatalError("Couldn't instantiate initial view controller for \(type.filename) storyboard.")
-            }
+```
+extension UIStoryboard {
+    // ...
 
-            return initialViewController
+    static func initialViewController(for type: MGType) -> UIViewController {
+        let storyboard = UIStoryboard(type: type)
+        guard let initialViewController = storyboard.instantiateInitialViewController() else {
+            fatalError("Couldn't instantiate initial view controller for \(type.filename) storyboard.")
         }
+
+        return initialViewController
     }
+}
+```
 
 Now we can reduce our original code from:
 
-    let storyboard = UIStoryboard(type: .main)
-    if let initialViewController = storyboard.instantiateInitialViewController() {
-        self.view.window?.rootViewController = initialViewController
-        self.view.window?.makeKeyAndVisible()
-    }
+```
+let storyboard = UIStoryboard(type: .main)
+if let initialViewController = storyboard.instantiateInitialViewController() {
+    self.view.window?.rootViewController = initialViewController
+    self.view.window?.makeKeyAndVisible()
+}
+```
 
 And change it to the following:
 
-    let initialViewController = UIStoryboard.initialViewController(for: .main)
-    self.view.window?.rootViewController = initialViewController
-    self.view.window?.makeKeyAndVisible()
+```
+let initialViewController = UIStoryboard.initialViewController(for: .main)
+self.view.window?.rootViewController = initialViewController
+self.view.window?.makeKeyAndVisible()
+```
 
 We no longer have to optionally unwrap the initial view controller and instead can use our convenience class method for getting a reference to the initial view controller of a storyboard. On top of that, everything is type safe!
 

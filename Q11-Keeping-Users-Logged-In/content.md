@@ -20,13 +20,17 @@ Let's learn about `UserDefaults` and how it can help us do this!
 
 Using UserDefaults to store data is really easy. To write data, access the `UserDefault` singleton and use the provided instance methods to store various types of information like so:
 
-    // write data
-    UserDefaults.standard.set(false, forKey: Constants.UserDefaults.isFirstTimeUser)
+```
+// write data
+UserDefaults.standard.set(false, forKey: Constants.UserDefaults.isFirstTimeUser)
+```
 
 To read information from `UserDefaults`:
 
-    // read data
-    let isFirstTimeUser = UserDefaults.standard.bool(forKey: Constants.UserDefaults.isFirstTimeUser)
+```
+// read data
+let isFirstTimeUser = UserDefaults.standard.bool(forKey: Constants.UserDefaults.isFirstTimeUser)
+```
 
 If a user removes your app from their phone, all content stored within `UserDefault`s will also be deleted.
 
@@ -43,60 +47,68 @@ To use `NSKeyedArchiver` to archive our `User`, we'll need to:
 
 Add the `NSObject` superclass to your `User` class. We'll also need to add `super.init()` to our initializers to make sure we're calling `NSObject`'s initializer to initialize the class.
  
-    class User: NSObject {
+```
+class User: NSObject {
 
+    // ...
+
+    init?(snapshot: FIRDataSnapshot) {
         // ...
 
-        init?(snapshot: FIRDataSnapshot) {
-            // ...
-
-            super.init()
-        }
-
-        init(uid: String, username: String) {
-            // ...
-
-            super.init()
-        }
+        super.init()
     }
+
+    init(uid: String, username: String) {
+        // ...
+
+        super.init()
+    }
+}
+```
 
 ## Implementing the NSCoding Protocol
 
 Next we'll need to implementing the `NSCoding` protocol so the user object can properly be encoded as `Data`. Add the following extension to the bottom of the `User.swift` source file:
 
-    extension User: NSCoding {
-        func encode(with aCoder: NSCoder) {
-            aCoder.encode(uid, forKey: Constants.UserDefaults.uid)
-            aCoder.encode(username, forKey: Constants.UserDefaults.username)
-        }
+```
+extension User: NSCoding {
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(uid, forKey: Constants.UserDefaults.uid)
+        aCoder.encode(username, forKey: Constants.UserDefaults.username)
     }
+}
+```
 
 You'll notice that we're using our constants files to manage stringly-typed keys. Make sure to update your constants file with the following:
 
-    struct Constants {
-        // ...
+```
+struct Constants {
+    // ...
 
-        struct UserDefaults {
-            static let currentUser = "currentUser"
-            static let uid = "uid"
-            static let username = "username"
-        }
+    struct UserDefaults {
+        static let currentUser = "currentUser"
+        static let uid = "uid"
+        static let username = "username"
     }
+}
+```
 
 We're using the `uid` and `username` keys to store each respective property of the user object. We'll later use `currentUser` to store our current user.
 
 If you try to build the app right now, the compiler with throw an error saying our using object doesn't conform to the `NSCoding` protocol. This is because we need to implement `init?(coder:)` in our `User` class. This allows users to be decoded from data. Add the following alongside our other initializers:
 
-    required init?(coder aDecoder: NSCoder) {
-        guard let uid = aDecoder.decodeObject(forKey: Constants.UserDefaults.uid) as? String,
-            let username = aDecoder.decodeObject(forKey: Constants.UserDefaults.username) as? String
-            else { return nil }
-        
-        self.uid = uid
-        self.username = username
+```
+required init?(coder aDecoder: NSCoder) {
+    guard let uid = aDecoder.decodeObject(forKey: Constants.UserDefaults.uid) as? String,
+        let username = aDecoder.decodeObject(forKey: Constants.UserDefaults.username) as? String
+        else { return nil }
 
-        super.init()
-    }
+    self.uid = uid
+    self.username = username
+
+    super.init()
+}
+```
     
 Great! Now we've successfully implemented the `NSCoding` protocol. Now we can store our current user in `UserDefaults`.
 
@@ -104,19 +116,21 @@ Great! Now we've successfully implemented the `NSCoding` protocol. Now we can st
 
 We'll create an option in our `setCurrent(_:)` method to persist the current user to `UserDefaults`. In our user class, change the class method for `setCurrent(_:)` to the following:
 
-    // 1
-    class func setCurrent(_ user: User, writeToUserDefaults: Bool = false) {
-        // 2
-        if writeToUserDefaults {
-            // 3
-            let data = NSKeyedArchiver.archivedData(withRootObject: user)
-            
-            // 4
-            UserDefaults.standard.set(data, forKey: Constants.UserDefaults.currentUser)
-        }
+```
+// 1
+class func setCurrent(_ user: User, writeToUserDefaults: Bool = false) {
+    // 2
+    if writeToUserDefaults {
+        // 3
+        let data = NSKeyedArchiver.archivedData(withRootObject: user)
 
-        _current = user
+        // 4
+        UserDefaults.standard.set(data, forKey: Constants.UserDefaults.currentUser)
     }
+
+    _current = user
+}
+```
     
 Let's break this down:
 
@@ -127,34 +141,38 @@ Let's break this down:
 
 Great, now we can use this method to store our current user in `UserDefaults`. Let's go to our `LoginViewController` to make use of this method when an existing user logs in.
 
-    UserService.show(forUID: user.uid) { (user) in
-        if let user = user {
-            // handle existing user
-            User.setCurrent(user, writeToUserDefaults: true)
-
-            let initialViewController = UIStoryboard.initialViewController(for: .main)
-            self.view.window?.rootViewController = initialViewController
-            self.view.window?.makeKeyAndVisible()
-        } else {
-            // handle new user
-            self.performSegue(withIdentifier: Constants.Segue.toCreateUsername, sender: self)
-        }
-    }
-
-Next, navigate to the `CreateUsernameViewController` and do the same:
-
-    UserService.create(user, username: username) { (user) in
-        guard let user = user else {
-            // handle error
-            return
-        }
-
+```
+UserService.show(forUID: user.uid) { (user) in
+    if let user = user {
+        // handle existing user
         User.setCurrent(user, writeToUserDefaults: true)
 
         let initialViewController = UIStoryboard.initialViewController(for: .main)
         self.view.window?.rootViewController = initialViewController
         self.view.window?.makeKeyAndVisible()
+    } else {
+        // handle new user
+        self.performSegue(withIdentifier: Constants.Segue.toCreateUsername, sender: self)
     }
+}
+```
+
+Next, navigate to the `CreateUsernameViewController` and do the same:
+
+```
+UserService.create(user, username: username) { (user) in
+    guard let user = user else {
+        // handle error
+        return
+    }
+
+    User.setCurrent(user, writeToUserDefaults: true)
+
+    let initialViewController = UIStoryboard.initialViewController(for: .main)
+    self.view.window?.rootViewController = initialViewController
+    self.view.window?.makeKeyAndVisible()
+}
+```
     
 Now whenever a user signs up or logs in, the user will be stored in UserDefaults.
 
@@ -193,13 +211,15 @@ If the `FIRUser` singleton already exists and we unarchive data for the `current
 
 Now we can change our `application(_:didFinishLaunchingWithOptions:)` method to look like this:
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        FIRApp.configure()
-        
-        configureInitialRootViewController(for: window)
+```
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    FIRApp.configure()
 
-        return true
-    }
+    configureInitialRootViewController(for: window)
+
+    return true
+}
+```
     
 Run the app and go through the login flow. Terminate the app and run it again. You'll notice that we're now directed to the appropriate initial view controller based on whether we previously authenticated with Firebase.
 

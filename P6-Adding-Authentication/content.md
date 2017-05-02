@@ -54,20 +54,22 @@ Within FirebaseUI, we'll be using the AuthViewController. To implement the `Auth
 
 Within our `LoginViewController`, add the following to our `loginButtonTapped(sender:)` method:
 
-    // MARK: - IBActions
+```
+// MARK: - IBActions
 
-    @IBAction func loginButtonTapped(_ sender: UIButton) {
-        // 1
-        guard let authUI = FUIAuth.defaultAuthUI()
-            else { return }
+@IBAction func loginButtonTapped(_ sender: UIButton) {
+    // 1
+    guard let authUI = FUIAuth.defaultAuthUI()
+        else { return }
 
-        // 2
-        authUI.delegate = self
+    // 2
+    authUI.delegate = self
 
-        // 3
-        let authViewController = authUI.authViewController()
-        present(authViewController, animated: true)
-    }
+    // 3
+    let authViewController = authUI.authViewController()
+    present(authViewController, animated: true)
+}
+```
 
 You'll notice each line of code corresponds closely to each of the steps we previously defined:
 
@@ -81,15 +83,17 @@ However, we haven't finished all 4 steps we previously defined and that's why Xc
 
 Before the closing curly brace of the `LoginViewController` class, add the following extension:
 
-    class LoginViewController: UIViewController {
-        // ...
-    }
+```
+class LoginViewController: UIViewController {
+    // ...
+}
 
-    extension LoginViewController: FUIAuthDelegate {
-        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            print("handle user signup / login")
-        }
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+        print("handle user signup / login")
     }
+}
+```
 
 We've implemented the beginnings of our authentication logic. Run the app and sign up with a new user account. Go back to the authentication tab in your Firebase dashboard and verify that you've created a new user. If everything goes well you should see the following:
 
@@ -99,15 +103,17 @@ We've implemented the beginnings of our authentication logic. Run the app and si
 
 As you'll notice through running the app, each time you sign up or log into an existing accounts, the `FUIAuthDelegate` method `authUI(_:didSignInWith:error:)` will be called. This method's parameters are the FirebaseAuth user that was authenticated and/or an error that occurred. Let's implement some basic error handling that will let us know if something went wrong. Modify your `FUIAuthDelegate` as follows:
 
-    extension LoginViewController: FUIAuthDelegate {
-        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            if let error = error {
-                assertionFailure("Error signing in: \(error.localizedDescription)")
-            }
-
-            print("handle user signup / login")
+```
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+        if let error = error {
+            assertionFailure("Error signing in: \(error.localizedDescription)")
         }
+
+        print("handle user signup / login")
     }
+}
+```
 
 Now, whenever there's an error while we're in development, the app will crash with an formatted error message of what went wrong. In production code, assertions are ignored and are a nice tool to let us know if something's going unexpectedly while we're building our apps.
 
@@ -123,7 +129,9 @@ UID is an acronym for unique identifier and represents a way to uniquely identif
 
 Whenever a user is authenticated with Firebase, the current `FIRUser` object can be accessed through the `FIRUser` singleton. This allows easy access to our `FIRUser` object anywhere within our app. The `FIRUser` single can be accessed with the following code snippet:
 
-    let user: FIRUser? = FIRAuth.auth()?.currentUser
+```
+let user: FIRUser? = FIRAuth.auth()?.currentUser
+```
 
 The type of the singleton is `FIRUser?`, which is an optional. This singleton can be nil when there is no user that is currently logged in with Firebase.
 

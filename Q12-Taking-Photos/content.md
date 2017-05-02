@@ -19,7 +19,9 @@ One of the ways to accomplish this is to make use of the `UITabBarControllerDele
 
 That protocol contains a method that is interesting for us:
 
-    optional public func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool
+```
+optional public func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool
+```
 
 You can read the full documentation of the method [here](https://developer.apple.com/reference/uikit/uitabbarcontrollerdelegate/1621166-tabbarcontroller).
 
@@ -40,28 +42,32 @@ First let's create a new file `MainTabBarController.swift`. Make sure you don't 
 
 In the `MainTabBarController.swift` file add the following code:
 
-    class MainTabBarController: UITabBarController {
+```
+class MainTabBarController: UITabBarController {
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-            // 1
-            delegate = self
-            // 2
-            tabBar.unselectedItemTintColor = .black
-        }
+        // 1
+        delegate = self
+        // 2
+        tabBar.unselectedItemTintColor = .black
     }
+}
+```
 
 1. First we set the `MainTabBarController` as the delegate of it's tab bar
 2. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
 
 Build the app and you'll notice we'll get an error that `MainTabBarController` doesn't implement `UITabBarControllerDelegate`. Let's add an extension and implement `tabBarController(_:shouldSelect:)` to fix this error:
 
-    extension MainTabBarController: UITabBarControllerDelegate {
-        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            return true
-        }
+```
+extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        return true
     }
+}
+```
 
 The `UITabBarControllerDelegate` method `tabBarController(_:shouldSelect:)` returns a `Bool` value that determines if the tab bar will present the corresponding `UIViewController` that the user has selected. If `true`, the tab bar will behave as usual. If we return `false`, the view controller will not be displayed – exactly the behavior that we want for our photo tab bar item.
 
@@ -83,13 +89,15 @@ In order to determine when to return `true` or `false` we need a way of identify
 
 We can now make use of the `tag` property to identify the center tab bar item. We know from our storyboard that our center tab bar item's tag will be 1. Let's set this as a constant in our `Constants.swift` file:
 
-    struct Constants {
-        // ...
+```
+struct Constants {
+    // ...
 
-        struct TabBarItem {
-            static let centerTag = 1
-        }
+    struct TabBarItem {
+        static let centerTag = 1
     }
+}
+```
     
 > [action]
 Implement the logic in `tabBarController(_:shouldSelect:)` to present the selected view controller:
@@ -169,21 +177,23 @@ Let's get started with building the `MGPhotoHelper`!
 > [action]
 Replace the entire content of `MGPhotoHelper.swift` with the following code:
 
-    import UIKit
+```
+import UIKit
 
-    class MGPhotoHelper: NSObject {
+class MGPhotoHelper: NSObject {
 
-        // MARK: - Properties
+    // MARK: - Properties
 
-        var completionHandler: ((UIImage) -> Void)?
+    var completionHandler: ((UIImage) -> Void)?
 
-        // MARK: - Helper Methods
+    // MARK: - Helper Methods
 
-        func presentActionSheet(from viewController: UIViewController) {
-
-        }
+    func presentActionSheet(from viewController: UIViewController) {
 
     }
+
+}
+```
 
 Let's discuss this code. `MGPhotoHelper` has a `completionHandler` that will be called when the user has selected a photo from `UIImagePickerController`.
 
@@ -250,30 +260,36 @@ Time to switch back to the `MainTabBarController`. Currently we are printing a s
 
 First, let's create an instance of the `MGPhotoHelper` object in `MainTabBarController.swift`:
 
-    // MARK: - Properties
-    
-    let photoHelper = MGPhotoHelper()
+```
+// MARK: - Properties
+
+let photoHelper = MGPhotoHelper()
+```
 
 Next, let's set the `completionHandler` property of `MGPhotoHelper` in `viewDidLoad`:
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        photoHelper.completionHandler = { image in
-            print("handle image")
-        }
-        
-        delegate = self
-        tabBar.unselectedItemTintColor = .black
+```
+override func viewDidLoad() {
+    super.viewDidLoad()
+
+    photoHelper.completionHandler = { image in
+        print("handle image")
     }
+
+    delegate = self
+    tabBar.unselectedItemTintColor = .black
+}
+```
 
 In our `viewDidLoad` we set a *closure*. A closure can be thought as a function without a name.
 
 This part of the code is the closure:
 
-    photoHelper.completionHandler = { image in
-        print("handle image")
-    }
+```
+photoHelper.completionHandler = { image in
+    print("handle image")
+}
+```
 
 The entire closure is enclosed in curly braces. It starts with the list of parameters in parentheses. Our callback receives a `UIImage?` from the `MGPhotoHelper`. The `in` keyword marks the beginning of the actual code of the closure - for now we only have a print statement in there.
 

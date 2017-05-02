@@ -34,9 +34,11 @@ One capability of the `updateChildValues` is the ability to simiultaneously writ
 
 Let's look at how we would implement `setValue`:
 
-    let userRef = rootRef.child("users").child(user.uid)
-    // 1
-    userRef.setValue(["username": "chase"])
+```
+let userRef = rootRef.child("users").child(user.uid)
+// 1
+userRef.setValue(["username": "chase"])
+```
 
 1. We write the dictionary with the associated key `users/uid/username` to `chase`.
 
@@ -110,31 +112,35 @@ Side by side, your storyboard view controller and code should look like:
 
 The main thing we'll focus on is the following method:
 
-    @IBAction func nextButtonTapped(_ sender: UIButton) {
-        // create user account here
-    }
+```
+@IBAction func nextButtonTapped(_ sender: UIButton) {
+    // create user account here
+}
+```
 
 Before we can implement the logic for when the next button is tapped, we need to first make the Login View Controller segue to the Create Username View Controller when a new user is created. Add the following line to your `LoginViewController.swift` file:
 
-    extension LoginViewController: FUIAuthDelegate {
-        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            if let error = error {
-                print("Error signing in: \(error.localizedDescription)")
-            }
-
-            guard let user = user else { return }
-
-            let ref = FIRDatabase.database().reference().child("users").child(user.uid)
-
-            ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-                if let user = User(snapshot: snapshot) {
-                    print("Welcome back, \(user.username).")
-                } else {
-                    self.performSegue(withIdentifier: "toCreateUsername", sender: self)
-                }
-            })
+```
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+        if let error = error {
+            print("Error signing in: \(error.localizedDescription)")
         }
+
+        guard let user = user else { return }
+
+        let ref = FIRDatabase.database().reference().child("users").child(user.uid)
+
+        ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+            if let user = User(snapshot: snapshot) {
+                print("Welcome back, \(user.username).")
+            } else {
+                self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+            }
+        })
     }
+}
+```
 
 Don't forget to create a segue in your login storyboard by ctrl-dragging from the `LoginViewController` to the `CreateUsernameViewController`. After creating the segue, make sure you selected and add `toCreateUsername` under Identifier in the attributes inspector:
 
@@ -155,33 +161,35 @@ When a user taps the next button we want the following to happen:
 
 Modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swift` as follows:
 
-    @IBAction func nextButtonTapped(_ sender: UIButton) {
-        // 1
-        guard let firUser = FIRAuth.auth()?.currentUser,
-            let username = usernameTextField.text,
-            !username.isEmpty else { return }
+```
+@IBAction func nextButtonTapped(_ sender: UIButton) {
+    // 1
+    guard let firUser = FIRAuth.auth()?.currentUser,
+        let username = usernameTextField.text,
+        !username.isEmpty else { return }
 
-        // 2
-        let userAttrs = ["username": username]
+    // 2
+    let userAttrs = ["username": username]
 
-        // 3
-        let ref = FIRDatabase.database().reference().child("users").child(user.uid)
+    // 3
+    let ref = FIRDatabase.database().reference().child("users").child(user.uid)
 
-        // 4
-        ref.setValue(userAttrs) { (error, ref) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                return
-            }
-
-            // 5
-            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                let user = User(snapshot: snapshot)
-
-                // handle newly created user here
-            })
+    // 4
+    ref.setValue(userAttrs) { (error, ref) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            return
         }
+
+        // 5
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+            let user = User(snapshot: snapshot)
+
+            // handle newly created user here
+        })
     }
+}
+```
 
 Let's walk through the code above:
 
@@ -226,9 +234,11 @@ A service layer helps you decouple your view controllers from your networking lo
 
 Let's create a new struct called `UserService.swift`. We'll put all our methods related to user networking in here. 
 
-    struct UserService {
-        // insert user-related networking code here
-    }
+```
+struct UserService {
+    // insert user-related networking code here
+}
+```
     
 Make sure you place all your service structs in the `Services` directory and create a new `Services` group in your project navigator:
 
@@ -236,44 +246,48 @@ Make sure you place all your service structs in the `Services` directory and cre
 
 Next let's create a static method that encapsulates create an user.
 
-    import Foundation
-    import FirebaseAuth.FIRUser
-    import FirebaseDatabase
+```
+import Foundation
+import FirebaseAuth.FIRUser
+import FirebaseDatabase
 
-    struct UserService {
-        static func create(_ firUser: FIRUser, username: String, completion: @escaping (User?) -> Void) {
-            let userAttrs = ["username": username]
+struct UserService {
+    static func create(_ firUser: FIRUser, username: String, completion: @escaping (User?) -> Void) {
+        let userAttrs = ["username": username]
 
-            let ref = FIRDatabase.database().reference().child("users").child(firUser.uid)
-            ref.setValue(userAttrs) { (error, ref) in
-                if let error = error {
-                    assertionFailure(error.localizedDescription)
-                    return completion(nil)
-                }
-
-                ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                    let user = User(snapshot: snapshot)
-                    completion(user)
-                })
+        let ref = FIRDatabase.database().reference().child("users").child(firUser.uid)
+        ref.setValue(userAttrs) { (error, ref) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return completion(nil)
             }
+
+            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                let user = User(snapshot: snapshot)
+                completion(user)
+            })
         }
     }
+}
+```
 
 Here we remove the networking-related code of creating a new user in our `CreateUsernameViewController` and place it inside our service struct. The service struct will act as an intermediary for communicating between our app and Firebase.
 
 Now let's go back to our Create Username View Controller and refactor the code to use our new service class.
 
-    @IBAction func nextButtonTapped(_ sender: UIButton) {
-        guard let firUser = FIRAuth.auth()?.currentUser,
-            let username = usernameTextField.text,
-            !username.isEmpty else { return }
+```
+@IBAction func nextButtonTapped(_ sender: UIButton) {
+    guard let firUser = FIRAuth.auth()?.currentUser,
+        let username = usernameTextField.text,
+        !username.isEmpty else { return }
 
-        UserService.create(firUser, username: username) { (user) in
-            guard let user = user else { return }
+    UserService.create(firUser, username: username) { (user) in
+        guard let user = user else { return }
 
-            print("Created new user: \(user.username)")
-        }
+        print("Created new user: \(user.username)")
     }
+}
+```
 
 Let's make sure everything works as expected. Run the app and create a new user to make sure our app is working as before.
 
@@ -283,22 +297,24 @@ After creating a new user in our `CreateUsernameViewController`, we want to let 
 
 Add the following code below:
 
-    UserService.create(firUser, username: username) { (user) in
-        guard let _ = user else {
-            // handle error
-            return
-        }
-
-        // 1
-        let storyboard = uistoryboard(name: "main", bundle: .main)
-
-        // 2
-        if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
-            // 3
-            self.view.window?.rootviewcontroller = initialviewcontroller
-            self.view.window?.makekeyandvisible()
-        }
+```
+UserService.create(firUser, username: username) { (user) in
+    guard let _ = user else {
+        // handle error
+        return
     }
+
+    // 1
+    let storyboard = uistoryboard(name: "main", bundle: .main)
+
+    // 2
+    if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
+        // 3
+        self.view.window?.rootviewcontroller = initialviewcontroller
+        self.view.window?.makekeyandvisible()
+    }
+}
+```
 
 Let's walk through the code we just added:
 
@@ -314,17 +330,19 @@ Simliarly to our approach to new users, if we recieved an existing user on our l
 
 Go ahead and add the following code to our `LoginViewController`. This is the exact same code we used to set the root view controller after a new user was created.
 
-    ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-        if let _ = User(snapshot: snapshot) {
-            let storyboard = uistoryboard(name: "main", bundle: .main)
-            if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
-                self.view.window?.rootviewcontroller = initialviewcontroller
-                self.view.window?.makekeyandvisible()
-            }
-        } else {
-            self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+```
+ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+    if let _ = User(snapshot: snapshot) {
+        let storyboard = uistoryboard(name: "main", bundle: .main)
+        if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
+            self.view.window?.rootviewcontroller = initialviewcontroller
+            self.view.window?.makekeyandvisible()
         }
-    })
+    } else {
+        self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+    }
+})
+```
 
 # Creating a User singleton
 
@@ -334,28 +352,30 @@ Before moving on, we're going to create our own user singleton. Be wary of singl
 
 In our `User.swift` file, we're going to create a class variable like so:
 
-    // MARK: - Singleton
+```
+// MARK: - Singleton
 
-    // 1
-    private static var _current: User?
+// 1
+private static var _current: User?
 
-    // 2
-    static var current: User {
-        // 3
-        guard let currentUser = _current else {
-            fatalError("Error: current user doesn't exist")
-        }
-
-        // 4
-        return currentUser
+// 2
+static var current: User {
+    // 3
+    guard let currentUser = _current else {
+        fatalError("Error: current user doesn't exist")
     }
 
-    // MARK: - Class Methods
+    // 4
+    return currentUser
+}
 
-    // 5
-    static func setCurrent(_ user: User) {
-        _current = user
-    }
+// MARK: - Class Methods
+
+// 5
+static func setCurrent(_ user: User) {
+    _current = user
+}
+```
 
 Let's walk through the code we just created:
 
@@ -367,32 +387,15 @@ Let's walk through the code we just created:
 
 Now that we've created a User singleton, we need to make sure to set it once we recieve the user from the database we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It can also be accessed from any view controller with the following code:
 
-    let user = User.current
+```
+let user = User.current
+```
 
 Let's go ahead and make sure we set the current user. Add the following code in your Login View Controller:
 
-    ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-        if let user = User(snapshot: snapshot) {
-            User.setCurrent(user)
-
-            let storyboard = UIStoryboard(name: "Main", bundle: .main)
-            if let initialViewController = storyboard.instantiateInitialViewController() {
-                self.view.window?.rootViewController = initialViewController
-                self.view.window?.makeKeyAndVisible()
-            }
-        } else {
-            self.performSegue(withIdentifier: "toCreateUsername", sender: self)
-        }
-    })
-
-Next update the following code in your `CreateUsernameViewController`:
-
-    UserService.create(firUser, username: username) { (user) in
-        guard let user = user else {
-            // handle error
-            return
-        }
-
+```
+ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+    if let user = User(snapshot: snapshot) {
         User.setCurrent(user)
 
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
@@ -400,6 +403,29 @@ Next update the following code in your `CreateUsernameViewController`:
             self.view.window?.rootViewController = initialViewController
             self.view.window?.makeKeyAndVisible()
         }
+    } else {
+        self.performSegue(withIdentifier: "toCreateUsername", sender: self)
     }
+})
+```
+
+Next update the following code in your `CreateUsernameViewController`:
+
+```
+UserService.create(firUser, username: username) { (user) in
+    guard let user = user else {
+        // handle error
+        return
+    }
+
+    User.setCurrent(user)
+
+    let storyboard = UIStoryboard(name: "Main", bundle: .main)
+    if let initialViewController = storyboard.instantiateInitialViewController() {
+        self.view.window?.rootViewController = initialViewController
+        self.view.window?.makeKeyAndVisible()
+    }
+}
+```
 
 Congrats, now we successfully handle both new and existing users when they sign up or login in through our authentication system. Run the app a couple times and try create new user accounts as well as logging into existing user accounts. Make sure that for each case, you're being taken through the correct user flow and redirect to the main storyboard.

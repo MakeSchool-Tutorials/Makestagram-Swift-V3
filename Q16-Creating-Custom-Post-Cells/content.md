@@ -19,15 +19,17 @@ Open `Home.storyboard` and select the table view of your `HomeViewController`. C
 
 Next we'll need to conform `HomeViewController` to `UITableViewDelegate`. Open `HomeViewController.swift` and add the following:
 
-    // MARK: - UITableViewDelegate
+```
+// MARK: - UITableViewDelegate
 
-    extension HomeViewController: UITableViewDelegate {
-        func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-            let post = posts[indexPath.row]
+extension HomeViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let post = posts[indexPath.row]
 
-            return post.imageHeight
-        }
+        return post.imageHeight
     }
+}
+```
 
 Implementing this method returns the height that each cell should be given an index path. This allows us to have cells that are varying heights within the same table view.
 
@@ -47,8 +49,10 @@ Navigate to the following [github link](https://github.com/onevcat/Kingfisher) a
 
 *Kingfisher* is a popular Swift library for asychronously downloading and caching images. We'll be able to use it like this:
 
-    let url = URL(string: "https://domain.com/image.jpg")!
-    imageView.kf.setImage(with: url)
+```
+let url = URL(string: "https://domain.com/image.jpg")!
+imageView.kf.setImage(with: url)
+```
     
 As you can see, *Kingfisher* allows us to easily download and turn `URL`s into `UIImage`s.
 
@@ -83,40 +87,48 @@ Additionally we need to change the `Content Mode` of the image view. Currently i
 
 Last, let's update our tableview's datasource to show our image. First let's import the Kingfisher library with the following line:
 
-    import Kingfisher
+```
+import Kingfisher
+```
 
 Change your `UITableViewDataSource` in your `HomeViewController` to the following:
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let post = posts[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as! PostImageCell
-        
-        let imageURL = URL(string: post.imageURL)
-        cell.postImageView.kf.setImage(with: imageURL)
-        
-        return cell
-    }
+```
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let post = posts[indexPath.row]
+    let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as! PostImageCell
+
+    let imageURL = URL(string: post.imageURL)
+    cell.postImageView.kf.setImage(with: imageURL)
+
+    return cell
+}
+```
 
 # Configuring our TableView
 
 Next let's add some UI configuration for our table:
 
-    func configureTableView() {
-        // remove separators for empty cells
-        tableView.tableFooterView = UIView()
-        // remove separators from cells
-        tableView.separatorStyle = .none
-    }
+```
+func configureTableView() {
+    // remove separators for empty cells
+    tableView.tableFooterView = UIView()
+    // remove separators from cells
+    tableView.separatorStyle = .none
+}
+```
     
 Next let's call the method in our `viewDidLoad`:
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        configureTableView()
-        
-        // ...
-    }
+```
+override func viewDidLoad() {
+    super.viewDidLoad()
+
+    configureTableView()
+
+    // ...
+}
+```
     
 Now you can run the app again. And for the first time you should see our photos on the screen!
 

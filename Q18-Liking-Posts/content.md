@@ -75,17 +75,17 @@ Next, we'll add the code for writing the data for liking a post to our database.
 
 > [action]
 In the same `create(for:success)` method, add the following code:
-
+>
     static func create(for post: Post, success: @escaping (Bool) -> Void) {
         // ...
-
+>
         let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
         likesRef.setValue(true) { (error, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
                 return success(false)
             }
-
+>
             return success(true)
         }
     }
@@ -96,23 +96,25 @@ You'll notice our callback `success` returns a `Bool` on whether the data was su
 
 We've implemented the service method for liking a post. Let's implement the reverse of unliking a given post:
 
-    static func delete(for post: Post, success: @escaping (Bool) -> Void) {
-        guard let key = post.key else { 
-            return success(false) 
-        }
-
-        let currentUID = User.current.uid
-
-        let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
-        likesRef.setValue(nil) { (error, _) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                return success(false)
-            }
-
-            return success(true)
-        }
+```
+static func delete(for post: Post, success: @escaping (Bool) -> Void) {
+    guard let key = post.key else { 
+        return success(false) 
     }
+
+    let currentUID = User.current.uid
+
+    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    likesRef.setValue(nil) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            return success(false)
+        }
+
+        return success(true)
+    }
+}
+```
     
 In this method, we do the same as the previous step, but we set the value of data stored at the specified location to `nil`. This will delete the current node at that location, if it exists.
 
@@ -259,11 +261,13 @@ Whenever working with data that can be corrupted by concurrent modifications, we
 
 Great, we've now connected and added the new functionality to support our likes feature. We'll need to update the UI to make it work. Add the following for your datasource in your `HomeViewController`:
 
-    case 2:
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionsCell
-        cell.likesCountLabel.text = "\(post.likesCount) likes"
+```
+case 2:
+    let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionsCell
+    cell.likesCountLabel.text = "\(post.likesCount) likes"
 
-        return cell
+    return cell
+```
 
 ## Connecting the Like Button
 
@@ -273,7 +277,9 @@ We need to return whether the post is already liked so we know which state the p
 
 First, let's add an `isLiked` property to our post. This will tell us whether the current user has liked the current post:
 
-    var isLiked = false
+```
+var isLiked = false
+```
 
 We'll give this a default value of `false` because initially when we first read the post from the database, we won't know the initial value. In addition, we'll make this a variable instead of a constant because we want to be able to change the state of this property later to match whether the current user has actually liked the post. Next we'll need to add a class method to our `LikeService` to tell whether a post is liked by the current user. 
 
@@ -300,38 +306,40 @@ First we make sure that the post has a key. Then we create a relative path to th
 
 We'll need to update our reading from posts to check if each post returned is liked by the current user. Let's do that now:
 
-    static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
-        let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
-                return completion([])
-            }
+```
+static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
+    let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
+            return completion([])
+        }
 
-            let dispatchGroup = DispatchGroup()
+        let dispatchGroup = DispatchGroup()
 
-            let posts: [Post] =
-                snapshot
-                    .reversed()
-                    .flatMap {
-                        guard let post = Post(snapshot: $0)
-                            else { return nil }
+        let posts: [Post] =
+            snapshot
+                .reversed()
+                .flatMap {
+                    guard let post = Post(snapshot: $0)
+                        else { return nil }
 
-                        dispatchGroup.enter()
+                    dispatchGroup.enter()
 
-                        LikeService.isPostLiked(post) { (isLiked) in
-                            post.isLiked = isLiked
-                            
-                            dispatchGroup.leave()
-                        }
+                    LikeService.isPostLiked(post) { (isLiked) in
+                        post.isLiked = isLiked
 
-                        return post
+                        dispatchGroup.leave()
                     }
 
-            dispatchGroup.notify(queue: .main, execute: {
-                completion(posts)
-            })
+                    return post
+                }
+
+        dispatchGroup.notify(queue: .main, execute: {
+            completion(posts)
         })
-    }
+    })
+}
+```
 
 Here we rewrite our code to check whether each of our posts is liked by the current user. We use dispatch groups to wait for all of the asychronous code to return. Once all of our requests have returned, we send our posts to the completion handler on the main thread. Now each post that is returned with our `posts(for:completion:)` service method will have whether the user has liked it or not.
 
@@ -364,25 +372,29 @@ The `PostActionCellDelegate` allows us to define a protocol that any delegate of
 
 Next, we'll add a delegate property of type `PostActionCellDelegate?`:
 
-    class PostActionCell: UITableViewCell {
+```
+class PostActionCell: UITableViewCell {
 
-        // MARK: - Properties
-        weak var delegate: PostActionCellDelegate?
+    // MARK: - Properties
+    weak var delegate: PostActionCellDelegate?
 
-        // ...
-    }
+    // ...
+}
+```
 
 Last, to notify the delegate when a user taps the like button, we'll call the delegate's `didTapLikeButton(_:on:)` whenever `likeButtonTapped` is executed:
 
-    class PostActionCell: UITableViewCell {
+```
+class PostActionCell: UITableViewCell {
 
-        // ...
+    // ...
 
-        // MARK: - IBActions
-        @IBAction func likeButtonTapped(_ sender: UIButton) {
-            delegate?.didTapLikeButton(sender, on: self)
-        }
+    // MARK: - IBActions
+    @IBAction func likeButtonTapped(_ sender: UIButton) {
+        delegate?.didTapLikeButton(sender, on: self)
     }
+}
+```
 
 ## Configuring the PostActionCell UI
 
@@ -401,27 +413,29 @@ Next, we'll refactor our `tableView(_:cellForRowAt:)` method for our `PostAction
 
 Find the correct case for your `PostActionCell` in `tableView(_:cellForRowAt:)` and change it to the following: 
 
-    extension HomeViewController: UITableViewDataSource {
+```
+extension HomeViewController: UITableViewDataSource {
+    // ...
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // ...
 
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            // ...
+        case 2:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
+            cell.delegate = self
+            configureCell(cell, with: post)
 
-            case 2:
-                let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
-                cell.delegate = self
-                configureCell(cell, with: post)
+            return cell
 
-                return cell
-
-            // ...
-        }
-
-        func configureCell(_ cell: PostActionCell, with post: Post) {
-            cell.likeButton.isSelected = post.isLiked
-            cell.likeCountLabel.text = "\(post.likeCount) likes"
-        }
+        // ...
     }
+
+    func configureCell(_ cell: PostActionCell, with post: Post) {
+        cell.likeButton.isSelected = post.isLiked
+        cell.likeCountLabel.text = "\(post.likeCount) likes"
+    }
+}
+```
     
 We'll move the configuring of our cell outside into another method so we can reference it later to redisplay our cell.
 
@@ -436,13 +450,15 @@ Next we'll need to add the logic to handle the event when the `likeButton` of th
 > [action]
 Open `LikeService` and add the following method:
 
-    static func setIsLiked(_ isLiked: Bool, for post: Post, success: @escaping (Bool) -> Void) {
-        if isLiked {
-            create(for: post, success: success)
-        } else {
-            delete(for: post, success: success)
-        }
+```
+static func setIsLiked(_ isLiked: Bool, for post: Post, success: @escaping (Bool) -> Void) {
+    if isLiked {
+        create(for: post, success: success)
+    } else {
+        delete(for: post, success: success)
     }
+}
+```
 
 To finish up, we'll need to implement the logic for when the `likeButton` of a `PostActionCell` is tapped. Implement the following in your `PostActionCellDelegate` extension in `HomeViewController`:
 

@@ -46,7 +46,9 @@ Let's walk through each of these steps individually to see what they look like:
 
 First, we'll need to import the appropriate library to use the Firebase Realtime Database:
 
-    import FirebaseDatabase
+```
+import FirebaseDatabase
+```
 
 To read data, we'll first need to create a location to where we want to read from in the database. Let's look at an example where we want to read the current user's data from Firebase:
 
@@ -76,15 +78,17 @@ Data is read from the database by using `observe(_:with)` or `observeSingleEvent
 
 In comparison, `observeSingleEvent(of:with:)` will only trigger the event callback once. This is useful for reading data that only needs to be loaded once and isn't expected to change. For this tutorial we'll mainly focus on `observeSingleEvent(of:with:)`. Continuing our previous example, let's look at how we would implement `observeSingleEvent(of:with:)`:
 
-    if let user = FIRAuth.auth()?.currentUser {
-        let rootRef = FIRDatabase.database().reference()
-        let userRef = rootRef.child("users").child(user.uid)
+```
+if let user = FIRAuth.auth()?.currentUser {
+    let rootRef = FIRDatabase.database().reference()
+    let userRef = rootRef.child("users").child(user.uid)
 
-        // 1
-        userRef.observeSingleEvent(of: .value, with: { (snapshot) in
-            // 2 handle snapshot containing data
-        })
-    }
+    // 1
+    userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+        // 2 handle snapshot containing data
+    })
+}
+```
 
 1. We use the userRef location that we previously created and call the `observeSingleEvent(of:with:)` method to read the data stored at that location. We observe the `FIRDataEventTypeValue` event to read the data at a given path, as it exists at the time of the event.
 2. We need to handle the `FIRDataSnapshot` that contains the data returned. If there is no data at the location read from, the value of the snapshot returned is nil.
@@ -93,17 +97,19 @@ In comparison, `observeSingleEvent(of:with:)` will only trigger the event callba
 
 Last, we'll need to retrieve the data stored within the snapshot:
 
-    if let user = FIRAuth.auth()?.currentUser {
-        let rootRef = FIRDatabase.database().reference()
-        let userRef = rootRef.child("users").child(user.uid)
+```
+if let user = FIRAuth.auth()?.currentUser {
+    let rootRef = FIRDatabase.database().reference()
+    let userRef = rootRef.child("users").child(user.uid)
 
-        userRef.observeSingleEvent(of: .value, with: { (snapshot) in
-            // 1
-            if let userDict = snapshot.value as? [String : Any] {
-                print(userDict.debugDescription)
-            }
-        })
-    }
+    userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+        // 1
+        if let userDict = snapshot.value as? [String : Any] {
+            print(userDict.debugDescription)
+        }
+    })
+}
+```
 
 1. We retrieve the data from the `FIRDataSnapshot` using the `value` property. We unwrap and check that the type is what we're expecting it to be, in this case a dictionary.
 2. We print the contents of the dictionary using the convenient `debugDescription` property.
@@ -128,30 +134,34 @@ Our logic for managing new and existing users will be:
 
 Open our `LoginViewController`. To reference our Firebase Realtime Database, let's import the corresponding library. Add the following line at the top of our file with the rest of our imports:
 
-    import UIKit
-    import FirebaseAuth
-    import FirebaseAuthUI
-    import FirebaseDatabase
+```
+import UIKit
+import FirebaseAuth
+import FirebaseAuthUI
+import FirebaseDatabase
+```
 
 Next, let's implement reading the user JSON object from our database if it exists. Add the following in our `FUIAuthDelegate` method:
 
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-        if let error = error {
-            assertionFailure("Error signing in: \(error.localizedDescription)")
-        }
-
-        // 1
-        guard let user = user
-            else { return }
-
-        // 2
-        let userRef = FIRDatabase.database().reference().child("users").child(user.uid)
-
-        // 3
-        userRef.observeSingleEvent(of: .value, with: { (snapshot) in
-            // 4 retrieve user data from snapshot
-        })
+```
+func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+    if let error = error {
+        assertionFailure("Error signing in: \(error.localizedDescription)")
     }
+
+    // 1
+    guard let user = user
+        else { return }
+
+    // 2
+    let userRef = FIRDatabase.database().reference().child("users").child(user.uid)
+
+    // 3
+    userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+        // 4 retrieve user data from snapshot
+    })
+}
+```
 
 Let's break down the code we just added:
 
@@ -165,7 +175,9 @@ Now we'll need to handle the user data to check that the user exists.
 
 When we retrieve data from Firebase, we recieve a `FIRSnapshot` object that contains the data we retrieved. We can now access the data through it's value property:
 
-    let data: Any? = snapshot.value
+```
+let data: Any? = snapshot.value
+```
 
 Data will be returned as one of the following native types:
 
@@ -176,14 +188,16 @@ Data will be returned as one of the following native types:
 
 In the case of our user that we retrieved, we'll expect the data to be returned as a dictionary. Add the following code inside the `observeSingleEvent(of:with:)` closure:
 
-    userRef.observeSingleEvent(of: .value, with: { (snapshot) in
-        // 1
-        if let userDict = snapshot.value as? [String : Any] {
-            print("User already exists \(userDict.debugDescription).")
-        } else {
-            print("New user!")
-        }
-    })
+```
+userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+    // 1
+    if let userDict = snapshot.value as? [String : Any] {
+        print("User already exists \(userDict.debugDescription).")
+    } else {
+        print("New user!")
+    }
+})
+```
 
 To retrieve the user data from `FIRDataSnapshot` we:
 
@@ -220,27 +234,31 @@ Create a new `.swift` file called `User.swift` and add it into the Models folder
 
 Insert the following code into your `User.swift` class:
 
-    import Foundation
+```
+import Foundation
 
-    class User {
+class User {
 
-        // MARK: - Properties
+    // MARK: - Properties
 
-        let uid: String
-        let username: String
+    let uid: String
+    let username: String
 
-        // MARK: - Init
+    // MARK: - Init
 
-        init(uid: String, username: String) {
-            self.uid = uid
-            self.username = username
-        }
+    init(uid: String, username: String) {
+        self.uid = uid
+        self.username = username
     }
+}
+```
 
 Here we've created a basic user class that has two properties, a UID and username. Next we're going to create a special initializer to take a FIRSnapshot to make things easier. First let's import FIRDataSnapshot into our User model:
 
-    import Foundation
-    import FirebaseDatabase.FIRDataSnapshot
+```
+import Foundation
+import FirebaseDatabase.FIRDataSnapshot
+```
 
 Next, we'll look at creating our first failable initializer to initialize a user from a `FIRDataSnapshot`.
 
@@ -248,25 +266,29 @@ Next, we'll look at creating our first failable initializer to initialize a user
 
 Failable initializers allow the initialization of an object to fail. If an initializer fails, it'll return nil instead. This is useful for requiring the initialization to have key information. In our case, if a user doesn't have a UID or a username, we'll fail the initialization and return nil. Add the following to your User init methods:
 
-    init?(snapshot: FIRDataSnapshot) {
-        guard let dict = snapshot.value as? [String : Any],
-            let username = dict["username"] as? String
-            else { return nil }
+```
+init?(snapshot: FIRDataSnapshot) {
+    guard let dict = snapshot.value as? [String : Any],
+        let username = dict["username"] as? String
+        else { return nil }
 
-        self.uid = snapshot.key
-        self.username = username
-    }
+    self.uid = snapshot.key
+    self.username = username
+}
+```
 
 Here we guard by requiring the snapshot to be casted to a dictionary and checking the dictionary contains `username` key/value. If either of these requirements fail, we return nil. Note that we also store the key property of `FIRDataSnapshot` which is the UID that correlates with the user being initialized.
 
 This cleans up our code by creating a reusable initializer that we can use to create user objects from snapshots. In addition, we no longer have to fetch information directly from snapshots using *stringly* typed key/value pairs. Let's go ahead and finish by refactoring our original code to use our failable initializer.
 
-    ref.observeSingleEvent(of: .value, with: { (snapshot) in
-        if let user = User(snapshot: snapshot) {
-            print("Welcome back, \(user.username).")
-        } else {
-            print("New user!")
-        }
-    })
+```
+ref.observeSingleEvent(of: .value, with: { (snapshot) in
+    if let user = User(snapshot: snapshot) {
+        print("Welcome back, \(user.username).")
+    } else {
+        print("New user!")
+    }
+})
+```
 
 Great! Let's move on to implementing the logic to handle new users.
