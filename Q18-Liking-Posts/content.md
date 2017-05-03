@@ -3,40 +3,142 @@ title: "Liking Posts"
 slug: liking-posts
 ---
 
-Users on our app can now create new posts and see them displayed in the `HomeViewController`. In this section, we'll work on the like feature that allows users to like posts and displays the number of likes each post has.
+Users on our app are now able to create new posts and see them displayed as a timeline in `HomeViewController`. However, you'll notice the `PostActionCell` for each `Post` doesn't work. Let's fix that.
 
-To begin, we'll need to store new like data in our Firebase database. We'll need to store which posts are liked by which users and the total number of likes each post current has. Whenever we add new data, it's important to think about the best way to structure the new data into the existing JSON tree.
+In this section, we'll working implementing likes. Likes are a common feature in most social media apps, first popularized by the Facebook like button.
 
-# Structuring our Likes Data
+In Makestagram, the likes feature will gives users the ability to like posts and see the number of likes each post has in the timeline.
 
-Similar to how we flattened our database JSON tree by separating the `posts` from `users` into separate subtrees, we'll follow the same strategy for `likes`. In our database we'll create a new subtree for `likes` that will look like:
+Implementing likes will require us to store new like data in our database. We'll need to keep track of:
 
-    makestagram: {
-        postLikes: {
-            postKey: {
-                user1_uid: true,
-                user2_uid: true,
-                user3_uid: true
-            }
-        }
-    }
+- which posts have been liked by which users
+- the total number of likes each post currently has
 
-We create a new root level node for likes called `postLikes`. Within the `postLikes` subtree, we'll store the key of each post that has been liked along with each user that liked that specific post.
+Before adding new functionality, it's helpful to think about if the feature will require changes to the database. In our case, we'll need to store additional data. This means we'll need to give some forethought on the best way to store the new data into the existing JSON tree.
 
-In Firebase, our JSON structure will look like:
+# Structuring Like Data
 
-![Likes JSON Structure](assets/post_likes_structure.png)
+Remember back to when we added the functionality for creating posts?
+
+We intentionally _flattened_ our database by separating our `users` JSON subtree from our `posts`. Moving forward, we'll store new like data using a similar strategy.
+
+Instead of nesting the like data of each post within the `posts` node, we'll _flatten_ our database by creating a new `postLikes` node at the root of our JSON database.
+
+Let's see what our new `postLikes` node will look like below:
+
+```
+makestagram-b3260 : {
+    postLikes: {
+        -Kfm0p2EMcrpN8XcLOR5: {
+            user1_uid: true,
+            user2_uid: true
+        },
+        -KgGuLttcC3PJbD8pWAT: {
+            user4_uid: true,
+            user8_uid: true
+        },
+        -KgLo0OrineV8l3_K9gK: {
+            user1_uid: true 
+        },
+    },
+    posts: { ... },
+    users: { ... }
+}
+```
+
+Notice that we've created a child node named `postLikes` under the root node `makestagram-b3260`. We should have 3 root level child nodes: `users`, `posts`, `postLikes`.
+
+Within the `postLikes` subtree, we store keys corresponding to child IDs for each post. Each post with more than one like will have it's own JSON object within `postLikes`.
+
+Last, within each post key, we store the UID of all users who have liked the given post. Using this data structure, we're able to easily track which users have liked which posts.
 
 ## Adding a Like Count
 
-In addition to storing the likes for each user, we'll also story a like count property for each post. This property will return the number of likes each post currently has. Implementing count properties is convenient because it'll allow us to read the number of likes a post has, without having to read and sum likes from the `postLikes` node. We'll store the like count property with each post inside of the `posts` JSON subtree.
+In addition to our new `postLikes` node, we'll also be adding a new `like_count` property to each post. This property will be added to each existing post in the `posts` subtree. Adding to the existing `posts` JSON structure, our post JSON object will look:
+
+```
+makestagram-b3260 : {
+    postLikes: { ... },
+    posts: { 
+        user1_uid: {
+            -Kfm0p2EMcrpN8XcLOR5: {
+                created_at: 1490119356.786182,
+                image_height: 374.9999999999999,
+                image_url: "https://firebasestorage.googleapis.com/v0/b/mak...",
+                like_count: 4
+            },
+            -KgGuLttcC3PJbD8pWAT: { ... },
+            -KgLo0OrineV8l3_K9gK: { ... }
+        },
+        user2_uid: { ... },
+        user3_uid: { ... }
+    },
+    users: { ... }
+}
+```
+
+It might not be immediately obvious why we need an additional `like_count` for each post. Instead, couldn't we read all of the likes a post has from the `postLikes` node and sum the number of children? Can you think of any reasons why a `like_count` would be useful?
+
+Although, it's not immediately obvious, a `like_count` is an read optimization that allows us to know the number of likes a post has just by reading from the `posts` node. This also prevents us from:
+
+- having to make two network request to display a post
+- reading all likes into memory (imagine if a user had a couple million likes!)
+
+Adding an additional `like_count` allows us to quickly read post data from Firebase.
+
+However, we're not done!
+
+To increment and decrement the `like_count`, we'll need to be able to traverse to the correct post in our `posts` node. The current relative path to the `like_count` is:
+
+```
+posts > user_uid > post_key > like_count
+```
+
+Looking at the relative path above, we'll need both the poster's UID and post key to increment and decrement the `like_count`. Currently, our `Post` model contains a reference to it's key. However, we don't know the user's uid of the poster!
+
+We'll use a strategy called _denormalization_ to fix this!
+
+## What is Denormalization?
+
+_Denormalization_ is a method of improving the read performance by storing redundant copies of the same data in multiple locations. In our case, instead of reading each post and making another read to join it's poster, we store an additional copy of the poster in the post JSON object.
+
+Our new post JSON will look like:
+
+```
+posts: { 
+    user1_uid: {
+        -Kfm0p2EMcrpN8XcLOR5: {
+            created_at: 1490119356.786182,
+            image_height: 374.9999999999999,
+            image_url: "https://firebasestorage.googleapis.com/v0/b/mak...",
+            like_count: 4,
+            poster: {
+                uid: user1_uid,
+                username: "testuser"
+            }
+        },
+        -KgGuLttcC3PJbD8pWAT: { ... },
+        -KgLo0OrineV8l3_K9gK: { ... }
+    },
+    user2_uid: { ... },
+    user3_uid: { ... }
+}
+```
+
+With this tree structure, our Firebase database will have multiple copies of the same user in both the `users` node and multiple post objects. However, this cost comes at the benefit of not needing to make multiple reads to database to fetch the poster with each post.
+
+It's important to take time to think about how to organize and structure data in Firebase. Otherwise, you'll find yourself fight your database and data structure to implement new features and functionality. Now that we've organized our thoughts on what we want our data structure to look like, let implement a like service for our app!
 
 # Creating a Like Service
 
-After deciding about how we'll structure our data, we'll move on to creating a likes service to contain all networking code related to likes. In this service, we'll add the functionality to like and unlike posts.
+As with all new functionality, we want to design easy APIs that allow use to reuse code. We'll create a new service for likes. Our like service will contain all networking and Firebase database code that will allow us to:
+
+- like posts
+- unlike posts
+- determine whether a user currently has liked a post
 
 > [action]
-Create a new `LikeService.swift` source file in the `Services` directory.
+Create a new `LikeService.swift` source file in the `Services` folder:
 >
     import Foundation
     import FirebaseDatabase
@@ -45,10 +147,10 @@ Create a new `LikeService.swift` source file in the `Services` directory.
         // ...
     }
     
-Next, we'll add the functionality to like posts:
+First we'll want to add a service method for liking posts:
 
 > [action]
-Add the following class method inside your `LikeService`:
+Add the following class method to your `LikeService`:
 >
     static func create(for post: Post, success: @escaping (Bool) -> Void) {
         // 1
@@ -59,10 +161,10 @@ Add the following class method inside your `LikeService`:
         // 2
         let currentUID = User.current.uid
 >
-        // code to like a post
+        // 3 code to like a post
     }
     
-First we do some setup to allow us to like a post:
+In the code above, we do some setup for liking a post:
 
 1. Each post that we like must have a key. We check the post has a key and return false if there is not.
 2. We create a reference to the current user's UID. We'll use this soon to build the location of where we'll store the data for liking the post.
@@ -90,12 +192,17 @@ In the same `create(for:success)` method, add the following code:
         }
     }
 
-You'll notice our callback `success` returns a `Bool` on whether the data was successfully written to our database.
+Our `success` callback returns a `Bool` on whether the network request was successfully executed and our like data was saved to the database.
 
 ## Unliking Posts
 
-We've implemented the service method for liking a post. Let's implement the reverse of unliking a given post:
+In the previous step, we implemented a service method for liking a post. Try to see if you can implement the code for unliking a post.
 
+Don't continue until you've finished!
+
+> [solution]
+> Verify your unliking code below:
+>
 ```
 static func delete(for post: Post, success: @escaping (Bool) -> Void) {
     guard let key = post.key else { 
@@ -115,58 +222,91 @@ static func delete(for post: Post, success: @escaping (Bool) -> Void) {
     }
 }
 ```
-    
-In this method, we do the same as the previous step, but we set the value of data stored at the specified location to `nil`. This will delete the current node at that location, if it exists.
 
-Up to this point, we've created two class methods in our `LikeService` that can like and unlike posts. After writing data to the database, each method will return a success callback on whether the write was successful. Extending our current functionality, we also want to add the functionality for incrementing and decrementing a like count for each post. To add this functionality, we'll need to reference the UID of the user that each post belongs to. Using the poster's UID, we be able to traverse the `posts` subtree to modify a `like_count` of each post.
+<!-- TODO: change this API to use the Firebase remove API instead of setting to nil? -->
+
+The code for unliking a post is mostly the same for liking a post. However instead of setting the value of the location to true, we set it to `nil` to delete the current node at that location.
+
+At this point, we've created our first two service methods in our `LikeService`. We can use these methods to like and unlike posts. To complete the implementation of our like service, we'll need to add a `like_count` that we can increment and decrement whenever a post is liked / unliked.
+
+<!-- Not sure if we need this -->
+<!-- To add this functionality, we'll need to reference the UID of the user that each post belongs to. Using the poster's UID, we be able to traverse the `posts` subtree to modify a `like_count` of each post. -->
 
 # Implementing a Like Count
 
-To create a reference to the poster's UID, we'll use a common technique in NoSQL databases called *denormalization*. *Denormalization* is the process of improving read performance by adding redundant copies of the same information. In this case, we'll be storing an additional copy of the user with each post.
+To refresh our memory, to implement a like count, we'll need to:
 
-We'll begin by modifying our `Post` data model to contain the poster.
+- denormalize our data by adding a poster to each post
+- add a like count property to each post
+
+Our database JSON object for a given post will look like:
+
+```
+posts: { 
+    user1_uid: {
+        -Kfm0p2EMcrpN8XcLOR5: {
+            created_at: 1490119356.786182,
+            image_height: 374.9999999999999,
+            image_url: "https://firebasestorage.googleapis.com/v0/b/mak...",
+            like_count: 4,
+            poster: {
+                uid: user1_uid,
+                username: "testuser"
+            }
+        },
+        -KgGuLttcC3PJbD8pWAT: { ... },
+        -KgLo0OrineV8l3_K9gK: { ... }
+    },
+    user2_uid: { ... },
+    user3_uid: { ... }
+}
+```
+
+## Updating the Post Data Model
+Let's start by change our `Post` model to store the new data:
 
 > [action]
-Open the `Post.swift` source file and add a new `poster` and `like_count` property:
+Open the `Post.swift` source file and add the following new properties:
 >
-    let poster: User
     var likeCount: Int
+    let poster: User
     
 Our `poster` property will store a reference to the user that owns the post.
 
 > [action]
-Next, we'll need to update each of our initialization methods to set the `poster` and `likeCount` property:
->
-    // MARK: - Init
->
-    init?(snapshot: FIRDataSnapshot) {
-        guard let dict = snapshot.value as? [String : Any],
->
-            // ...
->
-            let likeCount = dict["like_count"] as? Int,
-            let userDict = dict["poster"] as? [String : Any],
-            let uid = userDict["uid"] as? String,
-            let username = userDict["username"] as? String
-            else { return nil }
->
-        // ...
->
-        self.poster = User(uid: uid, username: username)
-    }
->
-    init(imageURL: String, imageHeight: CGFloat) {
->
-        // ...
->
-        self.likeCount = 0
-        self.poster = User.current
-    }
+Update each `Post` init method to configure our new properties:
+```
+// MARK: - Init
 
-Last, we'll need to update our `dictValue` computed variable on our `Post` model. Whenever we use `dictValue` to create a new post, we'll also want to add the data of the like count and poster:
+init?(snapshot: FIRDataSnapshot) {
+    guard let dict = snapshot.value as? [String : Any],
+
+        // ...
+
+        let likeCount = dict["like_count"] as? Int,
+        let userDict = dict["poster"] as? [String : Any],
+        let uid = userDict["uid"] as? String,
+        let username = userDict["username"] as? String
+        else { return nil }
+
+    // ...
+
+    self.poster = User(uid: uid, username: username)
+}
+
+init(imageURL: String, imageHeight: CGFloat) {
+
+    // ...
+
+    self.likeCount = 0
+    self.poster = User.current
+}
+```
+
+Last, update the computed `dictValue` for the `Post` model. We want our database representation of each post to include the new `likeCount` and `poster` data:
 
 > [action]
-Change the `dictValue` property of `Post`:
+Update `dictValue`:
 >
     var dictValue: [String : Any] {
         let createdAgo = creationDate.timeIntervalSince1970
@@ -180,21 +320,32 @@ Change the `dictValue` property of `Post`:
                 "poster" : userDict]
     }
 
-We've successfully setup our model so that new post we create will include a copy of the poster who created the post. In additional, when we read posts from the database, we'll be able to easily access the `poster` property in-memory. To keep the database consistent, you will need to delete any current posts inside of your database's `posts` subtree that don't contain it's poster's data.
+We've modified our `Post` model hold our new post data from our database. 
+
+## Keeping Post Data Consistent
+To keep our database post data consistent, we'll need to delete any current posts in your `posts` node.
+
+> [action]
+Hover over the `posts` node in your database and a delete button should appear:
+![Hover Delete](assets/posts_hover_delete.png)
+
+Clicking the delete button will prompt you with a warning.
+
+> [action]
+Proceed and delete all of your current posts:
+![Delete Warning](assets/delete_warning.png)
 
 ## Adding Transaction Blocks
 
-Now that we've completed all of the setup for implementing a like count, we'll need implement the actual functionality itself. We'll do this by modifying our existing `LikeService` methods for liking and unliking posts.
+All of the code we've changed so far has been setup to implement the like count functionality. Our next step will be to implement the incrementing and decrementing of each post's like count.
+
+To increment and decrement our like count, we'll be using a new Firebase API that saves data as a transaction operation. A transaction block will prevent data from being corrupted from multiple writes happening at the same time.
 
 > [action]
-In your `LikeService`, update the following:
+Open `LikeService` and modify the existing methods for liking and unliking posts:
 >
     static func create(for post: Post, success: @escaping (Bool) -> Void) {
-        guard let key = post.key else { 
-            return success(false) 
-        }
->
-        let currentUID = User.current.uid
+        // ...
 >
         let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
         likesRef.setValue(true) { (error, _) in
@@ -220,13 +371,18 @@ In your `LikeService`, update the following:
             })
         }
     }
+    
+In the code above, we add code in the completion block that increments the `like_count` of a post after a post has been liked. Note how we use the `poster` property to build the relative path to the like count location we want to write at.
+
+After creating a reference to the location of `like_count`, we use `runTransactionBlock(_:andCompletionBlock:)` to increment the current `like_count` value by 1.
+
+> [challenge]
+> Now that we've implementing incrementing the like count after liking a post, implement the reverse of decrementing the like count of a post whenever a user unlikes a post.
+
+> [solution]
 >
     static func delete(for post: Post, success: @escaping (Bool) -> Void) {
-        guard let key = post.key else { 
-            return success(false) 
-        }
->
-        let currentUID = User.current.uid
+        // ...
 >
         let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
         likesRef.setValue(nil) { (error, _) in
@@ -253,14 +409,69 @@ In your `LikeService`, update the following:
         }
     }
 
-We update our like and unlike class methods to increment or decrement the `likes_count` property of each post using a Firebase transaction block.
+At this point, we've updated our `LikeService` to increment and decrement a post after a user has liked or unliked a post. Before we move on, let's review transaction blocks and what they're used for.
 
-## What is a Transaction Block?
+# What is a Transaction Block?
 
-Whenever working with data that can be corrupted by concurrent modifications, we can use transaction blocks to make sure no data is corrupted. Data, usually incremental counters, can be corrupted when multiple users are all modifying and writing different data at the same time. In our context, we'll use transaction blocks to prevent like counts from being incorrect if multiple users like or unlike the same post at the same time.
+One problem with multiple users using the app at the same time is handling multiple users writing different data to the database at the same time. For example, imagine the following scenario:
 
-Great, we've now connected and added the new functionality to support our likes feature. We'll need to update the UI to make it work. Add the following for your datasource in your `HomeViewController`:
+1. User 1 and 2 both open the app and see post A in thier timeline
+2. For both users, post A has 5 likes
+3. User 1 and 2 both like post A at the exact same time
 
+<!-- TODO: image or diagram would be nice to have :) -->
+
+What do you think will happen? What do we want to happen?
+
+Without transaction blocks, the like count will be incremented by one when it should be incremented by 2. Both User 1 and 2 will write the database to have a like count of 6. Do you see our problem? Our like count should be 7, but instead is 6. Here, we say our data has been corrupted.
+
+Transaction operation solve this problem for us by making sure only one user can update the value at a time. In addition, it'll handle incrementing the current value without losing data written by other users.
+
+In the situation above, it would handle requests from User A and B one by one. The first request would update the like count of post A from 5 to 6. The second would update the value from 6 to 7. Just what we wanted!
+
+## When to use Transactions
+
+The most common us case for using transaction operations is for properties that can't be corrupted by multiple writes happening at the same time. This is great for counters, balances, and other number values.
+
+## Using Transaction Blocks
+
+Let's look at a sample use of the Firebase transaction API:
+
+```
+// 1
+ref.runTransactionBlock({ (currentData: FIRMutableData) -> FIRTransactionResult in
+    // 2 increment value
+    let currentValue = currentData.value as? Int ?? 0
+    currentData.value = currentValue + 1
+
+    // 3
+    return FIRTransactionResult.success(withValue: currentData)
+}, andCompletionBlock: { (error: Error?, committed: Bool, snapshot: FIRDataSnapshot?) in
+    // 4
+    if let error = error {
+        // handle error
+    }
+
+    // 5 handle success
+})
+```
+
+We implement a transaction with the following steps:
+
+1. Call the transaction API on the FIRDatabaseReference location we want to update
+2. Check that the value exists and increment it if it does
+3. Return the updated value
+4. Handle the completion block if there's an error
+5. Handle the completino block if the transaction was successful
+
+Transaction operations are an important tool provided by Firebase to help developer solve specific problems around maintaining data integrity. Now that you know what they're used for and how to use them, you can build more complex data structures and apps.
+
+# Configuring Logic to the UI
+
+We now have service methods that will like and unlike posts. We'll need to update our current UI to display these changes.
+
+> [action]
+Open `HomeViewController` and modify `tableView(_:cellForRowAt:)` to the following:
 ```
 case 2:
     let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionsCell
