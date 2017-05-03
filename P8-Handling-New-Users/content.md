@@ -48,7 +48,7 @@ Let's implement creating a new user inside the Firebase database.
 
 # Writing a New User to our Database
 
-Our current implementation of determining whether a user is new or returning doesn't work because our code never writes to the database the first time a `FIRUser` is created. 
+Our current implementation of determining whether a user is new or returning doesn't work because our code never writes to the database the first time a `FIRUser` is created.
 
 ## Choosing a Username
 
@@ -99,7 +99,7 @@ Background Color: #FAFAFA
 Placeholder Text: Username
 Height: 44
 
-**Next Button** 
+**Next Button**
 Background Color: #61A8ED
 Button Title: Next
 Height: 44
@@ -108,7 +108,7 @@ Each element is 18 pts apart vertically.
 
 Side by side, your storyboard view controller and code should look like:
 
-![Create Username View Controller](assets/create_username_view_controller.png)
+![Create Username View Controller](assets/create_username.png)
 
 The main thing we'll focus on is the following method:
 
@@ -232,14 +232,14 @@ A huge benefit of good code architecture is being able to easily change your cod
 
 A service layer helps you decouple your view controllers from your networking logic. We want to remove the networking code, such as reading and writing to our database, so that we can reuse the same code and access our networking logic from other view controllers.
 
-Let's create a new struct called `UserService.swift`. We'll put all our methods related to user networking in here. 
+Let's create a new struct called `UserService.swift`. We'll put all our methods related to user networking in here.
 
 ```
 struct UserService {
     // insert user-related networking code here
 }
 ```
-    
+
 Make sure you place all your service structs in the `Services` directory and create a new `Services` group in your project navigator:
 
 ![Service Grouping](assets/service_grouping.png)

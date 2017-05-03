@@ -171,7 +171,7 @@ Let's break down the code we just added:
 
 Now we'll need to handle the user data to check that the user exists.
 
-# Retrieving Data #
+# Retrieving Data
 
 When we retrieve data from Firebase, we recieve a `FIRSnapshot` object that contains the data we retrieved. We can now access the data through it's value property:
 

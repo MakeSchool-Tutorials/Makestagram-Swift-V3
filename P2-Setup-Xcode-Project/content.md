@@ -76,7 +76,7 @@ target 'Makestagram' do
 end
 ```
 
-#Installing Our Dependencies
+# Installing Our Dependencies
 
 Now we are ready to add our dependencies to this file.
 
