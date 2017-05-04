@@ -20,7 +20,9 @@ Let's walk through an example of writing to the database:
 
 Similar to reading, we'll need to import the appropriate library and create a reference to the location we want to write our data to:
 
-    let userRef = rootRef.child("users").child(user.uid)
+```
+let userRef = rootRef.child("users").child(user.uid)
+```
 
 ## Writing Data to a FIRDatabaseReference Location
 
@@ -48,16 +50,113 @@ Let's implement creating a new user inside the Firebase database.
 
 # Writing a New User to our Database
 
-Our current implementation of determining whether a user is new or returning doesn't work because our code never writes to the database the first time a `FIRUser` is created.
+Our current implementation of determining whether a user is new or returning doesn't work because our app never writes to the database the first time a `FIRUser` is created. We'll need to write code to store the user's data in our database the first time the user signs up.
 
-## Choosing a Username
+As part of our login flow, new users will choose their username before creating a new user account. We'll implement `CreateUsernameViewController` to let users pick their username. `CreateUsernameViewController` will have the following design:
 
-As part of our login flow, we'll allow users to choose a username inside the Firebase database before creating a new user account.
+![Create Username Design](assets/03_username_design.png)
 
-First, we'll create a segue to a new view controller that allows a new user to choose a username.
+## Building CreateUsernameViewController
 
+> [challenge]
+At this point, you should be comfortable implementing a view controller in storyboard. Challenge yourself and see if you can implement the design above on your own!
+
+Stop here! Don't continue until you've tried implementing `CreateUsernameViewController` on your own.
+
+If you got stuck above or just want to review your solution, we'll walk through the process step by step next. If you feel confident in your code, feel free to skip ahead to the next section.
+
+1. Open `Login.storyboard` and drag a new view controller into the storyboard from the object library.
+
+2. Add two new `UILabel`s onto the new view controller.
+
+![Add Two Labels](assets/add_two_labels.png)
+
+3. Format each label respectively:
+
+**Title Label**
+Text: Create Username
+Font: System 24
+Alignment: Center
+Color: Black
+
+**Subtitle Label**
+Text: Add a username so your friends can find you.
+Font: System 16
+Alignment: Center
+Color: Black
+Number of Lines: 0
+
+Don't worry about constraints yet, we'll use a stack view to position our views later.
+
+4. Add a `UITextField` and `UIButton` from the object library:
+
+![Text Field and Button](assets/raw_subviews.png)
+
+5. Format both the `UITextField` and `UIButton`:
+
+**Username Text Field**
+Placeholder Text: Username
+Background Color: `#FAFAFA`
+
+**Next Button**
+Type: Custom
+Background Color: `#61A8ED`
+Title: Next
+Title Font: System Semibold 15
+
+6. Select all of the subviews that we've added onto our view controller. You can select all by clicking inside the view controller and dragging a box around all elements within:
+
+![Selected Subviews](assets/selected_subviews.png)
+
+After all subviews are selected, add them to a stack view by clicking the `Embed In Stack` icon. All subviews we've added onto the view controller should now be inside the stack:
+
+![New Stack](assets/new_stack.png)
+
+7. Select the stack view and format it with the following constraints:
+
+![Stack Constraints](assets/stack_constraints.png)
+
+8. Keep the stack view selected and open the _Attributes Inspector_. Update the spacing between items to 18:
+
+![Stack Spacing](assets/stack_spacing.png)
+
+9. Update the formatting for both `UITextField` and `UIButton` with the following constraints:
+
+![Text Field Constraints](assets/text_field_constraints.png)
+
+Your final `CreateUsernameViewController` should look like this:
+
+![Finished Create Username VC](assets/create_username_sb.png)
+
+Remember, to finish creating our view controller we'll need to create a corresponding source file.
+
+> [action]
+Create a new `.swift` file in the `Controllers` folder called `CreateUsernameViewController.swift`:
+>
+import UIKit
+>
+class CreateUsernameViewController: UIViewController {
+    // ...
+}
+
+After creating the source file, we'll need to set the class of our `CreateUsernameViewController` in storyboard.
+
+> [action]
+Open `Login.storyboard` and navigate to the _Identity Inspector_. Set the Custom Class to `CreateUsernameViewController`:
+>
+![Identity Inspector](assets/set_class.png)
+
+You should now have a new view controller in your `Login.storyboard` and a `CreateUsernameViewController.swift` file. We'll want to open both of these side by side to hook up some new IBOutlet and IBAction for the `UITextField` and `UIButton`. When you're finished, your storyboard and code should look like:
+
+![Create Username View Controller](assets/create_username.png)
+
+## Seguing to our New View Controller
+
+Before we can implement the logic for when the next button is tapped, we need to first make the Login View Controller segue to the Create Username View Controller when a new user is created. To do that, we'll need to make sure our `LoginViewController` is in a `UINavigationController`.
+
+> [action]
 Open the login storyboard and select the `LoginViewController`. With the view controller selected, go to the `Editor` menu in the menu bar and select Embed In > Navigation Controller.
-
+>
 ![Embed In Navigation Controller Menu](assets/01_embed_nav_controller.png)
 
 Your storyboard should now look like the following:
@@ -68,69 +167,25 @@ Before we move on, we won't need the navigation bar that a `UINavigationControll
 
 ![Uncheck Navigation Bar](assets/uncheck_nav_bar.png)
 
-Next we'll want to create the `CreateUsernameViewController.swift` that provides the UI for the user to create a new username. This is what the design will look like when we're done:
+Next, add the segue between view controllers.
 
-![Create Username Design](assets/03_username_design.png)
-
-By now, you've been through the process of setting up a new view controller a couple times now. Try to challenge yourself and see if you can setup all the UI elements on storyboard and connect them to the corresponding `UIViewController`.
-
-Proceed after you've finished.
-
-## Seguing to our New View Controller
-
-You should now have a new view controller in your `Login.storyboard` and a `CreateUsernameViewController.swift` file.
-
-In case you're worried about the specifics attributes of UI elements:
-
-**Title Label**
-Font: System 24
-Alignment: Center
-Color: Black
-Text: Create Username
-
-**Subtitle Label**
-Font: System 16
-Alignment: Center
-Color: Black
-Text: Add a username so your friends can find you.
-
-**Username Text Field**
-Background Color: #FAFAFA
-Placeholder Text: Username
-Height: 44
-
-**Next Button**
-Background Color: #61A8ED
-Button Title: Next
-Height: 44
-
-Each element is 18 pts apart vertically.
-
-Side by side, your storyboard view controller and code should look like:
-
-![Create Username View Controller](assets/create_username.png)
-
-The main thing we'll focus on is the following method:
-
-```
-@IBAction func nextButtonTapped(_ sender: UIButton) {
-    // create user account here
-}
-```
-
-Before we can implement the logic for when the next button is tapped, we need to first make the Login View Controller segue to the Create Username View Controller when a new user is created. Add the following line to your `LoginViewController.swift` file:
-
-```
+> [action]
+Open `Login.storyboard` and ctrl-drag from `LoginViewController` to `CreateUsernameViewController`. Set the `Identifier` in the _Attributes Inspector_ to `toCreateUsername`:
+>
+![Create Username Segue](assets/create_username_segue.png)
+>
+After creating the segue in storyboard, we'll need to perform the segue in code. Add the following line to your `LoginViewController.swift` file:
+>
 extension LoginViewController: FUIAuthDelegate {
     func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
         if let error = error {
             print("Error signing in: \(error.localizedDescription)")
         }
-
+>
         guard let user = user else { return }
-
+>
         let ref = FIRDatabase.database().reference().child("users").child(user.uid)
-
+>
         ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
             if let user = User(snapshot: snapshot) {
                 print("Welcome back, \(user.username).")
@@ -140,15 +195,18 @@ extension LoginViewController: FUIAuthDelegate {
         })
     }
 }
+
+Now when a new user signs up, they'll be redirected to choose their username. Run the app and make sure our code works up to this point before moving onto the next step of implementing the code for writing a new user to the database.
+
+## Implementing Next Button Tapped
+
+Let's review the current code in `CreateUsernameViewController` for `nextButtonTapped`:
+
 ```
-
-Don't forget to create a segue in your login storyboard by ctrl-dragging from the `LoginViewController` to the `CreateUsernameViewController`. After creating the segue, make sure you selected and add `toCreateUsername` under Identifier in the attributes inspector:
-
-![Create Username Segue](assets/create_username_segue.png)
-
-Now when a new user signs up, they'll be redirected to choose thier username. Run the app and make sure our code works up to this point before moving onto the next step of implementing the code for writing a new user to the database.
-
-## Implementing Login Button Tapped
+@IBAction func nextButtonTapped(_ sender: UIButton) {
+    // create user account here
+}
+```
 
 When a user taps the next button we want the following to happen:
 
@@ -172,7 +230,7 @@ Modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swift` as
     let userAttrs = ["username": username]
 
     // 3
-    let ref = FIRDatabase.database().reference().child("users").child(user.uid)
+    let ref = FIRDatabase.database().reference().child("users").child(firUser.uid)
 
     // 4
     ref.setValue(userAttrs) { (error, ref) in

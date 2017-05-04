@@ -3,14 +3,21 @@ title: "Implementing Login Flow"
 slug: implementing-login-flow
 ---
 
-In the previous steps, we've setup a new Firebase and Xcode project for our Makestagram app. Let's start coding! First, we'll work on creating *login flow* for new users to create accounts and existing users to log in. Let's explore authentication with Firebase!
+The previous sections of this tutorial have focused on set up. So far we've created a new Firebase and Xcode project. Enough setup! Let's start building Makestagram.
+
+In this section, we'll work on creating our *login flow* for:
+
+- new users to create new accounts
+- existing users to login
+
+We'll begin by learning about authentication with Firebase!
 
 # What is Authentication?
 
 Authentication is the process of identifying which user is using the app. By verifying an user's identity, we can:
 
 - keep track of which data belongs to who
-- prevent people without permission from accessing, stealing, modifying or deleting data
+- prevent people from accessing, stealing, modifying or deleting data without permission
 - protect users from being impersonated by others
 
 In addition, if a user logs out, their data will be safely stored in our database when they return.
