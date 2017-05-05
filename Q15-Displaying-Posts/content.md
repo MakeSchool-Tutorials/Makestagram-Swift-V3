@@ -19,11 +19,12 @@ First, we'll add a navigation controller to our `HomeViewController`. This will 
 Open `Main.storyboard` and select the `HomeViewController`; click on top menu item `Editor`>`Embed In`>`Navigation Controller`:
 ![Embed Home View Controller](assets/nav_controller_home.png)
 
-## Refactoring to Storyboard 
+## Refactoring to Storyboard
 
-Next we'll repeat a similar process. 
+Next we'll repeat a similar process.
 
 > [action]
+>
 1. Select both the `UINavigationController` and `HomeViewController` by clicking and dragging so that both are selected
 2. Click on the top menu item `Editor`>`Refactor to Storyboard`
 3. Create your new `Home.storyboard` file in the Storyboards folder
@@ -41,11 +42,15 @@ And your `Home.storyboard` file should look like the following:
 Let's add a table view to the `HomeViewController` - we will use that table view to display the posts in a user's timeline.
 
 > [action]
-Open _Main.storyboard_ and add a Table View to the _HomeViewController_. The resulting scene hierarchy should look like this:
+Open _Home.storyboard_ and add a Table View to the _HomeViewController_. The resulting scene hierarchy should look like this:
 >
 ![image](assets/tableview_hiearchy.png)
-
-Next we want to set the constraints. Make sure that the tableView's top and bottom constraints are to the view controller's view, not the top and bottom layout guides.
+>
+Next, set the table view constraints:
+![Table View Constraints](assets/table_view_constraints.png)
+>
+Make sure that the top and bottom constraints are relative to the `HomeViewController` view and not the top and bottom layout guides:
+![Top Constraint](assets/set_top_constraint.png)
 
 ## Defining a Table View Data Source
 
@@ -54,14 +59,13 @@ In order to fill this table view with data, we need to define a data source (jus
 > [action]
 Set the `HomeViewController` to be the data source of the table view.
 
-# Creating the Home View Controller
+# Implementing Home View Controller
 
-Let's create the associated source file with our `HomeViewController`. 
+Let's start building our `HomeViewController`.
 
 > [action]
-Create a new file called `HomeViewController.swift`. Make sure you set the class of the `HomeViewController` scene in the storyboard under the identity inspector.
-
-![Create Home View Controller](assets/create_home_vc.png)
+Confirm that you have already created a source file named `HomeViewController.swift`. Also, make sure you've set the class of `HomeViewController` in the storyboard _Identity Inspector_:
+![Create Home View Controller](assets/confirm_home_vc.png)
 
 ## Defining a Referencing Outlet
 
@@ -69,21 +73,26 @@ We will also need to access this table view in code; therefore we need to set up
 
 > [action]
 Set up a referencing outlet, as shown below, and name the property `tableView`:
-![Table View Outlet](assets/tableview_outlet.png)
+![Table View Outlet](assets/add_tableview_outlet.png)
 
 # Create a Prototype Cell
 
-We'll need a cell to display the posts that we download. Let's add it to the Table View from the object library.
+We'll need a cell to display the images that we download.
 
+> [action]
+Drag a _Prototype Cell_ from the object library to the `UITableView`:
 ![Add Storyboard Cell](assets/add_cell.png)
-
-Next, select the cell and open the attributes inspector. We want to add a `Reuse Identifer` so we can reference our cell in code. Set the identifier to `PostCell`.
+>
+Next, select the cell and open the attributes inspector. We want to add a `Reuse Identifer` so we can reference our cell in code.
+>
+Set the identifier to `PostImageCell`:
+![Set Cell Identifier](assets/cell_identifier.png)
 
 # Reading Data from Firebase
 
 We retrieve data the same way we did in our login flow. First we'll setup a way to retrieve all of our user's post. Later in this tutorial, we'll setup building a timeline of posts from followers.
 
-Similar to our `User` model, let's create a failable initialer in our `Post` class to take a `FIRDataSnapshot`. 
+Similar to our `User` model, let's create a failable initialer in our `Post` class to take a `FIRDataSnapshot`.
 
 > [action]
 Open your `Post.swift` class and add the following:
@@ -118,22 +127,22 @@ Add the following class method to `UserService`:
             completion(posts)
         })
     }
-    
+
 We follow the same steps as previously discussed from reading from Firebase. Look through and make sure you understand what's going on!
-    
+
 Great! Now we have a method that will fetch and return all of our posts from Firebase from a given user. We can use this to display the posts we've made so far. Let's go back to our `HomeViewController` and display our posts.
 
 # Displaying our Posts
 
 In the future, we want our `HomeViewController` to display a timeline of posts from people we're following, but for now we're going just display our own posts that we've made.
 
-First we'll need to setup our `HomeViewController` to have a data source. 
+First we'll need to setup our `HomeViewController` to have a data source.
 
 > [action]
 Create an empty array of posts in `HomeViewController`:
 >
     var posts = [Post]()
-    
+
 Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` array.
 
 ```
@@ -145,7 +154,7 @@ extension HomeViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostImageCell", for: indexPath)
         cell.backgroundColor = .red
 
         return cell

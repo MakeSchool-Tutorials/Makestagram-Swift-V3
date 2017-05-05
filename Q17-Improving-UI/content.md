@@ -24,7 +24,7 @@ Create a new custom cell:
 >
 ![Post Header Properties](assets/header_properties.png)
 
-Next, let's customize the height of the cell on storyboard. 
+Next, let's customize the height of the cell on storyboard.
 
 > [action]
 Open the size inspector and set a custom `Row Height` of 54
@@ -94,7 +94,7 @@ We'll repeat similar steps to do the same for creating a `PostActionCell` that w
 
 Make sure the `Selection` style is `None`, the cell `Identifier` is `PostActionCell` and the row height is 46. If you don't remember how to configure a custom table view review the last step to refresh your memory.
 
-On our action cell, we'll add a button for users to like a post, a label to display the number of likes a post has, another label for a timestamp, and finally a custom separator. 
+On our action cell, we'll add a button for users to like a post, a label to display the number of likes a post has, another label for a timestamp, and finally a custom separator.
 
 Go ahead and add all of the subviews and set contraints that follow the design.
 
@@ -143,7 +143,7 @@ func numberOfSections(in tableView: UITableView) -> Int {
     return posts.count
 }
 ```
-    
+
 Next, we'll reconfigure `tableView(_:numberOfRowsInSection)` to the following:
 
 ```
@@ -151,7 +151,7 @@ func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> 
     return 3
 }
 ```
-    
+
 This method will now return 3 rows for each section to correspond with our header, image and action cells.
 
 Now that we've set up the data source to display the correct number of sections and rows, we'll need to return the corresponding cell in `tableView(_:cellForRowAt:)`:
@@ -184,7 +184,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
     }
 }
 ```
-    
+
 We've successfully setup our data source and will move on to modifying our `UITableViewDelegate`. The main thing we'll need to make sure of is that the height of each cell is being displayed correctly. We'll need to add cell heights for the `PostHeaderCell` and `PostActionCell`.
 
 > [action]
@@ -196,7 +196,7 @@ Add the following class method to `PostHeaderCell`:
 >
         // ...
     }
-    
+
 > [action]
 Repeat the following for `PostActionCell`:
 >

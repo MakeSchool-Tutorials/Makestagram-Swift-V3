@@ -31,7 +31,7 @@ Open `Main.storyboard`. You'll see that it currently contains the default view c
 
 > [action]
 Open *Main.storyboard*. Select the existing view controller; after you have selected it you should see a blue border surrounding it:
-![Select View Controller](assets/selected_vc.png)
+![Select View Controller](assets/starting_vc.png)
 >
 Hit the *delete* key to remove this view controller. Now you should see a blank storyboard:
 ![Blank Storyboard](assets/blank_storyboard.png)
@@ -99,7 +99,7 @@ Download the .zip file for image resources for this app:
 
 Now it's time to add some of these assets you just downloaded to our app. To keep your images organized, all assets used within an iOS app should be stored in *Asset catalogs*. Every iOS projects that you create with Xcode comes with one default asset catalog called *Images.xcassets*:
 
-![Asset Catalog](assets/asset_catalog.png)
+![Asset Catalog](assets/assets_catalog.png)
 
 That asset catalog contains one resource for the App's icon. You add new resources to your app by creating new entries (called *Image Sets*) in this asset catalog. You can also create multiple asset catalogs which is useful for apps with huge amounts of images.
 
@@ -107,7 +107,7 @@ Let's add our first images to our app!
 
 Unzip the downloaded art pack, then add all of the assets to the asset catalog.
 
-![Asset Catalog](assets/asset_catalog.png)
+![Asset Catalog](assets/assets_catalog.png)
 
 Let's briefly discuss some important concepts about asset handling on iOS. You probably have realized that we're providing three different image files for each asset we wanted to use in our App (*@1x*, *@2x* and *@3x*). These different images have different resolutions, each suited to a specific type of iOS devices with a different screen resolution. The *@1x* assets are used for the oldest iOS devices, e.g. iPhone 3Gs, which don't have retina displays. The *@2x* images are used for the 3.5 and 4 inch retina screens of the iPhone 4(S) and iPhone 5(S). Finally, the *@3x* images are used by the iPhone 7 and iPhone 7 Plus. In most cases you won't have to spend too much time thinking about this, as long as you provide assets in all relevant resolutions. If you don't provide the necessary resolutions, your image assets will look blurry or pixelated on certain devices.
 
@@ -152,13 +152,15 @@ Now we have a nice looking `Tab Bar` that connects to the three view controllers
 
 # Creating Classes for our View Controllers
 
-To finish this section, create the source code files for the home and find friends view controllers that we will be working on throughout this tutorial. We'll add them to the  *ViewControllers* group to keep this project nicely structured.
+To finish this section, create the source code files for `HomeViewController` and `FindFriendsViewController`. We will be working on these two new view controllers throughout this tutorial. Add them to the  *View Controllers* group to keep this project nicely structured.
 
-You should the corresponding source files:
+> [action]
+Create two new source files for each new view controller:
+>
 - `HomeViewController.swift`
 - `FindFriendsViewController.swift`
 
-You might be wondering why we didn't create a corresponding view controller for our capture photo tab. It's because we'll be using Apple's `UIImagePickerController` to handle taking or uploading a photo for us.
+If you are wondering why we didn't create a corresponding view controller for our capture photo tab. It's because we'll be using Apple's `UIImagePickerController` to handle taking or uploading a photo for us.
 
 ## Configuring Custom Classes in Storyboard
 
@@ -168,8 +170,8 @@ Don't forget! Whenever you create new source files you need to set each correspo
 **Repeat the following steps for the Home and Find Friends View Controllers**:
 >
 1. Select the View Controller in Storyboard
-2. Open the *Identity Inspector* in the right panel
-3. Set the custom class to match the current View Controller
+1. Open the *Identity Inspector* in the right panel
+1. Set the custom class to match the current View Controller
 >
 
 # Wrapping up

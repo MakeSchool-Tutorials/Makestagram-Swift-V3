@@ -35,11 +35,17 @@ Implementing this method returns the height that each cell should be given an in
 
 # Setting up a Custom Table View Cell
 
-Next, to implement our custom cells, we'll need to configure the table view cell style from `Basic` to `Custom`. In addition, we'll switch the selection style from `Default` to `None`.
+Next, to implement our custom cells, we'll verify our attributes of our cells to be the following.
 
 > [action]
-Select your table view cell and update it's attributes in the attributes inspector:
-![Cell Attributes](assets/cell_attributes.png)
+Select your _Prototype Cell_ and open the attributes inspector. Make sure your cell has the following attributes:
+>
+- **Style**: Custom
+- **Identifier**: PostImageCell
+- **Selection**: None
+>
+Confirm your cell has the following attributes:
+![Cell Attributes](assets/post_image_attributes.png)
 
 Next we'll need to install a pod to download our image and display it in our table view cell.
 
@@ -47,13 +53,13 @@ Next we'll need to install a pod to download our image and display it in our tab
 
 Navigate to the following [github link](https://github.com/onevcat/Kingfisher) and follow the instructions for downloading *Kingfisher*. You'll have to add *Kingfisher* to your pod file and type `pod install` to download the associated pod.
 
-*Kingfisher* is a popular Swift library for asychronously downloading and caching images. We'll be able to use it like this:
+*Kingfisher* is a popular Swift library for asynchronously downloading and caching images. We'll be able to use it like this:
 
 ```
 let url = URL(string: "https://domain.com/image.jpg")!
 imageView.kf.setImage(with: url)
 ```
-    
+
 As you can see, *Kingfisher* allows us to easily download and turn `URL`s into `UIImage`s.
 
 ## Creating the PostImageCell
@@ -75,10 +81,12 @@ Create a new source file in the `Views` directory called `PostImageCell` that is
 Next open `Home.storyboard` and do the following:
 
 > [action]
+>
 1. Set the class of the cell to `PostImageCell` in the Identity Inspector
-2. Open the Size Inspector and change the default height of the prototype cell to be 375
-3. Drag an `UIImageView` from the object library onto your `PostImageCell`
-4. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
+1. Open the Size Inspector and change the default height of the prototype cell to be 375
+1. Drag an `UIImageView` from the object library onto your `PostImageCell`
+1. Constraint the `UIImageView` to each side of the cell
+1. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
 ![Post Image Cell](assets/post_image_cell.png)
 
 Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fit`.
@@ -96,7 +104,7 @@ Change your `UITableViewDataSource` in your `HomeViewController` to the followin
 ```
 func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let post = posts[indexPath.row]
-    let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as! PostImageCell
+    let cell = tableView.dequeueReusableCell(withIdentifier: "PostImageCell", for: indexPath) as! PostImageCell
 
     let imageURL = URL(string: post.imageURL)
     cell.postImageView.kf.setImage(with: imageURL)
@@ -117,7 +125,7 @@ func configureTableView() {
     tableView.separatorStyle = .none
 }
 ```
-    
+
 Next let's call the method in our `viewDidLoad`:
 
 ```
@@ -129,7 +137,7 @@ override func viewDidLoad() {
     // ...
 }
 ```
-    
+
 Now you can run the app again. And for the first time you should see our photos on the screen!
 
 # Conclusion

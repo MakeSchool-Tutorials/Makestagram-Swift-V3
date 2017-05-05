@@ -103,6 +103,7 @@ Accompanying each image upload will be a new post. Let's create a new service fo
 ```
 import UIKit
 import FirebaseStorage
+import FirebaseDatabase
 
 struct PostService {
 

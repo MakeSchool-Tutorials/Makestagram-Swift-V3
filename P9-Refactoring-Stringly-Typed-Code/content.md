@@ -7,7 +7,7 @@ In the previous few sections we implemented our first feature: authentication an
 
 # Refactoring Show User
 
-We refactored the method for creating an user to our UserService but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `FIRDatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
+We refactored the method for creating an user to our `UserService` but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `FIRDatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
 
 Create a new class method in our `UserService` for reading a user from the database:
 
@@ -50,7 +50,7 @@ UserService.show(forUID: user.uid) { (user) in
 
 # Stringly Typed Constants
 
-You may have noticed, several times within our code we use strings as identifiers for storyboards, segues, dictionary keys, etc. Although our code works, it's bad practice to have what's referred to as "stringly-typed" code because it's very error-prone to misspelling and the compiler can't help us catch these bugs. 
+You may have noticed, several times within our code we use strings as identifiers for storyboards, segues, dictionary keys, etc. Although our code works, it's bad practice to have what's referred to as "stringly-typed" code because it's very error-prone to misspelling and the compiler can't help us catch these bugs.
 
 A common example you might run into is misspelling the name of a segue identifier in storyboard. Previously we set the segue identifer from our `LoginViewController` to the `CreateUsernameViewController` to be `toCreateUsername`.
 
@@ -65,14 +65,14 @@ Instead of:
 ```
 self.performSegue(withIdentifier: "toCreateUsername", sender: self)
 ```
-    
+
 You can see how these mistakes are very easy to make. Let's take a look at the two most common ways of protecting ourselves from stringly typed code: static constants and enums!
 
 ## Creating Constants
 
 Let's start with the more basic of the two solutions: constants. Create a new `Constants.swift` file in your Supporting directory. We'll store our string identifiers as static constants so we can reuse throughout the app without worrying about misspelling them. In fact, Xcode can now help us out with autocomplete!
 
-![Create Constants File](asssets/create_constants_file.png)
+![Create Constants File](assets/create_constants_file.png)
 
 Create a Constants struct inside of your `Constants.swift` file:
 
@@ -127,7 +127,7 @@ Enums are a powerful data-type in Swift that can be used in many cool ways. Let'
 ```
 let storyboard = UIStoryboard(name: "Main", bundle: .main)
 ```
-    
+
 You can see we have a stringly typed identifier of Main that refers to the filename of our `Main.storyboard` file.
 
 Let's see how enums help solve this problem. First create a new file called `Storyboard+Utility.swift` to contain some useful extensions for the `UIStoryboard` class. Make sure you create the new file in the appropriate directory and create a new group for it as well:

@@ -33,6 +33,7 @@ Using this method the tab bar view controller asks its delegate whether or not i
 We can set the `delegate` of the `UITabBarViewController` and implement the method above. We can implement the method such that whenever the center tab bar item is tapped, we show the photo capture dialog. Let's implement this solution!
 
 Our solution involves two steps:
+
 1. Subclassing `UITabBarController` with our own custom `MainTabBarController` class.
 2. Have our custom tab bar controller implement the `UITab​Bar​Controller​Delegate`.
 
@@ -71,7 +72,7 @@ extension MainTabBarController: UITabBarControllerDelegate {
 
 The `UITabBarControllerDelegate` method `tabBarController(_:shouldSelect:)` returns a `Bool` value that determines if the tab bar will present the corresponding `UIViewController` that the user has selected. If `true`, the tab bar will behave as usual. If we return `false`, the view controller will not be displayed – exactly the behavior that we want for our photo tab bar item.
 
-Don't forget, we'll need to set the `Custom Class` property in the Identity Inspector for our `UITabBarController`:
+Don't forget, we'll need to set the _Custom Class_ property in the `Main.storyboard` _Identity Inspector_ for our `UITabBarController`:
 
 ![Tab Bar Identity Inspector](assets/tab_bar_identity.png)
 
@@ -98,7 +99,7 @@ struct Constants {
     }
 }
 ```
-    
+
 > [action]
 Implement the logic in `tabBarController(_:shouldSelect:)` to present the selected view controller:
 >
@@ -107,7 +108,7 @@ Implement the logic in `tabBarController(_:shouldSelect:)` to present the select
             if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
                 // present photo taking action sheet
                 print("take photo")
-
+>
                 return false
             } else {
                 return true
@@ -151,10 +152,10 @@ Create a new source file called `MGPhotoHelper.swift`:
 > [action]
 >
 1. Create a new Cocoa Touch class within the *Helpers* directory
-2. Name this class *MGPhotoHelper* and make it a subclass of *NSObject* (we will discuss why this is necessary later on): 
+2. Name this class *MGPhotoHelper* and make it a subclass of *NSObject* (we will discuss why this is necessary later on):
 3. Select your new helper class and add it to a *Helpers* group
 
-![image](photo_taking_helper_class.png)
+![image](assets/new_photo_helper.png)
 
 Now that we have a plan and a place to put our code, let's start implementing this feature!
 
@@ -302,7 +303,7 @@ Change the the tab bar related code to call the `presentActionSheet(from:)` meth
 >
     extension MainTabBarController: UITabBarControllerDelegate {
         func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            if viewController.tabBarItem.tag == 1 {
+            if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
                 photoHelper.presentActionSheet(from: self)
                 return false
             }
@@ -335,7 +336,7 @@ Add the `presentImagePickerController(with:from:)` method to the `MGPhotoHelper`
     func presentImagePickerController(with sourceType: UIImagePickerControllerSourceType, from viewController: UIViewController) {
         let imagePickerController = UIImagePickerController()
         imagePickerController.sourceType = sourceType
-
+>
         viewController.present(imagePickerController, animated: true)
     }
 
@@ -354,7 +355,7 @@ Change the following section within `presentActionSheet(from:)` so that the `pre
         let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { [unowned self] action in
             self.presentImagePickerController(with: .camera, from: viewController)
         })
-
+>
         alertController.addAction(capturePhotoAction)
     }
 >
@@ -392,7 +393,7 @@ If you check the debug consule, you'll notice that Xcode is complaining that you
 
 Repeat the same steps for `Privacy - Camera Usage Description` to ask permission for camera usage. When added both keys, your `Info.plist` should look like the following:
 
-![Photo Permission](assets/plist_permission.png)
+![Photo Permission](assets/plist_permissions.png)
 
 Now an user can pick an image; however, currently we don't get informed when the user has selected an image and we don't gain access to the selected image.
 
@@ -465,13 +466,13 @@ Open `MainTabBarController.swift` and place a breakpoint on the print statement 
 >
 Run the app and select an image using the `UIImagePickerController`. The debugger should halt on the breakpoint and you should see that the callback receives a value for the `image` parameter:
 
-![image](assets/callback_successful.png)
+![image](assets/callback_success.png)
 
 As long as the value in the variables view beside `UIImage` is **not** showing `0x0000000000000000` (which would mean the `image` argument is `nil`), then everything is working! We now have access to the selected image inside of the `MainTabBarController`.
 
 Here's a short reminder of all the information flow you have implemented in this step:
 
-![image](photo_taking_structure.png)
+![image](assets/photo_taking_structure.png)
 
 **Well done!**
 
