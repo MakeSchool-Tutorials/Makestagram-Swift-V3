@@ -176,25 +176,25 @@ Open `Login.storyboard` and ctrl-drag from `LoginViewController` to `CreateUsern
 >
 After creating the segue in storyboard, we'll need to perform the segue in code. Add the following line to your `LoginViewController.swift` file:
 >
-extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-        if let error = error {
-            print("Error signing in: \(error.localizedDescription)")
-        }
->
-        guard let user = user else { return }
->
-        let ref = FIRDatabase.database().reference().child("users").child(user.uid)
->
-        ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-            if let user = User(snapshot: snapshot) {
-                print("Welcome back, \(user.username).")
-            } else {
-                self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+    extension LoginViewController: FUIAuthDelegate {
+        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+            if let error = error {
+                print("Error signing in: \(error.localizedDescription)")
             }
-        })
+>
+            guard let user = user else { return }
+>
+            let ref = FIRDatabase.database().reference().child("users").child(user.uid)
+>
+            ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+                if let user = User(snapshot: snapshot) {
+                    print("Welcome back, \(user.username).")
+                } else {
+                    self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+                }
+            })
+        }
     }
-}
 
 Now when a new user signs up, they'll be redirected to choose their username. Run the app and make sure our code works up to this point before moving onto the next step of implementing the code for writing a new user to the database.
 
@@ -217,7 +217,16 @@ When a user taps the next button we want the following to happen:
 5. Write the dictionary at the specified location
 6. Handle the success or failure of writing to the database
 
-Modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swift` as follows:
+First we'll import the necessary libraries.
+
+> [action]
+Add the following to the top of `CreateUsernameViewController`:
+```
+import FirebaseAuth
+import FirebaseDatabase
+```
+
+Then modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swift` as follows:
 
 ```
 @IBAction func nextButtonTapped(_ sender: UIButton) {
@@ -358,18 +367,14 @@ Add the following code below:
 ```
 UserService.create(firUser, username: username) { (user) in
     guard let _ = user else {
-        // handle error
         return
     }
 
-    // 1
-    let storyboard = uistoryboard(name: "main", bundle: .main)
+    let storyboard = UIStoryboard(name: "Main", bundle: .main)
 
-    // 2
-    if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
-        // 3
-        self.view.window?.rootviewcontroller = initialviewcontroller
-        self.view.window?.makekeyandvisible()
+    if let initialViewController = storyboard.instantiateInitialViewController() {
+        self.view.window?.rootViewController = initialViewController
+        self.view.window?.makeKeyAndVisible()
     }
 }
 ```
@@ -391,10 +396,11 @@ Go ahead and add the following code to our `LoginViewController`. This is the ex
 ```
 ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
     if let _ = User(snapshot: snapshot) {
-        let storyboard = uistoryboard(name: "main", bundle: .main)
-        if let initialviewcontroller = storyboard.instantiateinitialviewcontroller() {
-            self.view.window?.rootviewcontroller = initialviewcontroller
-            self.view.window?.makekeyandvisible()
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+                
+        if let initialViewController = storyboard.instantiateInitialViewController() {
+            self.view.window?.rootViewController = initialViewController
+            self.view.window?.makeKeyAndVisible()
         }
     } else {
         self.performSegue(withIdentifier: "toCreateUsername", sender: self)
