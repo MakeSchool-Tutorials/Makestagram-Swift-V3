@@ -7,34 +7,31 @@ In this section, we'll focus on completing the UI elements for the `HomeViewCont
 
 ![Post Design](assets/post_design.png)
 
-In addition to the existing `PostImageCell`, we'll create a post header cell and an action cell where users can give likes to each post.
+Adding to the existing `PostImageCell`, we'll create a header cell and an action cell for each post. The header cell will display the poster's username and give the current user the ability to flag inappropriate content. The action cell will display the number of likes for a given post and allow a user to like a post.
 
 We'll start by creating a new cell for the post header.
 
 # Creating a Post Header Cell
 
-In this step we'll be focused on creating the header, or the UI above the image.
+In this step we'll be focused on creating the header.
 
 Create a new custom cell:
 
 > [action]
+>
 1. Open `Home.storyboard` and find the `HomeViewController`
 2. Drag a new prototype cell from the object library to the table view on `HomeViewController`
+![Add Header Cell](assets/add_header_cell.png)
 3. Open the attributes inspector and change the cell style, selection style, and set the `Identifier` to `PostHeaderCell`
->
 ![Post Header Properties](assets/header_properties.png)
-
-Next, let's customize the height of the cell on storyboard.
-
-> [action]
-Open the size inspector and set a custom `Row Height` of 54
+4. Open the size inspector and set a custom `Row Height` of 54
 ![Header Row Height](assets/header_row_height.png)
 
 ## Adding Subviews
 
 We've now created a new cell with some custom attributes. Let's move on to adding some subviews onto our prototype cell. In this step, we'll add a `UILabel` to display the username of the poster and a options button for users to report inappropriate content.
 
-![Post Header Prototype Cell](assets/header_prototype.png)
+![Post Header Prototype Cell](assets/fin_header_prototype.png)
 
 > [action]
 Drag a `UIButton` from the object library onto the prototype cell. Add the following constraints:
@@ -90,17 +87,84 @@ Great! We've finished creating our `PostHeaderCell`. Now we'll move on to creati
 
 # Creating a Post Action Cell
 
-We'll repeat similar steps to do the same for creating a `PostActionCell` that will be displayed below each `PostImageCell`. Add another prototype cell in our Home storyboard below the `PostImageCell`.
+We'll repeat similar steps to do the same for creating a `PostActionCell` that will be displayed below each `PostImageCell`. Add another prototype cell in our `Home.storyboard` below the `PostImageCell`.
 
-Make sure the `Selection` style is `None`, the cell `Identifier` is `PostActionCell` and the row height is 46. If you don't remember how to configure a custom table view review the last step to refresh your memory.
+> [challenge]
+Set the following properties in your _Attribute Inspector_ and _Size Inspector_:
+>
+- **Selection Style**: None
+- **Cell Identifier**: PostActionCell
+- **Custom Height**: 46
+>
+If you don't remember how to configure a custom table view review the last step to refresh your memory.
 
-On our action cell, we'll add a button for users to like a post, a label to display the number of likes a post has, another label for a timestamp, and finally a custom separator.
+## Adding Subviews
 
-Go ahead and add all of the subviews and set contraints that follow the design.
+On our action cell, we'll add the following subviews:
+
+- a button for users to like a post
+- a label to display the number of likes a post has
+- a second label for a timestamp
+- a custom separator view
+
+Let's start by adding the like button:
+
+> [action]
+1. Drag a `UIButton` from the object library to the action cell and set the following attributes:
+
+**Type**: Custom
+**Title**: _Leave Blank_
+**Image**: ic_unfilled_heart
+
+2. Add the following constraints for the like button:
+
+![Like Button Constraints](assets/like_btn_constraints.png)
+
+Next we'll add a like count label to display the number of likes a post currently has:
+
+> [action]
+1. Drag a `UILabel` from the object library beside the like button and set the following attributes:
+
+**Text**: 5 Likes
+**Font:** System Semibold 14.0
+
+2. Add the following constraints for the like count label:
+
+![Like Label Constraints](assets/like_label_constraints.png)
+
+We'll also need a label for the timestamp of when a post was first created:
+
+> [action]
+1. Drag a `UILabel` onto the far right side of the cell:
+
+![Add Timestamp Label](assets/timestamp_label.png)
+
+2. Set the following atttributes for the label:
+
+**Text**: 31 MINUTES AGO
+**Font**: System 11
+**Text Color**: `#9A9A9A`
+
+3. Add the following constraints for the timestamp label:
+
+![Timestamp Label Constraints](assets/timestamp_label_constraints.png)
+
+Last, we'll add a custom separator at the bottom of our action cell to help visually separate posts:
+
+> [action]
+1. Drag a `UIView` onto the action cell and add the following constraints:
+
+![Bottom Border Constraints](assets/border_constraints.png)
+
+2. Set the color to `#DBDBDB`:
+
+![Bottom Border Color](assets/border_color.png)
 
 After adding the subviews, you prototype cell should look like the following:
 
-[Action Cell Hiearchy](assets/action_cell_hiearchy.png)
+![Finished Action Cell](assets/final_sb_action_cell.png)
+
+## Hooking up the Source Code
 
 Let's create our IBOutlets and IBAction methods. Create a new `PostActionCell.swift` class and add the following:
 
@@ -196,8 +260,7 @@ Add the following class method to `PostHeaderCell`:
 >
         // ...
     }
-
-> [action]
+>
 Repeat the following for `PostActionCell`:
 >
     class PostActionCell: UITableViewCell {
@@ -214,6 +277,8 @@ Next, change your `UITableViewDelegate` to the following:
 
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let post = posts[indexPath.section]
+
         switch indexPath.row {
         case 0:
             return PostHeaderCell.height
@@ -223,7 +288,7 @@ extension HomeViewController: UITableViewDelegate {
             return post.imageHeight
 
         case 2:
-            return PostActionsCell.height
+            return PostActionCell.height
 
         default:
             fatalError()
