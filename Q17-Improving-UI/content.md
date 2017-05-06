@@ -31,15 +31,14 @@ Create a new custom cell:
 
 We've now created a new cell with some custom attributes. Let's move on to adding some subviews onto our prototype cell. In this step, we'll add a `UILabel` to display the username of the poster and a options button for users to report inappropriate content.
 
+When you're finished, your prototype cell should look like:
 ![Post Header Prototype Cell](assets/fin_header_prototype.png)
 
 > [action]
 Drag a `UIButton` from the object library onto the prototype cell. Add the following constraints:
->
 ![Options Button Constraints](assets/options_constraints.png)
 >
 Next, we'll do the same with a `UILabel` and add the following constraints:
->
 ![Username Label Constraints](assets/username_constraints.png)
 
 After setting up our subviews, we'll need to connect them to code. Create a new `PostHeaderCell.swift` that is a subclass of `UITableViewCell`. Make your file contains the following:
@@ -111,53 +110,58 @@ Let's start by adding the like button:
 
 > [action]
 1. Drag a `UIButton` from the object library to the action cell and set the following attributes:
+>
+- **Type**: Custom
+- **Title**: _Leave Blank_
+- **Image**: ic_unfilled_heart
 
-**Type**: Custom
-**Title**: _Leave Blank_
-**Image**: ic_unfilled_heart
+<!-- don't delete -->
 
+> [action]
 2. Add the following constraints for the like button:
-
 ![Like Button Constraints](assets/like_btn_constraints.png)
 
 Next we'll add a like count label to display the number of likes a post currently has:
 
 > [action]
 1. Drag a `UILabel` from the object library beside the like button and set the following attributes:
+>
+- **Text**: 5 Likes
+- **Font:** System Semibold 14.0
 
-**Text**: 5 Likes
-**Font:** System Semibold 14.0
+<!-- don't delete -->
 
+> [action]
 2. Add the following constraints for the like count label:
-
 ![Like Label Constraints](assets/like_label_constraints.png)
 
 We'll also need a label for the timestamp of when a post was first created:
 
 > [action]
 1. Drag a `UILabel` onto the far right side of the cell:
-
 ![Add Timestamp Label](assets/timestamp_label.png)
 
+<!-- don't delete -->
+
+> [action]
 2. Set the following atttributes for the label:
+>
+- **Text**: 31 MINUTES AGO
+- **Font**: System 11
+- **Text Color**: `#9A9A9A`
 
-**Text**: 31 MINUTES AGO
-**Font**: System 11
-**Text Color**: `#9A9A9A`
+<!-- don't delete -->
 
+> [action]
 3. Add the following constraints for the timestamp label:
-
 ![Timestamp Label Constraints](assets/timestamp_label_constraints.png)
 
 Last, we'll add a custom separator at the bottom of our action cell to help visually separate posts:
 
 > [action]
 1. Drag a `UIView` onto the action cell and add the following constraints:
-
 ![Bottom Border Constraints](assets/border_constraints.png)
-
 2. Set the color to `#DBDBDB`:
-
 ![Bottom Border Color](assets/border_color.png)
 
 After adding the subviews, you prototype cell should look like the following:
