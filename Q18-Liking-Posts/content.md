@@ -38,7 +38,7 @@ makestagram-b3260 : {
             user8_uid: true
         },
         -KgLo0OrineV8l3_K9gK: {
-            user1_uid: true 
+            user1_uid: true
         },
     },
     posts: { ... },
@@ -59,7 +59,7 @@ In addition to our new `postLikes` node, we'll also be adding a new `like_count`
 ```
 makestagram-b3260 : {
     postLikes: { ... },
-    posts: { 
+    posts: {
         user1_uid: {
             -Kfm0p2EMcrpN8XcLOR5: {
                 created_at: 1490119356.786182,
@@ -81,7 +81,7 @@ It might not be immediately obvious why we need an additional `like_count` for e
 
 Although, it's not immediately obvious, a `like_count` is an read optimization that allows us to know the number of likes a post has just by reading from the `posts` node. This also prevents us from:
 
-- having to make two network request to display a post
+- having to make two network requests to display a post
 - reading all likes into memory (imagine if a user had a couple million likes!)
 
 Adding an additional `like_count` allows us to quickly read post data from Firebase.
@@ -105,7 +105,7 @@ _Denormalization_ is a method of improving the read performance by storing redun
 Our new post JSON will look like:
 
 ```
-posts: { 
+posts: {
     user1_uid: {
         -Kfm0p2EMcrpN8XcLOR5: {
             created_at: 1490119356.786182,
@@ -146,7 +146,7 @@ Create a new `LikeService.swift` source file in the `Services` folder:
     struct LikeService {
         // ...
     }
-    
+
 First we'll want to add a service method for liking posts:
 
 > [action]
@@ -163,7 +163,7 @@ Add the following class method to your `LikeService`:
 >
         // 3 code to like a post
     }
-    
+
 In the code above, we do some setup for liking a post:
 
 1. Each post that we like must have a key. We check the post has a key and return false if there is not.
@@ -203,29 +203,25 @@ Don't continue until you've finished!
 > [solution]
 > Verify your unliking code below:
 >
-```
-static func delete(for post: Post, success: @escaping (Bool) -> Void) {
-    guard let key = post.key else { 
-        return success(false) 
-    }
-
-    let currentUID = User.current.uid
-
-    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
-    likesRef.setValue(nil) { (error, _) in
-        if let error = error {
-            assertionFailure(error.localizedDescription)
+    static func delete(for post: Post, success: @escaping (Bool) -> Void) {
+        guard let key = post.key else {
             return success(false)
         }
-
-        return success(true)
+>
+        let currentUID = User.current.uid
+>
+        let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+        likesRef.setValue(nil) { (error, _) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return success(false)
+            }
+>
+            return success(true)
+        }
     }
-}
-```
 
-<!-- TODO: change this API to use the Firebase remove API instead of setting to nil? -->
-
-The code for unliking a post is mostly the same for liking a post. However instead of setting the value of the location to true, we set it to `nil` to delete the current node at that location.
+The code for unliking a post is mostly the same for liking a post. However instead of setting the value of the location to true, we set it to `nil` to delete the current node at that location. You could have also used the `removeValue(completionBlock:)` method of `FIRDatabaseReference` to delete the like object in our database.
 
 At this point, we've created our first two service methods in our `LikeService`. We can use these methods to like and unlike posts. To complete the implementation of our like service, we'll need to add a `like_count` that we can increment and decrement whenever a post is liked / unliked.
 
@@ -242,7 +238,7 @@ To refresh our memory, to implement a like count, we'll need to:
 Our database JSON object for a given post will look like:
 
 ```
-posts: { 
+posts: {
     user1_uid: {
         -Kfm0p2EMcrpN8XcLOR5: {
             created_at: 1490119356.786182,
@@ -270,38 +266,39 @@ Open the `Post.swift` source file and add the following new properties:
 >
     var likeCount: Int
     let poster: User
-    
+
 Our `poster` property will store a reference to the user that owns the post.
 
 > [action]
 Update each `Post` init method to configure our new properties:
-```
-// MARK: - Init
-
-init?(snapshot: FIRDataSnapshot) {
-    guard let dict = snapshot.value as? [String : Any],
-
+>
+    // MARK: - Init
+>
+    init?(snapshot: FIRDataSnapshot) {
+        guard let dict = snapshot.value as? [String : Any],
+>
+            // ...
+>
+            let likeCount = dict["like_count"] as? Int,
+            let userDict = dict["poster"] as? [String : Any],
+            let uid = userDict["uid"] as? String,
+            let username = userDict["username"] as? String
+            else { return nil }
+>
         // ...
+>
+        self.likeCount = likeCount
+        self.poster = User(uid: uid, username: username)
+    }
+>
+    init(imageURL: String, imageHeight: CGFloat) {
+>
+        // ...
+>
+        self.likeCount = 0
+        self.poster = User.current
+    }
 
-        let likeCount = dict["like_count"] as? Int,
-        let userDict = dict["poster"] as? [String : Any],
-        let uid = userDict["uid"] as? String,
-        let username = userDict["username"] as? String
-        else { return nil }
-
-    // ...
-
-    self.poster = User(uid: uid, username: username)
-}
-
-init(imageURL: String, imageHeight: CGFloat) {
-
-    // ...
-
-    self.likeCount = 0
-    self.poster = User.current
-}
-```
 
 Last, update the computed `dictValue` for the `Post` model. We want our database representation of each post to include the new `likeCount` and `poster` data:
 
@@ -320,7 +317,7 @@ Update `dictValue`:
                 "poster" : userDict]
     }
 
-We've modified our `Post` model hold our new post data from our database. 
+We've modified our `Post` model hold our new post data from our database.
 
 ## Keeping Post Data Consistent
 To keep our database post data consistent, we'll need to delete any current posts in your `posts` node.
@@ -371,7 +368,7 @@ Open `LikeService` and modify the existing methods for liking and unliking posts
             })
         }
     }
-    
+
 In the code above, we add code in the completion block that increments the `like_count` of a post after a post has been liked. Note how we use the `poster` property to build the relative path to the like count location we want to write at.
 
 After creating a reference to the location of `like_count`, we use `runTransactionBlock(_:andCompletionBlock:)` to increment the current `like_count` value by 1.
@@ -472,13 +469,12 @@ We now have service methods that will like and unlike posts. We'll need to updat
 
 > [action]
 Open `HomeViewController` and modify `tableView(_:cellForRowAt:)` to the following:
-```
-case 2:
-    let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionsCell
-    cell.likesCountLabel.text = "\(post.likesCount) likes"
-
-    return cell
-```
+>
+    case 2:
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
+        cell.likeCountLabel.text = "\(post.likeCount) likes"
+>
+        return cell
 
 ## Connecting the Like Button
 
@@ -492,7 +488,7 @@ First, let's add an `isLiked` property to our post. This will tell us whether th
 var isLiked = false
 ```
 
-We'll give this a default value of `false` because initially when we first read the post from the database, we won't know the initial value. In addition, we'll make this a variable instead of a constant because we want to be able to change the state of this property later to match whether the current user has actually liked the post. Next we'll need to add a class method to our `LikeService` to tell whether a post is liked by the current user. 
+We'll give this a default value of `false` because initially when we first read the post from the database, we won't know the initial value. In addition, we'll make this a variable instead of a constant because we want to be able to change the state of this property later to match whether the current user has actually liked the post. Next we'll need to add a class method to our `LikeService` to tell whether a post is liked by the current user.
 
 > [action]
 Create a new service method for determining whether the current `Post` is liked:
@@ -504,7 +500,7 @@ Create a new service method for determining whether the current `Post` is liked:
         }
 >
         let likesRef = FIRDatabase.database().reference().child("postLikes").child(postKey)
-        ref.queryEqual(toValue: nil, childKey: User.current.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+        likesRef.queryEqual(toValue: nil, childKey: User.current.uid).observeSingleEvent(of: .value, with: { (snapshot) in
             if let _ = snapshot.value as? [String : Bool] {
                 completion(true)
             } else {
@@ -556,11 +552,11 @@ Here we rewrite our code to check whether each of our posts is liked by the curr
 
 ## What are Dispatch Groups?
 
-Dispatch groups are an advanced GCD topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed. They work by matching the number of items that have been started with the number that have been finished. You can begin and complete a new item by calling `enter()` and `leave()` on the dispatch group instance respectively. When the number of tasks that have been started equal the number completed, the dispatch group can notify you that all tasks have been executed. 
+Dispatch groups are an advanced GCD topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed. They work by matching the number of items that have been started with the number that have been finished. You can begin and complete a new item by calling `enter()` and `leave()` on the dispatch group instance respectively. When the number of tasks that have been started equal the number completed, the dispatch group can notify you that all tasks have been executed.
 
 In the code we just wrote, notice we add a new item to the dispatch group as we run a async network call to determine whether the post is liked by the current user. We complete the item after we get a response from Firebase.
 
-## Hooking up the UI
+# Hooking up the UI
 
 Now that we've finished implementing our service methods for liking and displaying posts, we'll need to hook up our UI to display our changes.
 
@@ -619,10 +615,10 @@ Open `HomeViewController` and add the following extension at the bottom of the s
             print("did tap like button")
         }
     }
-    
+
 Next, we'll refactor our `tableView(_:cellForRowAt:)` method for our `PostActionCell`:
 
-Find the correct case for your `PostActionCell` in `tableView(_:cellForRowAt:)` and change it to the following: 
+Find the correct case for your `PostActionCell` in `tableView(_:cellForRowAt:)` and change it to the following:
 
 ```
 extension HomeViewController: UITableViewDataSource {
@@ -647,14 +643,14 @@ extension HomeViewController: UITableViewDataSource {
     }
 }
 ```
-    
+
 We'll move the configuring of our cell outside into another method so we can reference it later to redisplay our cell.
 
 You'll notice that if the post is liked, we set the `isSelected` of the `UIButton` to true. For this to work and change the button UI, we'll need to add an image for the selected state of our button.
 
 > [action]
 Open `Home.storyboard` and set the image of the selected `likeButton`:
-![Selected Like Properties](assets/selected_like_button_properties.png)
+![Selected Like Properties](assets/selected_like_buttonproperties.png)
 
 Next we'll need to add the logic to handle the event when the `likeButton` of the `PostActionCell` is tapped. But first we'll add a convenience method to our like service that we'll use the easily like and unlike posts.
 
@@ -711,7 +707,7 @@ Open `HomeViewController` and add the following in `didTapLikeButton(_:on:)`:
                 }
             }
         }
-        
+
 Let's walk through the code we just added step by step:
 
 1. First we make sure that an index path exists for the the given cell. We'll need the index path of the cell later on to reference the correct post.

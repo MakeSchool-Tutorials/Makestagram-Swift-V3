@@ -45,7 +45,7 @@ Next, navigate to our `PostService`. We'll need to change the service method `cr
 
 > [action]
 Change `create(forURLString:aspectHeight:)` to the following:
-    
+
 ```
 private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
     let currentUser = User.current
@@ -183,7 +183,7 @@ We've now added all of the service methods for writing and creating our timeline
 
 First, since we don't store the entire post object in our timeline JSON tree, we'll need to perform a *join*. This means we'll need to use the information provided by the timeline data to fetch more data from our database. In our case, we'll use the `postKey` and `poster_uid` of each timeline post object to read the corresponding post.
 
-We'll start by create a new service method in our `PostService` that fetches a single post based on the `postKey` and `posterUID`. 
+We'll start by create a new service method in our `PostService` that fetches a single post based on the `postKey` and `posterUID`.
 
 > [action]
 Add the following method to your `PostService`:
@@ -203,11 +203,11 @@ Add the following method to your `PostService`:
         })
     }
 
-This method reads a single post from the database and returns the associated post. This will help us read each post from our timeline. Next we'll need to create a service method in our `UserService` for fetching the current user's timeline. 
+This method reads a single post from the database and returns the associated post. This will help us read each post from our timeline. Next we'll need to create a service method in our `UserService` for fetching the current user's timeline.
 
 > [action]
 Open `UserService.swift` and implementing the following:
-    
+
 ```
 static func timeline(completion: @escaping ([Post]) -> Void) {
     let currentUser = User.current
@@ -243,7 +243,7 @@ static func timeline(completion: @escaping ([Post]) -> Void) {
     })
 }
 ```
-    
+
 Using these two previous service methods, we're able to read the current user's timeline and return an array of posts. First we read the timeline, and then we join each post timeline object with the corresponding post object. Creating joins like this are very common for NoSQL databases. Let's hook up our new service method in our `HomeViewController` so we can see our timeline!
 
 > [action]
@@ -273,7 +273,7 @@ You'll notice that if you follow and unfollow new users or create a new post, yo
 > [action]
 Open `HomeViewController` and add the following subview:
 >
-let refreshControl = UIRefreshControl()
+    let refreshControl = UIRefreshControl()
 
 Next, we'll need to set up method that reloads our timeline.
 
@@ -306,6 +306,7 @@ Last we'll tie things together by configuring the refresh control with our table
 func configureTableView() {
     // ...
 
+    // add pull to refresh
     refreshControl.addTarget(self, action: #selector(reloadTimeline), for: .valueChanged)
     tableView.addSubview(refreshControl)
 }
@@ -319,7 +320,7 @@ Congratulations, you've complete the tutorial and complete a basic implementatio
 
 # Conclusion
 
-In this section, you learned two important concepts: 
+In this section, you learned two important concepts:
 
 First, we implemented a timeline sevice method to display posts of users we're following.
 

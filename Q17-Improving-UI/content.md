@@ -179,6 +179,7 @@ class PostActionCell: UITableViewCell {
 
     // MARK: - Subviews
 
+    @IBOutlet weak var likeButton: UIButton!
     @IBOutlet weak var likeCountLabel: UILabel!
     @IBOutlet weak var timeAgoLabel: UILabel!
 

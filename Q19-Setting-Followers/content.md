@@ -7,10 +7,11 @@ In the last section, we set up like functionality. Now we can view the posts tha
 
 # Structuring our data
 
-For storing information following other users, we'll need to create new subtrees in our Firebase database. The first will be for `Followers` and the other will be `Following`. We need two subtrees to store this information because if we don't store this information, then in order to figure out who's following a given user, we'd have to go through each user's list of users that they are following and verify whether each is following the given user. 
+For storing information following other users, we'll need to create new subtrees in our Firebase database. The first will be for `Followers` and the other will be `Following`. We need two subtrees to store this information because if we don't store this information, then in order to figure out who's following a given user, we'd have to go through each user's list of users that they are following and verify whether each is following the given user.
 
 Let's see what that would look like:
 
+```
 followers: {
     user1: {
       user2: true,
@@ -22,6 +23,7 @@ following: {
       user3: true
     }
 }
+```
 
 Now that we have an idea of how we want to structure our new data, let's start implementing a new follow service.
 
@@ -59,7 +61,7 @@ Add the class method in your `FollowService`:
             success(error == nil)
         }
     }
-    
+
 Let's walk through our code:
 
 1. We create a dictionary to update multiple locations at the same time. We set the appropriate key-value for our followers and following.
@@ -113,13 +115,7 @@ Let's get started by creating a `FindFriendsViewController.swift` file. After cr
 Open `Main.storyboard` and set the class of the `FindFriendsViewController`:
 ![Find Friends Class Inspector](assets/find_friends_class_inspector.png)
 
-Next, we'll embed our `FindFriendsViewController` within a navigation controller. This will give us a navigation bar for our view controller. 
-
-Let's set the title for the navigation bar to `Find Friends`.
-
-> [action]
-Select the navigation bar of the `FindFriendsViewController`. Open the Attributes Inspector and set the `Title` property of the `Navigation Item` to `Find Friends`:
-![Set Find Friends Nav Bar](assets/set_nav_title.png)
+Next, we'll embed our `FindFriendsViewController` within a navigation controller. This will give us a navigation bar for our view controller.
 
 Now we'll refactor our `FindFriendsViewController` into it's own storyboard. Select the `FindFriendsViewController` view controller in your main storyboard and click the `Editor`>`Refactor to Storyboard...` button in the top menu. Name this storyboard `FindFriends.storyboard`.
 
@@ -127,11 +123,18 @@ When your done your `FindFriends.storyboard` should look like the image below:
 
 ![Find Friends Storyboard](assets/find_friends_storyboard.png)
 
+Let's set the title for the navigation bar to `Find Friends`.
+
+> [action]
+Select the navigation bar of the `FindFriendsViewController`. Open the Attributes Inspector and set the `Title` property of the `Navigation Item` to `Find Friends`:
+![Set Find Friends Nav Bar](assets/set_nav_title.png)
+
 We'll now add our `UITableView` to our view controller. Make sure you constraint the top and bottom of the table view to the view, not the top and bottom layout guides:
 
 ![TableView Constraints](assets/tableview_constraints.png)
 
 Now we're going to create our prototype cell that will represent other users. For each user we need:
+
 1. A `UILabel` to display the user's username
 2. A `UIButton` to follow or unfollow each user
 
@@ -153,7 +156,7 @@ Next we'll begin configuring the cell:
 4. Add a follow/unfollow button with the following constraints:
 ![Follow Button Constraints](assets/button_constraints.png)
 
-Now let's create the `FindFriendsCell.swift` file to go along with our cell. Let's make IBOutlets for both the label and the button. In addition, we'll create an IBAction for the follow button. Your code should look like the following:
+Now let's create the `FindFriendsCell.swift` file to go along with our cell. Remember to set the _Identity Inspector_ class for the prototype cell. Let's make IBOutlets for both the label and the button. In addition, we'll create an IBAction for the follow button. Your code should look like the following:
 
 ```
 import UIKit
@@ -194,7 +197,7 @@ override func awakeFromNib() {
     followButton.setTitle("Following", for: .selected)
 }
 ```
-    
+
 Now let's hook up the datasource of the tableview. We'll need an IBOutlet for our tableview and to connect the tableview's datasource to the view controller. First add the following to your `FindFriendsViewController`:
 
 ```
@@ -215,6 +218,7 @@ class FindFriendsViewController: UIViewController {
 
         // remove separators for empty cells
         tableView.tableFooterView = UIView()
+        tableView.rowHeight = 71
     }
 }
 ```
@@ -243,13 +247,13 @@ extension FindFriendsViewController: UITableViewDataSource {
     }
 }
 ```
-    
+
 Now we need to fetch all of the users on the server and display them. But first we'll add a `isFollowed` property to our `User` class:
 
 ```
 var isFollowed = false
 ```
-    
+
 Next, we'll edit our `configure(cell:atIndexPath:)` with the following:
 
 ```
@@ -260,7 +264,7 @@ func configure(cell: FindFriendsCell, atIndexPath indexPath: IndexPath) {
     cell.followButton.isSelected = user.isFollowed
 }
 ```
-    
+
 Now to finish things up, let's create a service to fetch all users on the app and display them. We'll add the following class method to our `UserService` struct:
 
 ```
@@ -359,13 +363,13 @@ protocol FindFriendsCellDelegate: class {
     func didTapFollowButton(_ followButton: UIButton, on cell: FindFriendsCell)
 }
 ```
-    
+
 Next we'll add a delegate to the cell itself:
 
 ```
 weak var delegate: FindFriendsCellDelegate?
 ```
-    
+
 And call the delegate when the follow button is tapped:
 
 ```
@@ -373,7 +377,7 @@ And call the delegate when the follow button is tapped:
     delegate?.didTapFollowButton(sender, on: self)
 }
 ```
-    
+
 Last we'll implement the delegate in our `tableView(_:cellForRowAt:)` datasource method:
 
 ```
