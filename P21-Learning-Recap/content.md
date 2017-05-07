@@ -12,7 +12,18 @@ At this point we have covered many of the most important fundamentals of iOS dev
 
 From here, Makestagram is broken into features and key concepts:
 
-TODO: Add list of Makestagram extensions
+<!-- TODO: Update with final list of Makestagram extensions -->
+
+1. Type-Safety with Generics
+2. Pagination
+3. Introducing UICollectionView
+4. Facebook and Google Login
+5. App Stylesheet using Extensions
+6. Analytics with Firebase and Fabric
+7. Firebase Router using Enums
+8. Realtime Messaging
+9. Adding Location Tags
+10. Custom Login with UIPageViewController
 
 These extensions are for you to learn new features and concepts that you may want to add into your app. You can pick and choose which ones you'd like to implement and which ones you'd like to skip.
 
