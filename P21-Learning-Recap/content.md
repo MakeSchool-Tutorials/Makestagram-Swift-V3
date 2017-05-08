@@ -31,7 +31,17 @@ These extensions are for you to learn new features and concepts that you may wan
 
 Let's take a look at what you have learned so far.
 
-TODO: Add a one line summary for each section.
+- how to create a new Firebase project
+- how to setup and connect to a Firebase project
+- app architecture for managing complex apps
+- handling authentication with FirebaseAuth and FirebaseAuthUI
+- managing multiple user flows with multiple storyboards
+- managing user accounts with FirebaseAuth and FirebaseDatabase 
+- handling persistence with UserDefaults
+- uploading media to FirebaseStorage
+- displaying complex UI with table view sections
+- handling multiple asynchronous calls with dispatch groups
+- building complex relationships with denormalization and joins
 
 ## Best Practices
 
