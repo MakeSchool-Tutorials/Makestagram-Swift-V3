@@ -306,6 +306,38 @@ Run the app and see if your post now displays. It should look like the image bel
 
 ![Home View Controller](assets/home_working.png)
 
+# Configuring the Timestamp
+
+Currently, our post have a timestamp of when it was created. To display this data, we'll need to configure `tableView(_:cellForRowAt:)`.
+
+> [action]
+Open `HomeViewController` and create a new `DateFormatter`:
+>
+    let timestampFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+>
+        return dateFormatter
+    }()
+    
+A date formatter allows us to convert a `Date` into a formatted string. We'll use this to display the date our post was created.
+
+> [action]
+In `tableView(_:cellForRowAt:)` add the following:
+```
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    // ...
+
+    case 2:
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
+        cell.timeAgoLabel.text = timestampFormatter.string(from: post.creationDate)
+        
+        return cell
+
+    // ... 
+}
+```
+
 # Adding a Navigation Bar Title
 
 Before moving on, we'll set a title for our `HomeViewController` navigation bar.

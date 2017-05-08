@@ -638,6 +638,7 @@ extension HomeViewController: UITableViewDataSource {
     }
 
     func configureCell(_ cell: PostActionCell, with post: Post) {
+        cell.timeAgoLabel.text = timestampFormatter.string(from: post.creationDate)
         cell.likeButton.isSelected = post.isLiked
         cell.likeCountLabel.text = "\(post.likeCount) likes"
     }
