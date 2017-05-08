@@ -3,21 +3,27 @@ title: "Setting-Followers"
 slug: setting-followers
 ---
 
-In the last section, we set up like functionality. Now we can view the posts that we've made and like / unlike them. But a social network isn't very social if you're only able to interact with your own content. So in this section we're going to focus on following and unfollowing users.
+Social media apps aren't very social if you're not able to interact with other users. In this section, we'll build the functionality for following and unfollowing other users. Creating follow relationships between users will be the foundation for implementing all future social features: mainly the timeline. 
 
-# Structuring our data
+To get started, let's think about any new data we'll need to handle or store in the database to implement our new functionality!
 
-For storing information following other users, we'll need to create new subtrees in our Firebase database. The first will be for `Followers` and the other will be `Following`. We need two subtrees to store this information because if we don't store this information, then in order to figure out who's following a given user, we'd have to go through each user's list of users that they are following and verify whether each is following the given user.
+# Structuring Follow Data
 
-Let's see what that would look like:
+Creating follow relationships between users will require us to store new data within our database. We'll create two new root nodes: `followers` and `following`. Breaking our follow data into two new subtrees will allow us to easily keep track of relationships between different users. 
 
+Let's model what our new `followers` tree will look like:
 ```
 followers: {
-    user1: {
-      user2: true,
-      user 3, true
+    user1_uid: {
+      user2_uid: true,
+      user3_uid, true
     }
-},
+}
+```
+The `followers` node will allow us to fetch data on which users are following any user.
+
+The `following` node will look similarly:
+```
 following: {
     user1: {
       user3: true
@@ -25,7 +31,7 @@ following: {
 }
 ```
 
-Now that we have an idea of how we want to structure our new data, let's start implementing a new follow service.
+With a data structure in mind, let's begin implementing a new follow service to interact with our database.
 
 # Creating our Follow Service
 
@@ -39,7 +45,7 @@ Create a new source file named `FollowService.swift`:
         // ...
     }
 
-Next let's implement our first method for following a user.
+We'll store all of our following related network requests to keep our service method organized. Let's begin by implementing a service method for following another user.
 
 > [action]
 Add the class method in your `FollowService`:
@@ -65,32 +71,36 @@ Add the class method in your `FollowService`:
 Let's walk through our code:
 
 1. We create a dictionary to update multiple locations at the same time. We set the appropriate key-value for our followers and following.
-2. We write our new relationship to Firebase
+2. We write our new relationship to Firebase.
 3. We return whether the update was successful based on whether there was an error.
 
-Now, let's do the same for unfollowing a user:
+Now, let's move on to implementing the service method for unfollowing a user.
 
-```
+> [challenge]
+Try and implement a new service method in `FollowService` for unfollowing a user. The class method should take a `User` and success closure of type `(Bool) -> Void`.
+
+> [solution]
+>
 private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
     let currentUID = User.current.uid
     // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
     // http://stackoverflow.com/questions/38462074/using-updatechildvalues-to-delete-from-firebase
     let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
                       "following/\(currentUID)/\(user.uid)" : NSNull()]
-
+>
     let ref = FIRDatabase.database().reference()
     ref.updateChildValues(followData) { (error, ref) in
         if let error = error {
             assertionFailure(error.localizedDescription)
         }
-
+>
         success(error == nil)
     }
 }
-```
+>
+Notice that we're able to simuntaneously delete multiple nodes in our database by setting the value of multiple relative paths to `NSNull()`. Be careful, if you try the same with `nil` directly, you'll get an error thrown by the compiler because `updateChildValues` is expecting a argument of `[String : Any]`.
 
-By setting the value of multiple relative paths in our database to `NSNull()` we're able to simuntaneously delete multiple parts of our JSON tree. Note that we can't use `nil`, otherwise we'll get an error because `updateChildValues` is expecting a parameter of `[String : Any]`. Last we'll create a method where we can directly set whether we want a user to be followed or unfollowed. This is a convenience method that makes our service layer easier to use.
-
+To make our `FollowService` easier to use, let's create another service method that will let us directly set the follow relationship to the current user.
 ```
 static func setIsFollowing(_ isFollowing: Bool, fromCurrentUserTo followee: User, success: @escaping (Bool) -> Void) {
     if isFollowing {
@@ -101,7 +111,28 @@ static func setIsFollowing(_ isFollowing: Bool, fromCurrentUserTo followee: User
 }
 ```
 
-Great! Now that we've setup our initial service methods for following and unfollowing users, we'll need to create some UI to display the relationship. Let's go to our Main storyboard.
+The last service method we'll need to implement in our `FollowService` will determine the current follow relationship between users. We'll need an easy way to tell if we're currently following another user or not.
+
+> [challenge]
+Try implementing this new service method as well. If you get stuck, look back at the code we've implemented in `LikeService` in the previous section.
+
+> [solution]
+The following method allows us to determine whether a user is already followed by the current user.
+>
+static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
+    let currentUID = User.current.uid
+    let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
+>
+    ref.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
+        if let _ = snapshot.value as? [String : Bool] {
+            completion(true)
+        } else {
+            completion(false)
+        }
+    })
+}
+
+Great! We've setup our initial service methods for following and unfollowing users, we'll need to create some UI to display the relationship. Let's go to our `Main storyboard`.
 
 # Setting the UI
 
@@ -265,26 +296,54 @@ func configure(cell: FindFriendsCell, atIndexPath indexPath: IndexPath) {
 }
 ```
 
-Now to finish things up, let's create a service to fetch all users on the app and display them. We'll add the following class method to our `UserService` struct:
+Now to finish things up, let's create a service to fetch all users on the app and display them.
 
-```
+> [action]
+Open `UserService` and create the follow new service method:
+>
 static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
     let currentUser = User.current
+    // 1
     let ref = FIRDatabase.database().reference().child("users")
-
+>
+    // 2
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
         guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
             else { return completion([]) }
-
+>
+        // 3
         let users =
             snapshot
                 .flatMap(User.init)
-                .filter { $0.uid == currentUser.uid }
-
-        completion(users)
+                .filter { $0.uid != currentUser.uid }
+>
+        // 4
+        let dispatchGroup = DispatchGroup()
+        users.forEach { (user) in
+            dispatchGroup.enter()
+>
+            // 5
+            FollowService.isUserFollowed(user) { (isFollowed) in
+                user.isFollowed = isFollowed
+                dispatchGroup.leave()
+            }
+        }
+>
+        // 6
+        dispatchGroup.notify(queue: .main, execute: {
+            completion(users)
+        })
     })
 }
-```
+
+The code we've implemented here is similar to the code we've previous wrote for determining whether each of a user's posts was liked by the current user. Let's break it down:
+
+1. Create a `FIRDatabaseReference` to read all users from the database.
+2. Read the `users` node from the database.
+3. Take the snapshot and perform a few transformations. First, we convert all of the child `FIRDataSnapshot` into `User` using our failable initializer. Next we filter out the current user object from the `User` array.
+4. Create a new `DispatchGroup` so that we can be notified when all asynchronous tasks are finished executing. We'll use the `notify(queue:)` method on `DispatchGroup` as a completion handler for when all follow data has been read.
+5. Make a request for each individual user to determine if the user is being followed by the current user.
+6. Run the completion block after all follow relationship data has returned.
 
 Let's hook this up in our `FindFriendsViewController`. Add the following in `viewWillAppear(_:)`:
 
@@ -303,58 +362,6 @@ override func viewWillAppear(_ animated: Bool) {
 ```
 
 Here, we fetch all users from our database and set them to our datasource. Then we refresh the UI on the main thread because all UI updates must be on the main thread. If everything works correctly you should see all others you've created on the database. If you don't have any other users, delete the app and create a couple to see your progress.
-
-You might notice that we haven't handled the state for our follow buttons. Let's go ahead and do that now. We'll need to create a new class method in our service class, to tell whether a user is being followed by the current users. Let's created that in the `FollowService` now:
-
-```
-static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
-    let currentUID = User.current.uid
-    let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
-
-    ref.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
-        if let _ = snapshot.value as? [String : Bool] {
-            completion(true)
-        } else {
-            completion(false)
-        }
-    })
-}
-```
-
-Now, we'll need to go back to our `UserService` and change our method that fetches all users from the database. Let's do that now:
-
-```
-static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
-    let currentUser = User.current
-    let ref = FIRDatabase.database().reference().child("users")
-
-    ref.observeSingleEvent(of: .value, with: { (snapshot) in
-        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
-            else { return completion([]) }
-
-        let users =
-            snapshot
-                .flatMap(User.init)
-                .filter { $0.uid != currentUser.uid }
-
-        let dispatchGroup = DispatchGroup()
-        users.forEach { (user) in
-            dispatchGroup.enter()
-
-            FollowService.isUserFollowed(user) { (isFollowed) in
-                user.isFollowed = isFollowed
-                dispatchGroup.leave()
-            }
-        }
-
-        dispatchGroup.notify(queue: .main, execute: {
-            completion(users)
-        })
-    })
-}
-```
-
-Here we add a dispatch group to asynchronously tell if each user is being followed before returning all of the users.
 
 Now we can move on to the last part of configuring our UI: enabling our button to work. To do so, let's create a delegate for our `FindFriendsCell`. Add the following to the top of your `FindFriendsCell` class:
 
