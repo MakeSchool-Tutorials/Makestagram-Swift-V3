@@ -51,16 +51,16 @@ Next we'll need to install a pod to download our image and display it in our tab
 
 ## Installing Kingfisher
 
-Navigate to the following [github link](https://github.com/onevcat/Kingfisher) and follow the instructions for downloading *Kingfisher*. You'll have to add *Kingfisher* to your pod file and type `pod install` to download the associated pod.
+Navigate to the following [github link](https://github.com/onevcat/Kingfisher) and follow the instructions for downloading _Kingfisher_. You'll have to add _Kingfisher_ to your pod file and type `pod install` to download the associated pod.
 
-*Kingfisher* is a popular Swift library for asynchronously downloading and caching images. We'll be able to use it like this:
+_Kingfisher_ is a popular Swift library for asynchronously downloading and caching images. We'll be able to use it like this:
 
 ```
 let url = URL(string: "https://domain.com/image.jpg")!
 imageView.kf.setImage(with: url)
 ```
 
-As you can see, *Kingfisher* allows us to easily download and turn `URL`s into `UIImage`s.
+As you can see, _Kingfisher_ allows us to easily download and turn `URL`s into `UIImage`s.
 
 ## Creating the PostImageCell
 
@@ -69,24 +69,26 @@ Next we're going to implement displaying images for our `PostImageCell`. First, 
 > [action]
 Create a new source file in the `Views` directory called `PostImageCell` that is a subclass of `UITableViewCell`; replace the contents of the file with the following:
 >
-    import UIKit
+```
+import UIKit
 >
-    class PostImageCell: UITableViewCell {
+class PostImageCell: UITableViewCell {
 >
-        override func awakeFromNib() {
-            super.awakeFromNib()
-        }
+    override func awakeFromNib() {
+        super.awakeFromNib()
     }
+}
+```
 
 Next open `Home.storyboard` and do the following:
 
 > [action]
 >
 1. Set the class of the cell to `PostImageCell` in the Identity Inspector
-1. Open the Size Inspector and change the default height of the prototype cell to be 375
-1. Drag an `UIImageView` from the object library onto your `PostImageCell`
-1. Constraint the `UIImageView` to each side of the cell
-1. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
+2. Open the Size Inspector and change the default height of the prototype cell to be 375
+3. Drag an `UIImageView` from the object library onto your `PostImageCell`
+4. Constraint the `UIImageView` to each side of the cell
+5. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
 ![Post Image Cell](assets/post_image_cell.png)
 
 Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fit`.

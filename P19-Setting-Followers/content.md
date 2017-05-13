@@ -3,15 +3,16 @@ title: "Setting-Followers"
 slug: setting-followers
 ---
 
-Social media apps aren't very social if you're not able to interact with other users. In this section, we'll build the functionality for following and unfollowing other users. Creating follow relationships between users will be the foundation for implementing all future social features: mainly the timeline. 
+Social media apps aren't very social if you're not able to interact with other users. In this section, we'll build the functionality for following and unfollowing other users. Creating follow relationships between users will be the foundation for implementing all future social features: mainly the timeline.
 
 To get started, let's think about any new data we'll need to handle or store in the database to implement our new functionality!
 
 # Structuring Follow Data
 
-Creating follow relationships between users will require us to store new data within our database. We'll create two new root nodes: `followers` and `following`. Breaking our follow data into two new subtrees will allow us to easily keep track of relationships between different users. 
+Creating follow relationships between users will require us to store new data within our database. We'll create two new root nodes: `followers` and `following`. Breaking our follow data into two new subtrees will allow us to easily keep track of relationships between different users.
 
 Let's model what our new `followers` tree will look like:
+
 ```
 followers: {
     user1_uid: {
@@ -20,9 +21,11 @@ followers: {
     }
 }
 ```
+
 The `followers` node will allow us to fetch data on which users are following any user.
 
 The `following` node will look similarly:
+
 ```
 following: {
     user1: {
@@ -38,41 +41,45 @@ With a data structure in mind, let's begin implementing a new follow service to 
 > [action]
 Create a new source file named `FollowService.swift`:
 >
-    import Foundation
-    import FirebaseDatabase
+```
+import Foundation
+import FirebaseDatabase
 >
-    struct FollowService {
-        // ...
-    }
+struct FollowService {
+    // ...
+}
+```
 
 We'll store all of our following related network requests to keep our service method organized. Let's begin by implementing a service method for following another user.
 
 > [action]
 Add the class method in your `FollowService`:
 >
-    private static func followUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
-        // 1
-        let currentUID = User.current.uid
-        let followData = ["followers/\(user.uid)/\(currentUID)" : true,
-                          "following/\(currentUID)/\(user.uid)" : true]
+```
+private static func followUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
+    // 1
+    let currentUID = User.current.uid
+    let followData = ["followers/\(user.uid)/\(currentUID)" : true,
+                      "following/\(currentUID)/\(user.uid)" : true]
 >
-        // 2
-        let ref = FIRDatabase.database().reference()
-        ref.updateChildValues(followData) { (error, _) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-            }
->
-            // 3
-            success(error == nil)
+    // 2
+    let ref = FIRDatabase.database().reference()
+    ref.updateChildValues(followData) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
         }
+>
+        // 3
+        success(error == nil)
     }
+}
+```
 
 Let's walk through our code:
 
 1. We create a dictionary to update multiple locations at the same time. We set the appropriate key-value for our followers and following.
-2. We write our new relationship to Firebase.
-3. We return whether the update was successful based on whether there was an error.
+1. We write our new relationship to Firebase.
+1. We return whether the update was successful based on whether there was an error.
 
 Now, let's move on to implementing the service method for unfollowing a user.
 
@@ -81,6 +88,7 @@ Try and implement a new service method in `FollowService` for unfollowing a user
 
 > [solution]
 >
+```
 private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
     let currentUID = User.current.uid
     // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
@@ -97,6 +105,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
         success(error == nil)
     }
 }
+```
 >
 Notice that we're able to simuntaneously delete multiple nodes in our database by setting the value of multiple relative paths to `NSNull()`. Be careful, if you try the same with `nil` directly, you'll get an error thrown by the compiler because `updateChildValues` is expecting a argument of `[String : Any]`.
 
@@ -119,6 +128,7 @@ Try implementing this new service method as well. If you get stuck, look back at
 > [solution]
 The following method allows us to determine whether a user is already followed by the current user.
 >
+```
 static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
     let currentUID = User.current.uid
     let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
@@ -131,6 +141,7 @@ static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion:
         }
     })
 }
+```
 
 Great! We've setup our initial service methods for following and unfollowing users, we'll need to create some UI to display the relationship. Let's go to our `Main storyboard`.
 
@@ -167,7 +178,7 @@ We'll now add our `UITableView` to our view controller. Make sure you constraint
 Now we're going to create our prototype cell that will represent other users. For each user we need:
 
 1. A `UILabel` to display the user's username
-2. A `UIButton` to follow or unfollow each user
+1. A `UIButton` to follow or unfollow each user
 
 > [action]
 Drag and drop a new prototype cell from the object library onto the new `UITableView` of the `FindFriendsViewController`:
@@ -178,13 +189,11 @@ Next we'll begin configuring the cell:
 > [action]
 1. Select the cell and open the size inspector. Add a custom row height of 71:
 ![Set Row Height](assets/row_height.png)
->
-2. Open the Attributes Inspector and set the `Cell Identifier` as `FindFriendsCell`:
+1. Open the Attributes Inspector and set the `Cell Identifier` as `FindFriendsCell`:
 ![Set Cell Identifier](assets/cell_identifier.png)
->
-3. Add a `UILabel` with the following with the following constraints:
+1. Add a `UILabel` with the following with the following constraints:
 ![Username Label Constraints](assets/username_constraints.png)
-4. Add a follow/unfollow button with the following constraints:
+1. Add a follow/unfollow button with the following constraints:
 ![Follow Button Constraints](assets/button_constraints.png)
 
 Now let's create the `FindFriendsCell.swift` file to go along with our cell. Remember to set the _Identity Inspector_ class for the prototype cell. Let's make IBOutlets for both the label and the button. In addition, we'll create an IBAction for the follow button. Your code should look like the following:
@@ -301,6 +310,7 @@ Now to finish things up, let's create a service to fetch all users on the app an
 > [action]
 Open `UserService` and create the follow new service method:
 >
+```
 static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
     let currentUser = User.current
     // 1
@@ -335,15 +345,16 @@ static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
         })
     })
 }
+```
 
 The code we've implemented here is similar to the code we've previous wrote for determining whether each of a user's posts was liked by the current user. Let's break it down:
 
 1. Create a `FIRDatabaseReference` to read all users from the database.
-2. Read the `users` node from the database.
-3. Take the snapshot and perform a few transformations. First, we convert all of the child `FIRDataSnapshot` into `User` using our failable initializer. Next we filter out the current user object from the `User` array.
-4. Create a new `DispatchGroup` so that we can be notified when all asynchronous tasks are finished executing. We'll use the `notify(queue:)` method on `DispatchGroup` as a completion handler for when all follow data has been read.
-5. Make a request for each individual user to determine if the user is being followed by the current user.
-6. Run the completion block after all follow relationship data has returned.
+1. Read the `users` node from the database.
+1. Take the snapshot and perform a few transformations. First, we convert all of the child `FIRDataSnapshot` into `User` using our failable initializer. Next we filter out the current user object from the `User` array.
+1. Create a new `DispatchGroup` so that we can be notified when all asynchronous tasks are finished executing. We'll use the `notify(queue:)` method on `DispatchGroup` as a completion handler for when all follow data has been read.
+1. Make a request for each individual user to determine if the user is being followed by the current user.
+1. Run the completion block after all follow relationship data has returned.
 
 Let's hook this up in our `FindFriendsViewController`. Add the following in `viewWillAppear(_:)`:
 

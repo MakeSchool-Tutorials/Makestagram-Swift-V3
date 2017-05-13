@@ -12,6 +12,7 @@ Similar to the previous two sections, this will require us to store new data in 
 In our database, we'll be adding a new node at the root level for storing each user's timeline. Within each timeline, we'll store a reference to each post in a user's timeline.
 
 Our new database JSON tree structure will look like:
+
 ```
 makestagram-b3260 : {
     timeline: {
@@ -61,19 +62,21 @@ To do this we'll need to add a new service that will fetch all of a user's follo
 > [action]
 Open `UserService` and add the following new service method:
 >
-    static func followers(for user: User, completion: @escaping ([String]) -> Void) {
-        let followersRef = FIRDatabase.database().reference().child("followers").child(user.uid)
+```
+static func followers(for user: User, completion: @escaping ([String]) -> Void) {
+    let followersRef = FIRDatabase.database().reference().child("followers").child(user.uid)
 >
-        followersRef.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let followersDict = snapshot.value as? [String : Bool] else {
-                return completion([])
-            }
+    followersRef.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let followersDict = snapshot.value as? [String : Bool] else {
+            return completion([])
+        }
 >
-            let followersKeys = Array(followersDict.keys)
-            completion(followersKeys)
-        })
-    }
-    
+        let followersKeys = Array(followersDict.keys)
+        completion(followersKeys)
+    })
+}
+```
+
 In the service method above, we fetch the UIDs of all of a given user's followers and return them as an `String` array. We'll use this for constructing a batch update to multiple user's timelines when posting a new post.
 
 Next, we'll need to modify our logic when creating a new post. The new logic will need to add the post JSON object into all followers (including our own) timelines.
@@ -81,46 +84,48 @@ Next, we'll need to modify our logic when creating a new post. The new logic wil
 > [action]
 Open `PostService` and modify `create(forURLString:aspectHeight:)` with the following logic:
 >
-    private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
-        let currentUser = User.current
-        let post = Post(imageURL: urlString, imageHeight: aspectHeight)
+```
+private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
+    let currentUser = User.current
+    let post = Post(imageURL: urlString, imageHeight: aspectHeight)
 >
-        // 1
-        let rootRef = FIRDatabase.database().reference()
-        let newPostRef = rootRef.child("posts").child(currentUser.uid).childByAutoId()
-        let newPostKey = newPostRef.key
+    // 1
+    let rootRef = FIRDatabase.database().reference()
+    let newPostRef = rootRef.child("posts").child(currentUser.uid).childByAutoId()
+    let newPostKey = newPostRef.key
 >
-        // 2
-        UserService.followers(for: currentUser) { (followerUIDs) in
-            // 3
-            let timelinePostDict = ["poster_uid" : currentUser.uid]
+    // 2
+    UserService.followers(for: currentUser) { (followerUIDs) in
+        // 3
+        let timelinePostDict = ["poster_uid" : currentUser.uid]
 >
-            // 4
-            var updatedData: [String : Any] = ["timeline/\(currentUser.uid)/\(newPostKey)" : timelinePostDict]
+        // 4
+        var updatedData: [String : Any] = ["timeline/\(currentUser.uid)/\(newPostKey)" : timelinePostDict]
 >
-            // 5
-            for uid in followerUIDs {
-                updatedData["timeline/\(uid)/\(newPostKey)"] = timelinePostDict
-            }
->
-            // 6
-            let postDict = post.dictValue
-            updatedData["posts/\(currentUser.uid)/\(newPostKey)"] = postDict
->
-            // 7
-            rootRef.updateChildValues(updatedData)
+        // 5
+        for uid in followerUIDs {
+            updatedData["timeline/\(uid)/\(newPostKey)"] = timelinePostDict
         }
+>
+        // 6
+        let postDict = post.dictValue
+        updatedData["posts/\(currentUser.uid)/\(newPostKey)"] = postDict
+>
+        // 7
+        rootRef.updateChildValues(updatedData)
     }
+}
+```
 
 Notice the multi-location update to all of our follower's timelines. Let's go over these steps in detail:
 
 1. We create references to the important locations that we're planning to write data.
-2. Use our class method to get an array of all of our follower UIDs
-3. We construct a timeline JSON object where we store our current user's uid. We need to do this because when we fetch a timeline for a given user, we'll need the uid of the post in order to read the post from the `Post` subtree.
-4. We create a mutable dictionary that will store all of the data we want to write to our database. We initialize it by writing the current timeline dictionary to our own timeline because our own uid will be excluded from our follower UIDs.
-5. We add our post to each of our follower's timelines.
-6. We make sure to write the post we are trying to create.
-7. We write our multi-location update to our database.
+1. Use our class method to get an array of all of our follower UIDs
+1. We construct a timeline JSON object where we store our current user's uid. We need to do this because when we fetch a timeline for a given user, we'll need the uid of the post in order to read the post from the `Post` subtree.
+1. We create a mutable dictionary that will store all of the data we want to write to our database. We initialize it by writing the current timeline dictionary to our own timeline because our own uid will be excluded from our follower UIDs.
+1. We add our post to each of our follower's timelines.
+1. We make sure to write the post we are trying to create.
+1. We write our multi-location update to our database.
 
 We've now implemented the first subtask for our timeline. Whenever the current user creates a new `Post`, it'll be written to all of our followers. Let's implementing our timeline by finishing the final two subtasks:
 
@@ -136,48 +141,50 @@ Let's take care of the new logic when following a user.
 > [action]
 Open `FollowService` and modify `followUser(_:forCurrentUserWithSuccess:)`:
 >
-    private static func followUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
-        let currentUID = User.current.uid
-        let followData = ["followers/\(user.uid)/\(currentUID)" : true,
-                          "following/\(currentUID)/\(user.uid)" : true]
+```
+private static func followUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
+    let currentUID = User.current.uid
+    let followData = ["followers/\(user.uid)/\(currentUID)" : true,
+                      "following/\(currentUID)/\(user.uid)" : true]
 >
-        let ref = FIRDatabase.database().reference()
-        ref.updateChildValues(followData) { (error, _) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                success(false)
-            }
+    let ref = FIRDatabase.database().reference()
+    ref.updateChildValues(followData) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            success(false)
+        }
 >
-            // 1
-            UserService.posts(for: user) { (posts) in
-                // 2
-                let postKeys = posts.flatMap { $0.key }
+        // 1
+        UserService.posts(for: user) { (posts) in
+            // 2
+            let postKeys = posts.flatMap { $0.key }
 >
-                // 3
-                var followData = [String : Any]()
-                let timelinePostDict = ["poster_uid" : user.uid]
-                postKeys.forEach { followData["timeline/\(currentUID)/\($0)"] = timelinePostDict }
+            // 3
+            var followData = [String : Any]()
+            let timelinePostDict = ["poster_uid" : user.uid]
+            postKeys.forEach { followData["timeline/\(currentUID)/\($0)"] = timelinePostDict }
 >
-                // 4
-                ref.updateChildValues(followData, withCompletionBlock: { (error, ref) in
-                    if let error = error {
-                        assertionFailure(error.localizedDescription)
-                    }
+            // 4
+            ref.updateChildValues(followData, withCompletionBlock: { (error, ref) in
+                if let error = error {
+                    assertionFailure(error.localizedDescription)
+                }
 >
-                    // 5
-                    success(error == nil)
-                })
-            }
+                // 5
+                success(error == nil)
+            })
         }
     }
+}
+```
 
 Let's break this down:
 
 1. First we get all posts for the user. We can reuse the service method that we previously used to display all of our posts. See how placing all our networking code leads to easy code reuse?
-2. Next we get all of the post keys for that user's posts. This will allow us to write each post to our own timeline.
-3. We build a multiple location update using a dictionary that adds each of the followee's post to our timeline.
-4. We write the dictionary to our database.
-5. We return success based on whether we received an error.
+1. Next we get all of the post keys for that user's posts. This will allow us to write each post to our own timeline.
+1. We build a multiple location update using a dictionary that adds each of the followee's post to our timeline.
+1. We write the dictionary to our database.
+1. We return success based on whether we received an error.
 
 > [challenge]
 We've implemented the logic to handle following a new user. Can you implement the logic for unfollowing a user?
@@ -185,38 +192,40 @@ We've implemented the logic to handle following a new user. Can you implement th
 > [solution]
 Check your solution for unfollowing a user and removing their posts from our timeline:
 >
-    private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
-        let currentUID = User.current.uid
-        // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
-        // http://stackoverflow.com/questions/38462074/using-updatechildvalues-to-delete-from-firebase
-        let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
-                          "following/\(currentUID)/\(user.uid)" : NSNull()]
+```
+private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success: @escaping (Bool) -> Void) {
+    let currentUID = User.current.uid
+    // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
+    // http://stackoverflow.com/questions/38462074/using-updatechildvalues-to-delete-from-firebase
+    let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
+                      "following/\(currentUID)/\(user.uid)" : NSNull()]
 >
-        let ref = FIRDatabase.database().reference()
-        ref.updateChildValues(followData) { (error, ref) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                return success(false)
+    let ref = FIRDatabase.database().reference()
+    ref.updateChildValues(followData) { (error, ref) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            return success(false)
+        }
+>
+        UserService.posts(for: user, completion: { (posts) in
+            var unfollowData = [String : Any]()
+            let postsKeys = posts.flatMap { $0.key }
+            postsKeys.forEach {
+                // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
+                unfollowData["timeline/\(currentUID)/\($0)"] = NSNull()
             }
 >
-            UserService.posts(for: user, completion: { (posts) in
-                var unfollowData = [String : Any]()
-                let postsKeys = posts.flatMap { $0.key }
-                postsKeys.forEach {
-                    // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
-                    unfollowData["timeline/\(currentUID)/\($0)"] = NSNull()
+            ref.updateChildValues(unfollowData, withCompletionBlock: { (error, ref) in
+                if let error = error {
+                    assertionFailure(error.localizedDescription)
                 }
 >
-                ref.updateChildValues(unfollowData, withCompletionBlock: { (error, ref) in
-                    if let error = error {
-                        assertionFailure(error.localizedDescription)
-                    }
->
-                    success(error == nil)
-                })
+                success(error == nil)
             })
-        }
+        })
     }
+}
+```
 >
 Here we follow the same steps, except we write `NSNull()` to delete posts in our timeline of a followee that we're removing.
 
@@ -238,59 +247,64 @@ By now, you should be familiar with reading data from Firebase. Try constructing
 > [solution]
 Your new `PostService` class method should look like:
 >
-    static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
-        let ref = FIRDatabase.database().reference().child("posts").child(posterUID).child(postKey)
+```
+static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
+    let ref = FIRDatabase.database().reference().child("posts").child(posterUID).child(postKey)
 >
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let post = Post(snapshot: snapshot) else {
-                return completion(nil)
-            }
+    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let post = Post(snapshot: snapshot) else {
+            return completion(nil)
+        }
 >
-            LikeService.isPostLiked(post) { (isLiked) in
-                post.isLiked = isLiked
-                completion(post)
-            }
-        })
-    }
+        LikeService.isPostLiked(post) { (isLiked) in
+            post.isLiked = isLiked
+            completion(post)
+        }
+    })
+}
+```
 
 Our new service method will help us construct an array of `Post` from our timeline. Next we'll need to create another service method for reading the current user's timeline data.
 
 > [action]
 Open `UserService.swift` and implementing the following:
-    static func timeline(completion: @escaping ([Post]) -> Void) {
-        let currentUser = User.current
 >
-        let timelineRef = FIRDatabase.database().reference().child("timeline").child(currentUser.uid)
-        timelineRef.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
-                else { return completion([]) }
+```
+static func timeline(completion: @escaping ([Post]) -> Void) {
+    let currentUser = User.current
 >
-            let dispatchGroup = DispatchGroup()
+    let timelineRef = FIRDatabase.database().reference().child("timeline").child(currentUser.uid)
+    timelineRef.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
+            else { return completion([]) }
 >
-            var posts = [Post]()
+        let dispatchGroup = DispatchGroup()
 >
-            for postSnap in snapshot {
-                guard let postDict = postSnap.value as? [String : Any],
-                    let posterUID = postDict["poster_uid"] as? String
-                    else { continue }
+        var posts = [Post]()
 >
-                dispatchGroup.enter()
+        for postSnap in snapshot {
+            guard let postDict = postSnap.value as? [String : Any],
+                let posterUID = postDict["poster_uid"] as? String
+                else { continue }
 >
-                PostService.show(forKey: postSnap.key, posterUID: posterUID) { (post) in
-                    if let post = post {
-                        posts.append(post)
-                    }
+            dispatchGroup.enter()
 >
-                    dispatchGroup.leave()
+            PostService.show(forKey: postSnap.key, posterUID: posterUID) { (post) in
+                if let post = post {
+                    posts.append(post)
                 }
-            }
 >
-            dispatchGroup.notify(queue: .main, execute: {
-                completion(posts.reversed())
-            })
+                dispatchGroup.leave()
+            }
+        }
+>
+        dispatchGroup.notify(queue: .main, execute: {
+            completion(posts.reversed())
         })
-    }
-    
+    })
+}
+```
+
     static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
 
 The previous two service methods we implemented will allow user to read the current user's timeline and return an array of posts. We use our `UserService.timeline(completion:)` service method to read the `postKey` and `poster_uid` of each post in the current user's timeline. Next, we use `PostService.show(forKey:posterUID:completion:)` to fetch the individual data for each post.
@@ -299,20 +313,22 @@ _Joins_ like this are common in NoSQL databases, but come at the cost of perform
 
 ## Changing the HomeViewController Data Source
 
-Let's use our new timeline service method to display our timeline! 
+Let's use our new timeline service method to display our timeline!
 > [action]
 Open `HomeViewController` and replace `viewDidLoad` with the following:
 >
-    override func viewDidLoad() {
-        super.viewDidLoad()
+```
+override func viewDidLoad() {
+    super.viewDidLoad()
 >
-        configureTableView()
+    configureTableView()
 >
-        UserService.timeline { (posts) in
-            self.posts = posts
-            self.tableView.reloadData()
-        }
+    UserService.timeline { (posts) in
+        self.posts = posts
+        self.tableView.reloadData()
     }
+}
+```
 
 Take this time to test your new timeline! Create a few different user accounts and add posts from each user. Have different users follow each other and make sure your timeline works!
 
@@ -325,42 +341,47 @@ After testing, you might notice something annoying. Each time you follow / unfol
 > [action]
 Open `HomeViewController` and add the following subview:
 >
-    let refreshControl = UIRefreshControl()
+```
+let refreshControl = UIRefreshControl()
+```
 
 Next, we'll need to set up method that reloads our timeline.
 
 > [action]
 Modify `HomeViewController` to the following:
 >
-    override func viewDidLoad() {
-        super.viewDidLoad()
+```
+override func viewDidLoad() {
+    super.viewDidLoad()
 >
-        configureTableView()
-        reloadTimeline()
-    }
+    configureTableView()
+    reloadTimeline()
+}
 >
-    func reloadTimeline() {
-        UserService.timeline { (posts) in
-            self.posts = posts
+func reloadTimeline() {
+    UserService.timeline { (posts) in
+        self.posts = posts
 >
-            if self.refreshControl.isRefreshing {
-                self.refreshControl.endRefreshing()
-            }
->
-            self.tableView.reloadData()
+        if self.refreshControl.isRefreshing {
+            self.refreshControl.endRefreshing()
         }
+>
+        self.tableView.reloadData()
     }
+}
+```
 
 Here we create a new method to `reloadTimeline` to retrieve our timeline and refresh the table view. You'll notice the method also checks if the `refreshControl` is refreshing. This will stop and hide the acitivity indicator of the refresh control if it is currently being displayed to the user.
 
-For everything to work together, we'll need to add our refresh control to our table view. 
+For everything to work together, we'll need to add our refresh control to our table view.
 
 > [action]
-Add the following code to `configureTableView`: 
+Add the following code to `configureTableView`:
+>
 ```
 func configureTableView() {
     // ...
-
+>
     // add pull to refresh
     refreshControl.addTarget(self, action: #selector(reloadTimeline), for: .valueChanged)
     tableView.addSubview(refreshControl)
@@ -375,7 +396,7 @@ Congratulations, you've complete the tutorial and complete a basic implementatio
 
 In this section, you learned two important concepts:
 
-First, we implemented a timeline sevice method to display posts of users we're following.
+First, we implemented a timeline service method to display posts of users we're following.
 
 You have also used to implement a `UIRefreshControl`. This component is extremely useful for displaying a loading indicator when the table view is reloading data and letting the user refresh data on their own.
 

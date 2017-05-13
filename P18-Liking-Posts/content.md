@@ -140,57 +140,63 @@ As with all new functionality, we want to design easy APIs that allow use to reu
 > [action]
 Create a new `LikeService.swift` source file in the `Services` folder:
 >
-    import Foundation
-    import FirebaseDatabase
+```
+import Foundation
+import FirebaseDatabase
 >
-    struct LikeService {
-        // ...
-    }
+struct LikeService {
+    // ...
+}
+```
 
 First we'll want to add a service method for liking posts:
 
 > [action]
 Add the following class method to your `LikeService`:
 >
-    static func create(for post: Post, success: @escaping (Bool) -> Void) {
-        // 1
-        guard let key = post.key else {
-            return success(false)
-        }
->
-        // 2
-        let currentUID = User.current.uid
->
-        // 3 code to like a post
+```
+static func create(for post: Post, success: @escaping (Bool) -> Void) {
+    // 1
+    guard let key = post.key else {
+        return success(false)
     }
+>
+    // 2
+    let currentUID = User.current.uid
+>
+    // 3 code to like a post
+}
+```
 
 In the code above, we do some setup for liking a post:
 
 1. Each post that we like must have a key. We check the post has a key and return false if there is not.
-2. We create a reference to the current user's UID. We'll use this soon to build the location of where we'll store the data for liking the post.
+1. We create a reference to the current user's UID. We'll use this soon to build the location of where we'll store the data for liking the post.
 
 Next, we'll add the code for writing the data for liking a post to our database. As with all writes, we follow the following steps:
 
 1. Define a location for where we're planning to write data
-2. Write the data by setting the value for the location specified
-3. Handle a callback for the success of the write
+1. Write the data by setting the value for the location specified
+1. Handle a callback for the success of the write
 
 > [action]
 In the same `create(for:success)` method, add the following code:
 >
-    static func create(for post: Post, success: @escaping (Bool) -> Void) {
-        // ...
+```
+static func create(for post: Post, success: @escaping (Bool) -> Void) {
+    // ...
 >
-        let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
-        likesRef.setValue(true) { (error, _) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                return success(false)
-            }
->
-            return success(true)
+    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    likesRef.setValue(true) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            return success(false)
         }
+>
+        return success(true)
     }
+}
+```
 
 Our `success` callback returns a `Bool` on whether the network request was successfully executed and our like data was saved to the database.
 
@@ -203,29 +209,32 @@ Don't continue until you've finished!
 > [solution]
 > Verify your unliking code below:
 >
-    static func delete(for post: Post, success: @escaping (Bool) -> Void) {
-        guard let key = post.key else {
+```
+static func delete(for post: Post, success: @escaping (Bool) -> Void) {
+    guard let key = post.key else {
+        return success(false)
+    }
+>
+    let currentUID = User.current.uid
+>
+    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    likesRef.setValue(nil) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
             return success(false)
         }
 >
-        let currentUID = User.current.uid
->
-        let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
-        likesRef.setValue(nil) { (error, _) in
-            if let error = error {
-                assertionFailure(error.localizedDescription)
-                return success(false)
-            }
->
-            return success(true)
-        }
+        return success(true)
     }
+}
+```
 
 The code for unliking a post is mostly the same for liking a post. However instead of setting the value of the location to true, we set it to `nil` to delete the current node at that location. You could have also used the `removeValue(completionBlock:)` method of `FIRDatabaseReference` to delete the like object in our database.
 
 At this point, we've created our first two service methods in our `LikeService`. We can use these methods to like and unlike posts. To complete the implementation of our like service, we'll need to add a `like_count` that we can increment and decrement whenever a post is liked / unliked.
 
 <!-- Not sure if we need this -->
+
 <!-- To add this functionality, we'll need to reference the UID of the user that each post belongs to. Using the poster's UID, we be able to traverse the `posts` subtree to modify a `like_count` of each post. -->
 
 # Implementing a Like Count
@@ -259,45 +268,48 @@ posts: {
 ```
 
 ## Updating the Post Data Model
+
 Let's start by change our `Post` model to store the new data:
 
 > [action]
 Open the `Post.swift` source file and add the following new properties:
 >
-    var likeCount: Int
-    let poster: User
+```
+var likeCount: Int
+let poster: User
+```
 
 Our `poster` property will store a reference to the user that owns the post.
 
 > [action]
 Update each `Post` init method to configure our new properties:
 >
-    // MARK: - Init
+```
+// MARK: - Init
 >
-    init?(snapshot: FIRDataSnapshot) {
-        guard let dict = snapshot.value as? [String : Any],
->
-            // ...
->
-            let likeCount = dict["like_count"] as? Int,
-            let userDict = dict["poster"] as? [String : Any],
-            let uid = userDict["uid"] as? String,
-            let username = userDict["username"] as? String
-            else { return nil }
->
+init?(snapshot: FIRDataSnapshot) {
+    guard let dict = snapshot.value as? [String : Any],
         // ...
 >
-        self.likeCount = likeCount
-        self.poster = User(uid: uid, username: username)
-    }
+        let likeCount = dict["like_count"] as? Int,
+        let userDict = dict["poster"] as? [String : Any],
+        let uid = userDict["uid"] as? String,
+        let username = userDict["username"] as? String
+        else { return nil }
 >
-    init(imageURL: String, imageHeight: CGFloat) {
+    // ...
 >
-        // ...
+    self.likeCount = likeCount
+    self.poster = User(uid: uid, username: username)
+}
 >
-        self.likeCount = 0
-        self.poster = User.current
-    }
+init(imageURL: String, imageHeight: CGFloat) {
+    // ...
+>
+    self.likeCount = 0
+    self.poster = User.current
+}
+```
 
 
 Last, update the computed `dictValue` for the `Post` model. We want our database representation of each post to include the new `likeCount` and `poster` data:
@@ -305,17 +317,19 @@ Last, update the computed `dictValue` for the `Post` model. We want our database
 > [action]
 Update `dictValue`:
 >
-    var dictValue: [String : Any] {
-        let createdAgo = creationDate.timeIntervalSince1970
-        let userDict = ["uid" : poster.uid,
-                        "username" : poster.username]
+```
+var dictValue: [String : Any] {
+    let createdAgo = creationDate.timeIntervalSince1970
+    let userDict = ["uid" : poster.uid,
+                    "username" : poster.username]
 >
-        return ["image_url" : imageURL,
-                "image_height" : imageHeight,
-                "created_at" : createdAgo,
-                "like_count" : likeCount,
-                "poster" : userDict]
-    }
+    return ["image_url" : imageURL,
+            "image_height" : imageHeight,
+            "created_at" : createdAgo,
+            "like_count" : likeCount,
+            "poster" : userDict]
+}
+```
 
 We've modified our `Post` model hold our new post data from our database.
 
@@ -341,33 +355,35 @@ To increment and decrement our like count, we'll be using a new Firebase API tha
 > [action]
 Open `LikeService` and modify the existing methods for liking and unliking posts:
 >
-    static func create(for post: Post, success: @escaping (Bool) -> Void) {
-        // ...
+```
+static func create(for post: Post, success: @escaping (Bool) -> Void) {
+    // ...
 >
-        let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
-        likesRef.setValue(true) { (error, _) in
+    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    likesRef.setValue(true) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            return success(false)
+        }
+>
+        let likeCountRef = FIRDatabase.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
+        likeCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+            let currentCount = mutableData.value as? Int ?? 0
+>
+            mutableData.value = currentCount + 1
+>
+            return FIRTransactionResult.success(withValue: mutableData)
+        }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
-                return success(false)
+                success(false)
+            } else {
+                success(true)
             }
->
-            let likeCountRef = FIRDatabase.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
-            likeCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
-                let currentCount = mutableData.value as? Int ?? 0
->
-                mutableData.value = currentCount + 1
->
-                return FIRTransactionResult.success(withValue: mutableData)
-            }, andCompletionBlock: { (error, _, _) in
-                if let error = error {
-                    assertionFailure(error.localizedDescription)
-                    success(false)
-                } else {
-                    success(true)
-                }
-            })
-        }
+        })
     }
+}
+```
 
 In the code above, we add code in the completion block that increments the `like_count` of a post after a post has been liked. Note how we use the `poster` property to build the relative path to the like count location we want to write at.
 
@@ -378,33 +394,35 @@ After creating a reference to the location of `like_count`, we use `runTransacti
 
 > [solution]
 >
-    static func delete(for post: Post, success: @escaping (Bool) -> Void) {
-        // ...
+```
+static func delete(for post: Post, success: @escaping (Bool) -> Void) {
+    // ...
 >
-        let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
-        likesRef.setValue(nil) { (error, _) in
+    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    likesRef.setValue(nil) { (error, _) in
+        if let error = error {
+            assertionFailure(error.localizedDescription)
+            return success(false)
+        }
+>
+        let likeCountRef = FIRDatabase.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
+        likeCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+            let currentCount = mutableData.value as? Int ?? 0
+>
+            mutableData.value = currentCount - 1
+>
+            return FIRTransactionResult.success(withValue: mutableData)
+        }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
-                return success(false)
+                success(false)
+            } else {
+                success(true)
             }
->
-            let likeCountRef = FIRDatabase.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
-            likeCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
-                let currentCount = mutableData.value as? Int ?? 0
->
-                mutableData.value = currentCount - 1
->
-                return FIRTransactionResult.success(withValue: mutableData)
-            }, andCompletionBlock: { (error, _, _) in
-                if let error = error {
-                    assertionFailure(error.localizedDescription)
-                    success(false)
-                } else {
-                    success(true)
-                }
-            })
-        }
+        })
     }
+}
+```
 
 At this point, we've updated our `LikeService` to increment and decrement a post after a user has liked or unliked a post. Before we move on, let's review transaction blocks and what they're used for.
 
@@ -413,8 +431,8 @@ At this point, we've updated our `LikeService` to increment and decrement a post
 One problem with multiple users using the app at the same time is handling multiple users writing different data to the database at the same time. For example, imagine the following scenario:
 
 1. User 1 and 2 both open the app and see post A in thier timeline
-2. For both users, post A has 5 likes
-3. User 1 and 2 both like post A at the exact same time
+1. For both users, post A has 5 likes
+1. User 1 and 2 both like post A at the exact same time
 
 <!-- TODO: image or diagram would be nice to have :) -->
 
@@ -456,10 +474,10 @@ ref.runTransactionBlock({ (currentData: FIRMutableData) -> FIRTransactionResult 
 We implement a transaction with the following steps:
 
 1. Call the transaction API on the FIRDatabaseReference location we want to update
-2. Check that the value exists and increment it if it does
-3. Return the updated value
-4. Handle the completion block if there's an error
-5. Handle the completino block if the transaction was successful
+1. Check that the value exists and increment it if it does
+1. Return the updated value
+1. Handle the completion block if there's an error
+1. Handle the completino block if the transaction was successful
 
 Transaction operations are an important tool provided by Firebase to help developer solve specific problems around maintaining data integrity. Now that you know what they're used for and how to use them, you can build more complex data structures and apps.
 
@@ -470,11 +488,13 @@ We now have service methods that will like and unlike posts. We'll need to updat
 > [action]
 Open `HomeViewController` and modify `tableView(_:cellForRowAt:)` to the following:
 >
-    case 2:
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
-        cell.likeCountLabel.text = "\(post.likeCount) likes"
+```
+case 2:
+    let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
+    cell.likeCountLabel.text = "\(post.likeCount) likes"
 >
-        return cell
+    return cell
+```
 
 ## Connecting the Like Button
 
@@ -493,21 +513,23 @@ We'll give this a default value of `false` because initially when we first read 
 > [action]
 Create a new service method for determining whether the current `Post` is liked:
 >
-    static func isPostLiked(_ post: Post, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
-        guard let postKey = post.key else {
-            assertionFailure("Error: post must have key.")
-            return completion(false)
-        }
->
-        let likesRef = FIRDatabase.database().reference().child("postLikes").child(postKey)
-        likesRef.queryEqual(toValue: nil, childKey: User.current.uid).observeSingleEvent(of: .value, with: { (snapshot) in
-            if let _ = snapshot.value as? [String : Bool] {
-                completion(true)
-            } else {
-                completion(false)
-            }
-        })
+```
+static func isPostLiked(_ post: Post, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
+    guard let postKey = post.key else {
+        assertionFailure("Error: post must have key.")
+        return completion(false)
     }
+>
+    let likesRef = FIRDatabase.database().reference().child("postLikes").child(postKey)
+    likesRef.queryEqual(toValue: nil, childKey: User.current.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+        if let _ = snapshot.value as? [String : Bool] {
+            completion(true)
+        } else {
+            completion(false)
+        }
+    })
+}
+```
 
 First we make sure that the post has a key. Then we create a relative path to the location of where we store the data of our uid for the current user if there is a like. Then we use a special query that checks whether anything exists at the value that we're reading from. If there is, we know that the current user has liked the post. Otherwise, we know that the user hasn't.
 
@@ -567,13 +589,15 @@ We'll start by creating a delegate for our `PostActionCell` to communicate with 
 > [action]
 Add the following protocol to your `PostActionCell` above the class definition:
 >
-    protocol PostActionCellDelegate: class {
-        func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell)
-    }
+```
+protocol PostActionCellDelegate: class {
+    func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell)
+}
 >
-    class PostActionCell: UITableViewCell {
-        // ...
-    }
+class PostActionCell: UITableViewCell {
+    // ...
+}
+```
 
 The `PostActionCellDelegate` allows us to define a protocol that any delegate of `PostActionCell` must conform to. This will allow the delegate to handle the event of the `likeButton` being tapped.
 
@@ -610,11 +634,13 @@ Now that we can set our `HomeViewController` as the delegate of `PostActionCell`
 > [action]
 Open `HomeViewController` and add the following extension at the bottom of the source file:
 >
-    extension HomeViewController: PostActionCellDelegate {
-        func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
-            print("did tap like button")
-        }
+```
+extension HomeViewController: PostActionCellDelegate {
+    func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
+        print("did tap like button")
     }
+}
+```
 
 Next, we'll refactor our `tableView(_:cellForRowAt:)` method for our `PostActionCell`:
 
@@ -673,52 +699,54 @@ To finish up, we'll need to implement the logic for when the `likeButton` of a `
 > [action]
 Open `HomeViewController` and add the following in `didTapLikeButton(_:on:)`:
 >
-        func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
-            // 1
-            guard let indexPath = tableView.indexPath(for: cell)
-                else { return }
+```
+func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
+    // 1
+    guard let indexPath = tableView.indexPath(for: cell)
+        else { return }
 >
-            // 2
-            likeButton.isUserInteractionEnabled = false
-            // 3
-            let post = posts[indexPath.section]
+    // 2
+    likeButton.isUserInteractionEnabled = false
+    // 3
+    let post = posts[indexPath.section]
 >
-            // 4
-            LikeService.setIsLiked(!post.isLiked, for: post) { (success) in
-                // 5
-                defer {
-                    likeButton.isUserInteractionEnabled = true
-                }
->
-                // 6
-                guard success
-                    else { return }
->
-                // 7
-                post.likeCount += !post.isLiked ? 1 : -1
-                post.isLiked = !post.isLiked
->
-                // 8
-                guard let cell = self.tableView.cellForRow(at: indexPath) as? PostActionCell
-                    else { return }
->
-                // 9
-                DispatchQueue.main.async {
-                    self.configureCell(cell, with: post)
-                }
-            }
+    // 4
+    LikeService.setIsLiked(!post.isLiked, for: post) { (success) in
+        // 5
+        defer {
+            likeButton.isUserInteractionEnabled = true
         }
+>
+        // 6
+        guard success
+            else { return }
+>
+        // 7
+        post.likeCount += !post.isLiked ? 1 : -1
+        post.isLiked = !post.isLiked
+>
+        // 8
+        guard let cell = self.tableView.cellForRow(at: indexPath) as? PostActionCell
+            else { return }
+>
+        // 9
+        DispatchQueue.main.async {
+            self.configureCell(cell, with: post)
+        }
+    }
+}
+```
 
 Let's walk through the code we just added step by step:
 
 1. First we make sure that an index path exists for the the given cell. We'll need the index path of the cell later on to reference the correct post.
-2. Set the `isUserInteractionEnabled` property of the `UIButton` to `false` so the user doesn't accidentally send multiple requests by tapping too quickly.
-3. Reference the correct post corresponding with the `PostActionCell` that the user tapped.
-4. Use our `LikeService` to like or unlike the post based on the `isLiked` property.
-5. Use defer to set `isUserInteractionEnabled` to `true` whenever the closure returns.
-6. Basic error handling if something goes wrong with our network request.
-7. Change the `likeCount` and `isLiked` properties of our post if our network request was successful.
-8. Get a reference to the current cell.
-9. Update the UI of the cell on the main thread. Remember that all UI updates must happen on the main thread.
+1. Set the `isUserInteractionEnabled` property of the `UIButton` to `false` so the user doesn't accidentally send multiple requests by tapping too quickly.
+1. Reference the correct post corresponding with the `PostActionCell` that the user tapped.
+1. Use our `LikeService` to like or unlike the post based on the `isLiked` property.
+1. Use defer to set `isUserInteractionEnabled` to `true` whenever the closure returns.
+1. Basic error handling if something goes wrong with our network request.
+1. Change the `likeCount` and `isLiked` properties of our post if our network request was successful.
+1. Get a reference to the current cell.
+1. Update the UI of the cell on the main thread. Remember that all UI updates must happen on the main thread.
 
 Congrats, we've implemented our likes feature! We'll move on next to implementing followers.

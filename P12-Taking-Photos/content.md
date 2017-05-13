@@ -9,7 +9,7 @@ Typically a tab bar view controller only allows a user to switch between differe
 
 ![Action Sheeet](assets/alert_controller.png)
 
-Unfortunately, using a tab bar view controller, we cannot *easily* perform an arbitrary method when one of the tab bar items is selected; however, there's a **workaround**.
+Unfortunately, using a tab bar view controller, we cannot _easily_ perform an arbitrary method when one of the tab bar items is selected; however, there's a **workaround**.
 
 # Using a Tab Bar Item Like a Button
 
@@ -35,7 +35,7 @@ We can set the `delegate` of the `UITabBarViewController` and implement the meth
 Our solution involves two steps:
 
 1. Subclassing `UITabBarController` with our own custom `MainTabBarController` class.
-2. Have our custom tab bar controller implement the `UITab​Bar​Controller​Delegate`.
+1. Have our custom tab bar controller implement the `UITab​Bar​Controller​Delegate`.
 
 ## Custom UITabBarController
 
@@ -58,7 +58,7 @@ class MainTabBarController: UITabBarController {
 ```
 
 1. First we set the `MainTabBarController` as the delegate of it's tab bar
-2. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
+1. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
 
 Build the app and you'll notice we'll get an error that `MainTabBarController` doesn't implement `UITabBarControllerDelegate`. Let's add an extension and implement `tabBarController(_:shouldSelect:)` to fix this error:
 
@@ -83,8 +83,8 @@ In order to determine when to return `true` or `false` we need a way of identify
 > [action]
 **Repeat the following steps for all three view controllers**:
 >
-1. With the tab bar item selected, open the *Attributes Inspector* on the right panel
-2. Set the *Tag* of the *Bar Item* to 0, 1, 2 corresponding to the position from left to right for each tab bar item
+1. With the tab bar item selected, open the _Attributes Inspector_ on the right panel
+1. Set the _Tag_ of the _Bar Item_ to 0, 1, 2 corresponding to the position from left to right for each tab bar item
 >
 ![Tab Bar Item Tag](assets/tab_bar_tag.png)
 
@@ -103,18 +103,20 @@ struct Constants {
 > [action]
 Implement the logic in `tabBarController(_:shouldSelect:)` to present the selected view controller:
 >
-    extension MainTabBarController: UITabBarControllerDelegate {
-        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
-                // present photo taking action sheet
-                print("take photo")
+```
+extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
+            // present photo taking action sheet
+            print("take photo")
 >
-                return false
-            } else {
-                return true
-            }
+            return false
+        } else {
+            return true
         }
     }
+}
+```
 
 If the view controller's tag is the center tag we return false and print "take photo" to the console. Later we'll replace this line with the actual photo taking code. If the view controller isn't the center tag, we return true and let the tab bar controller behave as usual.
 
@@ -126,7 +128,7 @@ Now we can replace this console output with our actual photo taking code!
 
 # Structuring the Photo Code
 
-Recall from our *Setting Up the App Structure* tutorial that, after deciding on our app's features, we outlined our app's screens and explicitly defined how screens would be connected. In a similar fashion, before diving into the photo code, let's think about what specific photo related features we want to offer and how they will be structured.
+Recall from our _Setting Up the App Structure_ tutorial that, after deciding on our app's features, we outlined our app's screens and explicitly defined how screens would be connected. In a similar fashion, before diving into the photo code, let's think about what specific photo related features we want to offer and how they will be structured.
 
 Regarding features, as **Makestagram** is a photo sharing app, users should be able to either upload photos from their existing photo library or capture new photos with the built-in camera.
 
@@ -135,13 +137,13 @@ Regarding structure, let's discuss the process step-by-step:
 ![image](assets/photo_taking_structure.png)
 
 1. The user taps the camera button, which triggers an event in the `MainTabBarController`. (Currently, we are logging "take photo" to the console during this step.)
-2. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. (We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.)
-3. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.)
-4. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. (The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.)
-5. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`
-6. The `MGPhotoHelper` notifies the `MainTabBarController` that a photo has been picked, and returns the image to the `MainTabBarController`.
+1. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. (We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.)
+1. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.)
+1. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. (The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.)
+1. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`
+1. The `MGPhotoHelper` notifies the `MainTabBarController` that a photo has been picked, and returns the image to the `MainTabBarController`.
 
-As you can see, there are many steps to getting our photo features up and running. If we skipped diagramming our structure and went straight to coding, we would probably make the mistake of putting all of our code into the `MainTabBarController`, which would lead to an *extremely messy project*!
+As you can see, there are many steps to getting our photo features up and running. If we skipped diagramming our structure and went straight to coding, we would probably make the mistake of putting all of our code into the `MainTabBarController`, which would lead to an _extremely messy project_!
 
 When working on your own apps remember to use helper classes to handle distinct features. For instance, a `MGPhotoHelper` to handle all image capturing or a `SpeechHelper` to record all sound from the microphone.
 
@@ -151,9 +153,9 @@ Create a new source file called `MGPhotoHelper.swift`:
 
 > [action]
 >
-1. Create a new Cocoa Touch class within the *Helpers* directory
-2. Name this class *MGPhotoHelper* and make it a subclass of *NSObject* (we will discuss why this is necessary later on):
-3. Select your new helper class and add it to a *Helpers* group
+1. Create a new Cocoa Touch class within the _Helpers_ directory
+1. Name this class _MGPhotoHelper_ and make it a subclass of _NSObject_ (we will discuss why this is necessary later on):
+1. Select your new helper class and add it to a _Helpers_ group
 
 ![image](assets/new_photo_helper.png)
 
@@ -164,12 +166,12 @@ Now that we have a plan and a place to put our code, let's start implementing th
 Our `MGPhotoHelper` will have three main responsibilities:
 
 1. Presenting the popover to allow the user to choose between taking a new photo or selecting one from the photo library
-2. Depending on the user's selection, presenting the camera or photo library
-2. Returning the image that the user has taken or selected
+1. Depending on the user's selection, presenting the camera or photo library
+1. Returning the image that the user has taken or selected
 
 The first and second responsibilities of the `MGPhotoHelper` require it to present a `UIAlertController` and `UIImagePickerController`. However, in iOS, only view controllers can present other view controllers, and the `MGPhotoHelper` is a simple `NSObject`, not a `UIViewController`. To enable view controller presentation inside the `MGPhotoHelper` class, we will pass our method a reference to our `UITabBarController` to our `MGPhotoHelper`.
 
-To implement the third responsibility of the `MGPhotoHelper` we will need to have a way to communicate with the `MainTabBarController` - as shown in Step 6 of our outline above. For this we could use the concept of delegation (on the previous page we used delegation to receive information from the `UITabBarController`). A more convenient solution for this specific case is using a *Callback*. A *Callback* is basically a reference to a function. When setting up `MainTabBarController`, we'll will provide it with a callback function. As soon as the `MGPhotoHelper` has selected an image, it will call that *Callback* function and provide the selected image to the *MainTabBarController*.
+To implement the third responsibility of the `MGPhotoHelper` we will need to have a way to communicate with the `MainTabBarController` - as shown in Step 6 of our outline above. For this we could use the concept of delegation (on the previous page we used delegation to receive information from the `UITabBarController`). A more convenient solution for this specific case is using a _Callback_. A _Callback_ is basically a reference to a function. When setting up `MainTabBarController`, we'll will provide it with a callback function. As soon as the `MGPhotoHelper` has selected an image, it will call that _Callback_ function and provide the selected image to the _MainTabBarController_.
 
 Let's get started with building the `MGPhotoHelper`!
 
@@ -213,45 +215,47 @@ Let's add the code for the popup to `MGPhotoHelper`:
 > [action]
 Replace the empty implementation of `showPhotoSourceSelection()` with the following one:
 >
-    func presentActionSheet(from viewController: UIViewController) {
-        // 1
-        let alertController = UIAlertController(title: nil, message: "Where do you want to get your picture from?", preferredStyle: .actionSheet)
+```
+func presentActionSheet(from viewController: UIViewController) {
+    // 1
+    let alertController = UIAlertController(title: nil, message: "Where do you want to get your picture from?", preferredStyle: .actionSheet)
 >
-        // 2
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            // 3
-            let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { action in
-                // do nothing yet...
-            })
+    // 2
+    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+        // 3
+        let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { action in
+            // do nothing yet...
+        })
 >
-            // 4
-            alertController.addAction(capturePhotoAction)
-        }
->
-        // 5
-        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let uploadAction = UIAlertAction(title: "Upload from Library", style: .default, handler: { action in
-                // do nothing yet...
-            })
->
-            alertController.addAction(uploadAction)
-        }
->
-        // 6
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
->
-        // 7
-        viewController.present(alertController, animated: true)
+        // 4
+        alertController.addAction(capturePhotoAction)
     }
+>
+    // 5
+    if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+        let uploadAction = UIAlertAction(title: "Upload from Library", style: .default, handler: { action in
+            // do nothing yet...
+        })
+>
+        alertController.addAction(uploadAction)
+    }
+>
+    // 6
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    alertController.addAction(cancelAction)
+>
+    // 7
+    viewController.present(alertController, animated: true)
+}
+```
 
 1. Initialize a new `UIAlertController` of type `actionSheet`. `UIAlertController` can be used to present different types of alerts. An action sheet is a popup that will be displayed at the bottom edge of the screen.
-2. Check if the current device has a camera available. The simulator doesn't have a camera and won't execute the if clause.
-3. Create a new `UIAlertAction`. Each `UIAlertAction` represents an action on the `UIAlertController`. As part of the `UIAlertAction` initializer, you can provide a title, style, and handler that will execute when the action is selected.
-4. Add the action to the `alertController` instance we created.
-5. Repeat the previous sets 2-4 for the user's photo library.
-6. Add a cancel action to allow an user to close the `UIAlertController` action sheet. Notice that the style is `.cancel` instead of `.default`.
-7. Present the `UIAlertController` from our `UIViewController`. Remember, we must pass in a reference from the view controller presenting the alert controller for this method to properly present the `UIAlertController`.
+1. Check if the current device has a camera available. The simulator doesn't have a camera and won't execute the if clause.
+1. Create a new `UIAlertAction`. Each `UIAlertAction` represents an action on the `UIAlertController`. As part of the `UIAlertAction` initializer, you can provide a title, style, and handler that will execute when the action is selected.
+1. Add the action to the `alertController` instance we created.
+1. Repeat the previous sets 2-4 for the user's photo library.
+1. Add a cancel action to allow an user to close the `UIAlertController` action sheet. Notice that the style is `.cancel` instead of `.default`.
+1. Present the `UIAlertController` from our `UIViewController`. Remember, we must pass in a reference from the view controller presenting the alert controller for this method to properly present the `UIAlertController`.
 
 None of this code will run at this point - to test it we need to connect it to the `MainTabBarController`. Let's do that next! After we've connected the `MainTabBarController` and the `MGPhotoHelper`, we will come back to complete this code so that we actually present the camera or the photo library when one of the two options is selected.
 
@@ -282,7 +286,7 @@ override func viewDidLoad() {
 }
 ```
 
-In our `viewDidLoad` we set a *closure*. A closure can be thought as a function without a name.
+In our `viewDidLoad` we set a _closure_. A closure can be thought as a function without a name.
 
 This part of the code is the closure:
 
@@ -301,16 +305,18 @@ Last, we'll change the tab bar related code:
 > [action]
 Change the the tab bar related code to call the `presentActionSheet(from:)` method in our `MGPhotoHelper`, instead of printing to the console:
 >
-    extension MainTabBarController: UITabBarControllerDelegate {
-        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
-                photoHelper.presentActionSheet(from: self)
-                return false
-            }
->
-            return true
+```
+extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
+            photoHelper.presentActionSheet(from: self)
+            return false
         }
+>
+        return true
     }
+}
+```
 
 Here, we're presenting the action sheet from the `photoHelper` that will allow the user to capture a photo from their camera or upload a photo from their photo library.
 
@@ -333,12 +339,14 @@ Let's add a method to the `MGPhotoHelper` that presents the `UIImagePickerContro
 > [action]
 Add the `presentImagePickerController(with:from:)` method to the `MGPhotoHelper` class:
 >
-    func presentImagePickerController(with sourceType: UIImagePickerControllerSourceType, from viewController: UIViewController) {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.sourceType = sourceType
+```
+func presentImagePickerController(with sourceType: UIImagePickerControllerSourceType, from viewController: UIViewController) {
+    let imagePickerController = UIImagePickerController()
+    imagePickerController.sourceType = sourceType
 >
-        viewController.present(imagePickerController, animated: true)
-    }
+    viewController.present(imagePickerController, animated: true)
+}
+```
 
 In the first line, this method creates a `UIImagePickerController`. In the second line, we set the `sourceType` of that controller. Depending on the `sourceType` the `UIImagePickerController` will activate the camera and display a photo taking overlay - or will show the user's photo library. Our `presentImagePickerController(with:from:)` method takes the `sourceType` as an argument and hands it on to the `imagePickerController` - that allows the caller of this method to specify whether the camera or the photo library should be used as an image source.
 
@@ -349,25 +357,27 @@ Now we need to call this method when a `UIAlertAction` is selected. Currently we
 > [action]
 Change the following section within `presentActionSheet(from:)` so that the `presentImagePickerController(with:from:)` method is called:
 >
-    ...
+```
+...
 >
-    if UIImagePickerController.isSourceTypeAvailable(.camera) {
-        let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { [unowned self] action in
-            self.presentImagePickerController(with: .camera, from: viewController)
-        })
+if UIImagePickerController.isSourceTypeAvailable(.camera) {
+    let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { [unowned self] action in
+        self.presentImagePickerController(with: .camera, from: viewController)
+    })
 >
-        alertController.addAction(capturePhotoAction)
-    }
+    alertController.addAction(capturePhotoAction)
+}
 >
-    if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-        let uploadAction = UIAlertAction(title: "Upload from Library", style: .default, handler: { [unowned self] action in
-            self.presentImagePickerController(with: .photoLibrary, from: viewController)
-        })
+if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+    let uploadAction = UIAlertAction(title: "Upload from Library", style: .default, handler: { [unowned self] action in
+        self.presentImagePickerController(with: .photoLibrary, from: viewController)
+    })
 >
-        alertController.addAction(uploadAction)
-    }
+    alertController.addAction(uploadAction)
+}
 >
-    ...
+...
+```
 
 In both `UIAlertAction` actions, we call our method to present the `UIImagePickerController` with the appropriate `sourceType`, based on the user's selection.
 
@@ -384,11 +394,9 @@ If you check the debug consule, you'll notice that Xcode is complaining that you
 > [action]
 1. Open your `Info.plist`
 ![Info.plist](assets/info_plist.png)
->
-2. Add a key to your `.plist` for `Privacy - Photo Library Usage Description`
+1. Add a key to your `.plist` for `Privacy - Photo Library Usage Description`
 ![Add Photo Privacy](assets/add_photo_privacy.png)
->
-3. Add a short description for why you need to access the user's data
+1. Add a short description for why you need to access the user's data
 ![Add Permission Description](assets/photos_permission_desc.png)
 
 Repeat the same steps for `Privacy - Camera Usage Description` to ask permission for camera usage. When added both keys, your `Info.plist` should look like the following:
@@ -403,27 +411,29 @@ To gain access to the image a user has selected, we will use a pattern with whic
 
 Take a short look at the documentation for the [`UIImagePickerControllerDelegate`](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIImagePickerControllerDelegate_Protocol/) protocol.
 
-**Can you see which method we can use?**
+Can you see which method we can use?
 
 Correct! We'll use the `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)` method!
 
 We'll need to implement this in two steps:
 
 1. Sign up to become the delegate of the `UIImagePickerController`
-2. Implement `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)`
+1. Implement `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)`
 
 Let's start with the simple part - becoming the delegate of `UIImagePickerController`.
 
 > [action]
 Extend the `presentImagePickerController(with:from:)` method to include a line that sets up the `delegate` property of `imagePickerController`:
 >
-    func presentImagePickerController(with sourceType: UIImagePickerControllerSourceType, from viewController: UIViewController) {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.sourceType = sourceType
-        imagePickerController.delegate = self
+```
+func presentImagePickerController(with sourceType: UIImagePickerControllerSourceType, from viewController: UIViewController) {
+    let imagePickerController = UIImagePickerController()
+    imagePickerController.sourceType = sourceType
+    imagePickerController.delegate = self
 >
-        viewController.present(imagePickerController, animated: true)
-    }
+    viewController.present(imagePickerController, animated: true)
+}
+```
 
 Now that we're the `delegate` we need to conform to some protocols. Otherwise the compiler will be unhappy and our project won't run!
 
@@ -436,19 +446,21 @@ As always, we will implement the code that is relevant for a certain protocol wi
 > [action]
 Add the extension following extension to _MGPhotoHelper.swift_ - make sure that the extension is placed outside of the class definition:
 >
-    extension MGPhotoHelper: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-            if let selectedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-                completionHandler?(selectedImage)
-            }
->
-            picker.dismiss(animated: true)
+```
+extension MGPhotoHelper: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let selectedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            completionHandler?(selectedImage)
         }
 >
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
-        }
+        picker.dismiss(animated: true)
     }
+>
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+}
+```
 
 We don't have too much code in this extension. We implement two different delegate methods: One is called when an image is selected, the other is called when the cancel button is tapped.
 
@@ -474,6 +486,4 @@ Here's a short reminder of all the information flow you have implemented in this
 
 ![image](assets/photo_taking_structure.png)
 
-**Well done!**
-
-In the next step we are going to upload this image to Firebase!
+Well done! In the next step we are going to upload this image to Firebase!

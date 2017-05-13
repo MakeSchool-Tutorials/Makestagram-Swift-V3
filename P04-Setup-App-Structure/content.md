@@ -3,7 +3,7 @@ title: "Basic App Architecture"
 slug: basic-app-architecture
 ---
 
-Although the term *architecture* can be intimidating to new programmers, it's not as scary as you think. Architecture can be simply explained as how to better organize your code so that it's easier to build, change and debug.
+Although the term _architecture_ can be intimidating to new programmers, it's not as scary as you think. Architecture can be simply explained as how to better organize your code so that it's easier to build, change and debug.
 
 In this step, we'll take some time to think about how we'll build our app and organize our code.
 
@@ -21,7 +21,7 @@ This is detailed list of features our app will have:
 - Delete photos you posted
 - Flag photos other users have posted
 
-You are probably familiar with most of these features from popular social network apps. You might wonder why we included *flagging* content in this simple photo sharing app. It turns out that it's an important feature to get your app into Apple's App Store. Apple requires apps with user created content to have a *flag* feature - this way users can report inappropriate content. Since you will likely need this feature in your own apps, we have included it as part of the tutorial.
+You are probably familiar with most of these features from popular social network apps. You might wonder why we included _flagging_ content in this simple photo sharing app. It turns out that it's an important feature to get your app into Apple's App Store. Apple requires apps with user created content to have a _flag_ feature - this way users can report inappropriate content. Since you will likely need this feature in your own apps, we have included it as part of the tutorial.
 
 # App Outline
 
@@ -92,13 +92,13 @@ Oops! Our app doesn't run and returns the following error:
 
 ![Missing Info.plist](assets/missing_info_plist.png)
 
-Our Info.plist file is a XML representation of many of our app's settings. After moving it into the *supporting* folder, we need to reconfigure our project with the Info.plist file.
+Our Info.plist file is a XML representation of many of our app's settings. After moving it into the _supporting_ folder, we need to reconfigure our project with the Info.plist file.
 
 To reset the Info.plist file, select your `Makestagram` project in your project navigator.
 
 ![Project Settings](assets/project_settings.png)
 
-By default, you should land on the *General* tab. The first section in *General* will be *Identity*. You'll notice a prompt to set your Info.plist by choosing a file added to the project. Select the correct Info.plist and re-run your app:
+By default, you should land on the _General_ tab. The first section in _General_ will be _Identity_. You'll notice a prompt to set your Info.plist by choosing a file added to the project. Select the correct Info.plist and re-run your app:
 
 ![Selecting Info.plist](assets/resetting_info_plist.png)
 

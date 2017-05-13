@@ -8,9 +8,9 @@ As always, we'll need to create a new Xcode project.
 ## Create a new Xcode project
 
 1. Open Xcode and create a new project.
-2. Choose the Single View Application as template. Click next.
-3. Fill out the remaining info for your project. See the example provided below:
-4. Save your Xcode project somewhere you'll be able to easily find later. i.e. `~/Code/`
+1. Choose the Single View Application as template. Click next.
+1. Fill out the remaining info for your project. See the example provided below:
+1. Save your Xcode project somewhere you'll be able to easily find later. i.e. `~/Code/`
 
 ![Sample Project Info](assets/sample-project-info.png)
 
@@ -82,7 +82,6 @@ Now we are ready to add our dependencies to this file.
 
 > [action]
 > Update your _Podfile_ so that it looks like this. Note that we uncommented the `platform :ios, '9.0'` line. Also pay attention that you're using the correct single quotes.
-
 >
 ```
 # Uncomment this line to define a global platform for your project
@@ -102,7 +101,9 @@ end
 >
 > Then, return to the command line and run:
 >
-    pod install
+```
+pod install
+```
 > This step may take some time the first time you run it, up to 10 or 15 minutes.
 
 Now your dependencies will be download and installed.

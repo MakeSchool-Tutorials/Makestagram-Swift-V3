@@ -20,11 +20,11 @@ Create a new custom cell:
 > [action]
 >
 1. Open `Home.storyboard` and find the `HomeViewController`
-2. Drag a new prototype cell from the object library to the table view on `HomeViewController`
+1. Drag a new prototype cell from the object library to the table view on `HomeViewController`
 ![Add Header Cell](assets/add_header_cell.png)
-3. Open the attributes inspector and change the cell style, selection style, and set the `Identifier` to `PostHeaderCell`
+1. Open the attributes inspector and change the cell style, selection style, and set the `Identifier` to `PostHeaderCell`
 ![Post Header Properties](assets/header_properties.png)
-4. Open the size inspector and set a custom `Row Height` of 54
+1. Open the size inspector and set a custom `Row Height` of 54
 ![Header Row Height](assets/header_row_height.png)
 
 ## Adding Subviews
@@ -97,7 +97,7 @@ Set the following properties in your _Attribute Inspector_ and _Size Inspector_:
 >
 If you don't remember how to configure a custom table view review the last step to refresh your memory.
 
-## Adding Subviews
+## Adding Cell Subviews
 
 On our action cell, we'll add the following subviews:
 
@@ -259,21 +259,25 @@ We've successfully setup our data source and will move on to modifying our `UITa
 > [action]
 Add the following class method to `PostHeaderCell`:
 >
-    class PostHeaderCell: UITableViewCell {
+```
+class PostHeaderCell: UITableViewCell {
 >
-        static let height: CGFloat = 54
+    static let height: CGFloat = 54
 >
-        // ...
-    }
+    // ...
+}
+```
 >
 Repeat the following for `PostActionCell`:
 >
-    class PostActionCell: UITableViewCell {
+```
+class PostActionCell: UITableViewCell {
 >
-        static let height: CGFloat = 46
+    static let height: CGFloat = 46
 >
-        // ...
-    }
+    // ...
+}
+```
 
 Next, change your `UITableViewDelegate` to the following:
 
@@ -313,28 +317,31 @@ Currently, our post have a timestamp of when it was created. To display this dat
 > [action]
 Open `HomeViewController` and create a new `DateFormatter`:
 >
-    let timestampFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
+```
+let timestampFormatter: DateFormatter = {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateStyle = .short
 >
-        return dateFormatter
-    }()
-    
+    return dateFormatter
+}()
+```
+
 A date formatter allows us to convert a `Date` into a formatted string. We'll use this to display the date our post was created.
 
 > [action]
 In `tableView(_:cellForRowAt:)` add the following:
+>
 ```
 func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     // ...
-
+>
     case 2:
         let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
         cell.timeAgoLabel.text = timestampFormatter.string(from: post.creationDate)
-        
+>
         return cell
-
-    // ... 
+>
+    // ...
 }
 ```
 

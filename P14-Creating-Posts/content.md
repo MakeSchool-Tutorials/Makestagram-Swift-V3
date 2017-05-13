@@ -3,8 +3,7 @@ title: "Improving the Upload Code and Adding a Post Class"
 slug: improving-photo-upload-firebase
 ---
 
-<!-- need to add images -->
-<!-- rethink about image height calculation -->
+<!-- TODO: rethink about image height calculation -->
 
 Now it's time to move from a working solution to a good one. We need to store more information along with the `Post` that we're creating. Right now we are only storing the image file, but we also need to store the `User` to which the post belongs.
 
@@ -15,12 +14,14 @@ This means that we'll need to create a `Post` class.
 > [action]
 Create a new class `Post.swift`:
 >
-    import UIKit
-    import FirebaseDatabase.FIRDataSnapshot
+```
+import UIKit
+import FirebaseDatabase.FIRDataSnapshot
 >
-    class Post {
-        // properties and initializers
-    }
+class Post {
+    // properties and initializers
+}
+```
 
 Next let's add properties to store all the additional information we need. Add the following to your post class.
 
@@ -64,27 +65,29 @@ Next let's setup the code to create a new `Post` JSON object in our database:
 > [action]
 Add the following code in `create(forURLString:aspectHeight:)`:
 >
-    private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
-        // 1
-        let currentUser = User.current
-        // 2
-        let post = Post(imageURL: urlString, imageHeight: aspectHeight)
-        // 3
-        let dict = post.dictValue
+```
+private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
+    // 1
+    let currentUser = User.current
+    // 2
+    let post = Post(imageURL: urlString, imageHeight: aspectHeight)
+    // 3
+    let dict = post.dictValue
 >
-        // 4
-        let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
-        //5
-        postRef.updateChildValues(dict)
-    }
+    // 4
+    let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
+    //5
+    postRef.updateChildValues(dict)
+}
+```
 
 This will create a JSON object in our database. Let's break down our steps:
 
 1. Create a reference to the current user. We'll need the user's UID to construct the location of where we'll store our post data in our database.
-2. Initialize a new `Post` using the data passed in by the parameters.
-3. Convert the new post object into a dictionary so that it can be written as JSON in our database. We haven't added this computed variable to our `Post` object yet so the compiler will throw an error right now.
-4. Construct the relative path to the location where we want to store the new post data. Notice that we're using the current user's UID as child nodes to keep track of which `Post` belongs to which user.
-5. Write the data to the specified location.
+1. Initialize a new `Post` using the data passed in by the parameters.
+1. Convert the new post object into a dictionary so that it can be written as JSON in our database. We haven't added this computed variable to our `Post` object yet so the compiler will throw an error right now.
+1. Construct the relative path to the location where we want to store the new post data. Notice that we're using the current user's UID as child nodes to keep track of which `Post` belongs to which user.
+1. Write the data to the specified location.
 
 To fix the compiler error, add the following computed variable to our `Post` class. This will be convenient for turning our `Post` objects into dictionaries of type `[String : Any]`:
 
@@ -127,17 +130,19 @@ To use the service method we just created, we'll need to make some modifications
 > [action]
 Modify the `create(for:)` method to the following:
 >
-    static func create(for image: UIImage) {
-        let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
-        StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
-            guard let downloadURL = downloadURL else {
-                return
-            }
->
-            let urlString = downloadURL.absoluteString
-            create(forURLString: urlString, aspectHeight: 320)
+```
+static func create(for image: UIImage) {
+    let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
+    StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
+        guard let downloadURL = downloadURL else {
+            return
         }
+>
+        let urlString = downloadURL.absoluteString
+        create(forURLString: urlString, aspectHeight: 320)
     }
+}
+```
 
 You'll notice here that we hardcode the aspect height of the image. The reason we want to store the aspect height is because when we render our image, we'll need to know the height of the image to display. We do this by calculating what the height of the image should be based on the maximum width and height of an iPhone.
 
@@ -146,17 +151,19 @@ We'll create a new image extension that calculates the aspect height based on th
 > [action]
 Create a new file under extensions called `UIImage+Size.swift`:
 >
-    import UIKit
+```
+import UIKit
 >
-    extension UIImage {
-        var aspectHeight: CGFloat {
-            let heightRatio = size.height / 736
-            let widthRatio = size.width / 414
-            let aspectRatio = fmax(heightRatio, widthRatio)
+extension UIImage {
+    var aspectHeight: CGFloat {
+        let heightRatio = size.height / 736
+        let widthRatio = size.width / 414
+        let aspectRatio = fmax(heightRatio, widthRatio)
 >
-            return size.height / aspectRatio
-        }
+        return size.height / aspectRatio
     }
+}
+```
 
 We added a computed property to `UIImage` that will calculate the aspect height for the instance of a `UIImage` based on the size property of an image. Now we can update our `create(for:)` method in our `PostService`:
 
@@ -180,19 +187,21 @@ Last, we'll need to create a more suitable location for our post image files to 
 > [action]
 Create a new extension file called `FIRStorageReference+Post.swift` with the following content:
 >
-    import Foundation
-    import FirebaseStorage
+```
+import Foundation
+import FirebaseStorage
 >
-    extension FIRStorageReference {
-        static let dateFormatter = ISO8601DateFormatter()
+extension FIRStorageReference {
+    static let dateFormatter = ISO8601DateFormatter()
 >
-        static func newPostImageReference() -> FIRStorageReference {
-            let uid = User.current.uid
-            let timestamp = dateFormatter.string(from: Date())
+    static func newPostImageReference() -> FIRStorageReference {
+        let uid = User.current.uid
+        let timestamp = dateFormatter.string(from: Date())
 >
-            return FIRStorage.storage().reference().child("images/posts/\(uid)/\(timestamp).jpg")
-        }
+        return FIRStorage.storage().reference().child("images/posts/\(uid)/\(timestamp).jpg")
     }
+}
+```
 
 Here we create an extension to FIRStorageReference with a class method that will generate a new location for each new post image that is created by the current ISO timestamp.
 

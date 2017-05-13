@@ -15,8 +15,8 @@ Let's learn about `UserDefaults` and how it can help us do this!
 
 `UserDefaults` is an quick way to store small amounts of non-sensitive data on the user's phone. It is typically used to store flags such as whether the user has logged in.
 
-- `UserDefaults` is **not** for storing large amounts of data on the user's device. Use *Core Data* or *Realm* instead.
-- `UserDefaults` is **not** for storing important, sensitive information like passwords or auth tokens. Use *Keychain* instead.
+- `UserDefaults` is **not** for storing large amounts of data on the user's device. Use _Core Data_ or _Realm_ instead.
+- `UserDefaults` is **not** for storing important, sensitive information like passwords or auth tokens. Use _Keychain_ instead.
 
 Using `UserDefaults` to store data is really easy. To write data, access the `UserDefaults` singleton and use the provided instance methods to store various types of information like so:
 
@@ -41,7 +41,7 @@ To persist authentication, we'll use `UserDefaults` to store our `User` singleto
 To use `NSKeyedArchiver` to archive our `User`, we'll need for:
 
 1. `User` must be a subclass `NSObject`
-2. `User` must implement the `NSCoding` protocol
+1. `User` must implement the `NSCoding` protocol
 
 ## Subclassing NSObject
 
@@ -138,9 +138,9 @@ class func setCurrent(_ user: User, writeToUserDefaults: Bool = false) {
 Let's break this down:
 
 1. We add another parameter that takes a `Bool` on whether the user should be written to `UserDefaults`. We give this value a default value of `false`.
-2. We check if the boolean value for `writeToUserDefaults` is `true`. If so, we write the user object to `UserDefaults`.
-3. We use `NSKeyedArchiver` to turn our user object into `Data`. We needed to implement the `NSCoding` protocol and inherit from `NSObject` to use `NSKeyedArchiver`.
-4. We store the data for our current user with the correct key in `UserDefaults`.
+1. We check if the boolean value for `writeToUserDefaults` is `true`. If so, we write the user object to `UserDefaults`.
+1. We use `NSKeyedArchiver` to turn our user object into `Data`. We needed to implement the `NSCoding` protocol and inherit from `NSObject` to use `NSKeyedArchiver`.
+1. We store the data for our current user with the correct key in `UserDefaults`.
 
 Great, now we can use this method to store our current user in `UserDefaults`. Let's go to our `LoginViewController` to make use of this method when an existing user logs in.
 
@@ -183,30 +183,31 @@ Now whenever a user signs up or logs in, the user will be stored in UserDefaults
 
 To finish up, we need to add some logic that checks `UserDefaults` for the `currentUser` key when the app first launches. If the the data exists, we'll know that the user has been previously authenticated and set the rootViewController accordingly.
 
-
 > [action]
 In our `AppDelegate` add the following code to the bottom of the file:
 >
-    extension AppDelegate {
-        func configureInitialRootViewController(for window: UIWindow?) {
-            let defaults = UserDefaults.standard
-            let initialViewController: UIViewController
+```
+extension AppDelegate {
+    func configureInitialRootViewController(for window: UIWindow?) {
+        let defaults = UserDefaults.standard
+        let initialViewController: UIViewController
 >
-            if FIRAuth.auth()?.currentUser != nil,
-                let userData = defaults.object(forKey: Constants.UserDefaults.currentUser) as? Data,
-                let user = NSKeyedUnarchiver.unarchiveObject(with: userData) as? User {
+        if FIRAuth.auth()?.currentUser != nil,
+            let userData = defaults.object(forKey: Constants.UserDefaults.currentUser) as? Data,
+            let user = NSKeyedUnarchiver.unarchiveObject(with: userData) as? User {
 >
-                User.setCurrent(user)
+            User.setCurrent(user)
 >
-                initialViewController = UIStoryboard.initialViewController(for: .main)
-            } else {
-                initialViewController = UIStoryboard.initialViewController(for: .login)
-            }
->
-            window?.rootViewController = initialViewController
-            window?.makeKeyAndVisible()
+            initialViewController = UIStoryboard.initialViewController(for: .main)
+        } else {
+            initialViewController = UIStoryboard.initialViewController(for: .login)
         }
+>
+        window?.rootViewController = initialViewController
+        window?.makeKeyAndVisible()
     }
+}
+```
 
 In our new method, we determine which storyboard's initial view controller should be set as the `rootViewController` of the window.
 

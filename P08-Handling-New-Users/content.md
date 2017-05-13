@@ -5,14 +5,14 @@ slug: handling-new-users
 
 In the previous section, we've successfully setup some logic in our `LoginViewController` that is supposed to determines whether an authenticated user is a new or existing user. We uncovered through testing that it currently doesn't work. In this section, we'll look handle the login flow for new users which will fix our previous code.
 
-# Writing Data to a FIRDatabaseReference Location
+# Writing Data to Firebase
 
 We've previously learned how to read data from our database. To make use of our database, we'll need to learn how to write data to our database as well.
 
 To write data to the database we'll need to implement the following steps:
 
 1. Build a `FIRDatabaseReference` to the location you want to read from
-2. Use `setValue` or `updateChildValues` method of `FIRDatabaseReference` to write data to the database
+1. Use `setValue` or `updateChildValues` method of `FIRDatabaseReference` to write data to the database
 
 Let's walk through an example of writing to the database:
 
@@ -66,7 +66,6 @@ Stop here! Don't continue until you've tried implementing `CreateUsernameViewCon
 If you got stuck above or just want to review your solution, we'll walk through the process step by step next. If you feel confident in your code, feel free to skip ahead to the next section.
 
 1. Open `Login.storyboard` and drag a new view controller into the storyboard from the object library.
-
 2. Add two new `UILabel`s onto the new view controller.
 
 ![Add Two Labels](assets/add_two_labels.png)
@@ -150,7 +149,7 @@ You should now have a new view controller in your `Login.storyboard` and a `Crea
 
 ![Create Username View Controller](assets/create_username.png)
 
-## Seguing to our New View Controller
+## Segueing to our New View Controller
 
 Before we can implement the logic for when the next button is tapped, we need to first make the Login View Controller segue to the Create Username View Controller when a new user is created. To do that, we'll need to make sure our `LoginViewController` is in a `UINavigationController`.
 
@@ -176,25 +175,27 @@ Open `Login.storyboard` and ctrl-drag from `LoginViewController` to `CreateUsern
 >
 After creating the segue in storyboard, we'll need to perform the segue in code. Add the following line to your `LoginViewController.swift` file:
 >
-    extension LoginViewController: FUIAuthDelegate {
-        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            if let error = error {
-                print("Error signing in: \(error.localizedDescription)")
-            }
->
-            guard let user = user else { return }
->
-            let ref = FIRDatabase.database().reference().child("users").child(user.uid)
->
-            ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-                if let user = User(snapshot: snapshot) {
-                    print("Welcome back, \(user.username).")
-                } else {
-                    self.performSegue(withIdentifier: "toCreateUsername", sender: self)
-                }
-            })
+```
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+        if let error = error {
+            print("Error signing in: \(error.localizedDescription)")
         }
+>
+        guard let user = user else { return }
+>
+        let ref = FIRDatabase.database().reference().child("users").child(user.uid)
+>
+        ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+            if let user = User(snapshot: snapshot) {
+                print("Welcome back, \(user.username).")
+            } else {
+                self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+            }
+        })
     }
+}
+```
 
 Now when a new user signs up, they'll be redirected to choose their username. Run the app and make sure our code works up to this point before moving onto the next step of implementing the code for writing a new user to the database.
 
@@ -211,16 +212,17 @@ Let's review the current code in `CreateUsernameViewController` for `nextButtonT
 When a user taps the next button we want the following to happen:
 
 1. Get a reference to the current user that's logged into Firebase. We'll need the user uid to create the relative path to write to.
-2. Check that the user has entered a username in the username text field.
-3. Create a reference to the location we want to store the data
-4. Create a dictionary of the data we want to store in our database
-5. Write the dictionary at the specified location
-6. Handle the success or failure of writing to the database
+1. Check that the user has entered a username in the username text field.
+1. Create a reference to the location we want to store the data
+1. Create a dictionary of the data we want to store in our database
+1. Write the dictionary at the specified location
+1. Handle the success or failure of writing to the database
 
 First we'll import the necessary libraries.
 
 > [action]
 Add the following to the top of `CreateUsernameViewController`:
+>
 ```
 import FirebaseAuth
 import FirebaseDatabase
@@ -261,10 +263,10 @@ Then modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swif
 Let's walk through the code above:
 
 1. First we guard to check that a `FIRUser` is logged in and that the user has provided a username in the text field.
-2. We create a dictionary to store the username the user has provided inside our database
-3. We specify a relative path for the location of where we want to store our data
-4. We write the data we want to store at the location we provided in step 3
-5. We read the user we just wrote to the database and create a user from the snapshot
+1. We create a dictionary to store the username the user has provided inside our database
+1. We specify a relative path for the location of where we want to store our data
+1. We write the data we want to store at the location we provided in step 3
+1. We read the user we just wrote to the database and create a user from the snapshot
 
 Now whenever an user is created, a user JSON object will also be created for them within our database.
 
@@ -289,7 +291,7 @@ Now that our code is running, let's take a moment to refactor our current code. 
 To refactor our code, we're going to refactor all code that interfaces with Firebase into a service layer. This does two things:
 
 1. Keeps our code clean and decoupled by removing networking code from our view controllers
-2. Allows us to reuse the method in our service classes from all view controllers
+1. Allows us to reuse the method in our service classes from all view controllers
 
 One reason why decoupling our networking code into a service layer is helpful is that in the case we decide to switch to another backend, we'll only need to re-write our service layer. We won't need to change our view controllers!
 
@@ -382,8 +384,8 @@ UserService.create(firUser, username: username) { (user) in
 Let's walk through the code we just added:
 
 1. Create a new instance of our main storyboard.
-2. Check that the storyboard has an initial view controller that's set.
-3. Get reference to the current window and set the rootViewController to the initial view controller.
+1. Check that the storyboard has an initial view controller that's set.
+1. Get reference to the current window and set the rootViewController to the initial view controller.
 
 Let's run the app and test it out! You may need to delete the user JSON object in your database. If everything works correctly, you should be redirected to a blank white screen that is the initial view controller of the main storyboard.
 
@@ -397,7 +399,7 @@ Go ahead and add the following code to our `LoginViewController`. This is the ex
 ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
     if let _ = User(snapshot: snapshot) {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
-                
+
         if let initialViewController = storyboard.instantiateInitialViewController() {
             self.view.window?.rootViewController = initialViewController
             self.view.window?.makeKeyAndVisible()
@@ -444,10 +446,10 @@ static func setCurrent(_ user: User) {
 Let's walk through the code we just created:
 
 1. Create a private static variable to hold our current user. This method is private so it can't be access outside of this class.
-2. Create a computed variable that only has a getter that can access the private _current variable.
-3. Check that _current that is of type User? isn't nil. If _current is nil, and current is being read, the guard statement will crash with fatalError().
-4. If _current isn't nil, it will be returned to the user.
-5. Create a custom setter method to set the current user.
+1. Create a computed variable that only has a getter that can access the private _current variable.
+1. Check that _current that is of type User? isn't nil. If _current is nil, and current is being read, the guard statement will crash with fatalError().
+1. If _current isn't nil, it will be returned to the user.
+1. Create a custom setter method to set the current user.
 
 Now that we've created a User singleton, we need to make sure to set it once we recieve the user from the database we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It can also be accessed from any view controller with the following code:
 
