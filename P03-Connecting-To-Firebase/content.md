@@ -21,6 +21,4 @@ After following the Firebase steps, your project overview should look like this:
 
 ![Finished Connecting To Firebase](assets/finished-connecting.png)
 
-Well done! You've just connected your app to Firebase so you can easily store and retrieve data. Let's begin building our app by structuring our app.
-
-<!-- TODO: not sure about the last line -->
+We've setup our Xcode project to communicate with our Firebase project. This will allow us to make use of all of Firebase's features and functionality in the following steps! In the next section, we'll organize our codebase by thinking about how we'll store and group our source files.

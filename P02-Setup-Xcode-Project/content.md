@@ -82,7 +82,6 @@ Now we are ready to add our dependencies to this file.
 
 > [action]
 > Update your _Podfile_ so that it looks like this. Note that we uncommented the `platform :ios, '9.0'` line. Also pay attention that you're using the correct single quotes.
-
 >
 ```
 # Uncomment this line to define a global platform for your project
@@ -92,17 +91,19 @@ target 'Makestagram' do
   # Comment this line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
 >
-    pod 'Firebase/Core'
-    pod 'Firebase/Auth'
-    pod 'FirebaseUI/Auth', '~> 3.0'
-    pod 'Firebase/Database'
-    pod 'Firebase/Storage'
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'FirebaseUI/Auth', '~> 3.0'
+  pod 'Firebase/Database'
+  pod 'Firebase/Storage'
 end
 ```
 >
 > Then, return to the command line and run:
 >
-    pod install
+```
+pod install
+```
 > This step may take some time the first time you run it, up to 10 or 15 minutes.
 
 Now your dependencies will be download and installed.

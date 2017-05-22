@@ -15,11 +15,13 @@ In this section you will set up a new Firebase project. The contents of this tut
 # What is Firebase?
 
 ## Background
+
 Firebase is a mobile _backend as a service_ that was acquired by Google in October 2014. The idea was to allow individual mobile developers to build apps without having to worry about servers.
 
 The role of the _backend_ in an internet application often revolves around _data persistence_. That means saving the user's data "in the cloud" (your backend servers) so that when they lose their phone, all their data will still be there when they reinstall your app. In reality, its much more complicated than that, often because applications require specialized business logic. But for many developers Firebase is enough to ship an amazing app, without worrying about writing backend code.
 
 ## What does Firebase do for us?
+
 Firebase lets you store your _data_, handle files such as images and videos, and even manages your users' logins and social network connections! We can create an infinite number of projects, ideas, hacks, and applications, without having to write our own backend.
 
 Additionally Firebase provides an iOS library. This makes it easy to interact with the Firebase platform from within our app. Throughout this tutorial you will get to know Firebase in detail. Our very first step is setting up a new Firebase project.

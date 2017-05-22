@@ -33,7 +33,7 @@ You should come up with a similar diagram before writing code for your original 
 
 # Directory Structure
 
-Now let's create our directory structure to better organize our code. Open the Makestagram subdirectory in the root directory of your Makestagram project. This is where all the new code and files you create will go. Create the following subdirectories to help organize our files:
+Now let's create our directory structure to better organize our code. Open the Makestagram subdirectory in the root directory of your Makestagram project. This is where all the new code and files you create will go. Create the following folders to help organize our files:
 
 - Controllers
 - Extensions
@@ -118,9 +118,7 @@ Repeat the previous steps until you've organized our project navigator as below:
 
 ![Organizing Project Structure](assets/project_structure.png)
 
-As we build our project and add more files, we'll continue to create and reorganize our files into groups.
-
-<!-- Link to a outline of groups vs folders. "It's a bit of initial work but this is a good way to make sure your file system and Xcode project structure both stay organized": http://vocaro.com/trevor/blog/2012/10/21/xcode-groups-vs-folder-references/ -->
+As we build our project and add more files, we'll continue to create and reorganize our files into groups. It's a bit of initial work but this is a good way to make sure your file system and Xcode project structure both stay organized. If your interested in learning more, [click here.](http://vocaro.com/trevor/blog/2012/10/21/xcode-groups-vs-folder-references/)
 
 # Intro to App Architecture
 
