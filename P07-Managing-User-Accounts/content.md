@@ -40,7 +40,7 @@ To read data from the database, we need to implement the following steps:
 2. Use `observe(_:with)` or `observeSingleEvent(of:with:)` method of `FIRDatabaseReference` to observe `FIRDataEventTypeValue` events
 3. Handle the event callback that is passed a snapshot that contains all data at the location
 
-Let's walk through each of these steps individually to see what they look like:
+Let's walk through an example with each of these steps to see what reading looks like in code:
 
 ## Build a FIRDatabaseReference
 
@@ -74,9 +74,9 @@ We've successfully created a relative path to the location we want to read from!
 
 ## Reading Data from a FIRDatabaseReference Location
 
-Data is read from the database by using `observe(_:with)` or `observeSingleEvent(of:with:)` method of `FIRDatabaseReference`. The difference between these two methods is that `observe(_:with)` will create an object continuously listens for an event type. Whenever an event happens, usually a change that's made to the data, the event callback will be triggered. With this method, the event callback can be triggered multiple times.
+Data is read from the database by using `observe(_:with)` or `observeSingleEvent(of:with:)` method of `FIRDatabaseReference`. The difference between these two methods is that `observe(_:with)` will create an object that continuously listens for an event type. Whenever an event happens, usually a change that's made to the data, the event callback will be triggered. With `observe(_:with)`, the event callback can be triggered multiple times.
 
-In comparison, `observeSingleEvent(of:with:)` will only trigger the event callback once. This is useful for reading data that only needs to be loaded once and isn't expected to change. For this tutorial we'll mainly focus on `observeSingleEvent(of:with:)`. Continuing our previous example, let's look at how we would implement `observeSingleEvent(of:with:)`:
+In comparison, `observeSingleEvent(of:with:)` will only trigger the event callback once. This is useful for reading data that only needs to be loaded once and isn't expected to change. For this tutorial we'll mainly focus on using `observeSingleEvent(of:with:)`. Continuing our previous example, let's look at how we would implement `observeSingleEvent(of:with:)`:
 
 ```
 if let user = FIRAuth.auth()?.currentUser {
@@ -114,7 +114,7 @@ if let user = FIRAuth.auth()?.currentUser {
 1. We retrieve the data from the `FIRDataSnapshot` using the `value` property. We unwrap and check that the type is what we're expecting it to be, in this case a dictionary.
 2. We print the contents of the dictionary using the convenient `debugDescription` property.
 
-Following the previous steps, we've successfully read the current user's data from our database. Let's use this knowledge to create a solution for managing new and existing users.
+Following the previous steps, we've successfully read the current user's data from our database. This was a helpful example. Let's translate our new knowledge into a solution for managing new and existing users.
 
 # Managing User Accounts
 
@@ -216,11 +216,11 @@ You'll notice that even though we're logging in as an existing user, our logic i
 
 This isn't what we expected! When we log in with an existing `FIRUser` we want it to enter the if clause that prints `User already exists \(userDict.debugDescription)`.
 
-Can you guess why our code isn't working like we expect it to?
+**Question:** Can you guess why our code isn't working like we expect it to?
 
-If you open your Firebase overview in your browser and click on the database tab, you'll notice that it's currently empty. Even when we sign up with new users, our database still remains empty.
+**Answer:** If you open your Firebase overview in your browser and click on the database tab, you'll notice that it's currently empty. Even when we sign up with new users, our database still remains empty.
 
-Our current code reads from the `users/#{uid}` relative path to see if a user JSON object exists in the database, but because we never write any data when users first sign up with `FIRAuth`, and reads from the Firebase database will always return `nil`.
+Our current code reads from the `users/#{uid}` relative path to see if a user JSON object exists in the database. However we never write any data when users first sign up with `FIRAuth`, thus any reading from the Firebase database will always return `nil`.
 
 We'll fix this by handling the new user login flow in the next section, but before we move on, we'll first refactor some of the code that we've written.
 
@@ -253,7 +253,7 @@ class User {
 }
 ```
 
-Here we've created a basic user class that has two properties, a UID and username. Next we're going to create a special initializer to take a FIRSnapshot to make things easier. First let's import FIRDataSnapshot into our User model:
+Here we've created a basic user class that has two properties, a UID and username. Next we're going to create a special initializer to take a FIRSnapshot to make things easier. First let's import `FIRDataSnapshot` into our `User` model:
 
 ```
 import Foundation
@@ -264,9 +264,11 @@ Next, we'll look at creating our first failable initializer to initialize a user
 
 ## What is a Failable Initializer?
 
-Failable initializers allow the initialization of an object to fail. If an initializer fails, it'll return nil instead. This is useful for requiring the initialization to have key information. In our case, if a user doesn't have a UID or a username, we'll fail the initialization and return nil. Add the following to your User init methods:
+Failable initializers allow the initialization of an object to fail. If an initializer fails, it'll return nil instead. This is useful for requiring the initialization to have key information. In our case, if a user doesn't have a UID or a username, we'll fail the initialization and return nil. Add the following under your current User init method:
 
 ```
+init(uid: String, username: String) {...}
+
 init?(snapshot: FIRDataSnapshot) {
     guard let dict = snapshot.value as? [String : Any],
         let username = dict["username"] as? String
@@ -279,10 +281,10 @@ init?(snapshot: FIRDataSnapshot) {
 
 Here we guard by requiring the snapshot to be casted to a dictionary and checking the dictionary contains `username` key/value. If either of these requirements fail, we return nil. Note that we also store the key property of `FIRDataSnapshot` which is the UID that correlates with the user being initialized.
 
-This cleans up our code by creating a reusable initializer that we can use to create user objects from snapshots. In addition, we no longer have to fetch information directly from snapshots using *stringly* typed key/value pairs. Let's go ahead and finish by refactoring our original code to use our failable initializer.
+This cleans up our code by creating a reusable initializer that we can use to create user objects from snapshots. In addition, we no longer have to fetch information directly from snapshots using _stringly-typed_ key/value pairs. Let's go ahead and finish by refactoring our original code to use our failable initializer.
 
 ```
-ref.observeSingleEvent(of: .value, with: { (snapshot) in
+userRef.observeSingleEvent(of: .value, with: { (snapshot) in
     if let user = User(snapshot: snapshot) {
         print("Welcome back, \(user.username).")
     } else {

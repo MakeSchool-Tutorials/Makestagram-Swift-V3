@@ -35,7 +35,7 @@ We can set the `delegate` of the `UITabBarViewController` and implement the meth
 Our solution involves two steps:
 
 1. Subclassing `UITabBarController` with our own custom `MainTabBarController` class.
-2. Have our custom tab bar controller implement the `UITab​Bar​Controller​Delegate`.
+1. Have our custom tab bar controller implement the `UITab​Bar​Controller​Delegate`.
 
 ## Custom UITabBarController
 
@@ -58,7 +58,7 @@ class MainTabBarController: UITabBarController {
 ```
 
 1. First we set the `MainTabBarController` as the delegate of it's tab bar
-2. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
+1. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
 
 Build the app and you'll notice we'll get an error that `MainTabBarController` doesn't implement `UITabBarControllerDelegate`. Let's add an extension and implement `tabBarController(_:shouldSelect:)` to fix this error:
 
@@ -72,9 +72,10 @@ extension MainTabBarController: UITabBarControllerDelegate {
 
 The `UITabBarControllerDelegate` method `tabBarController(_:shouldSelect:)` returns a `Bool` value that determines if the tab bar will present the corresponding `UIViewController` that the user has selected. If `true`, the tab bar will behave as usual. If we return `false`, the view controller will not be displayed – exactly the behavior that we want for our photo tab bar item.
 
-Don't forget, we'll need to set the _Custom Class_ property in the `Main.storyboard` _Identity Inspector_ for our `UITabBarController`:
+Don't forget, we'll need to set the _Custom Class_ property in the `Main.storyboard` _Identity Inspector_ for our `UITabBarController`. Otherwise `UITabBarController` won't know it's a custom subclass.
 
-![Tab Bar Identity Inspector](assets/tab_bar_identity.png)
+> [action]
+Open Main.storyboard and select the Tab Bar Controller. Open the _Class Inspector_ in the right pane and set the `Class` to `MainTabBarController`: ![Tab Bar Identity Inspector](assets/tab_bar_identity.png)
 
 ## Identifying Tab Bar Items
 
@@ -84,39 +85,31 @@ In order to determine when to return `true` or `false` we need a way of identify
 **Repeat the following steps for all three view controllers**:
 >
 1. With the tab bar item selected, open the *Attributes Inspector* on the right panel
-2. Set the *Tag* of the *Bar Item* to 0, 1, 2 corresponding to the position from left to right for each tab bar item
+1. Set the *Tag* of the *Bar Item* to 0, 1, 2 corresponding to the position from left to right for each tab bar item
 >
 ![Tab Bar Item Tag](assets/tab_bar_tag.png)
 
-We can now make use of the `tag` property to identify the center tab bar item. We know from our storyboard that our center tab bar item's tag will be 1. Let's set this as a constant in our `Constants.swift` file:
-
-```
-struct Constants {
-    // ...
-
-    struct TabBarItem {
-        static let centerTag = 1
-    }
-}
-```
+We can now make use of the `tag` property to identify the center tab bar item. We know from our storyboard that our center tab bar item's tag will be 1. We'll hard code this value to 1 in our code, but you could also make this a constant.
 
 > [action]
 Implement the logic in `tabBarController(_:shouldSelect:)` to present the selected view controller:
 >
-    extension MainTabBarController: UITabBarControllerDelegate {
-        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
-                // present photo taking action sheet
-                print("take photo")
+```
+extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if viewController.tabBarItem.tag == 1 {
+            // present photo taking action sheet
+            print("take photo")
 >
-                return false
-            } else {
-                return true
-            }
+            return false
+        } else {
+            return true
         }
     }
+}
+```
 
-If the view controller's tag is the center tag we return false and print "take photo" to the console. Later we'll replace this line with the actual photo taking code. If the view controller isn't the center tag, we return true and let the tab bar controller behave as usual.
+If the view controller's tag is the center tag we return `false` and print "take photo" to the console. Later we'll replace this line with the actual photo taking code. If the view controller isn't the center tag, we return `true` and let the tab bar controller behave as usual.
 
 With this code in place, it's time to test our code. Run the app. When you tap the left or the right tab bar item, they are selected and the corresponding view controller is presented. When you tap the middle button, you see our console output instead:
 
@@ -124,9 +117,14 @@ With this code in place, it's time to test our code. Run the app. When you tap t
 
 Now we can replace this console output with our actual photo taking code!
 
+If you don't see the print statement above, check that you've set:
+
+- the custom class of `UITabBarController` in your storyboard.
+- tags corresponding to each of the different tab bar items
+
 # Structuring the Photo Code
 
-Recall from our *Setting Up the App Structure* tutorial that, after deciding on our app's features, we outlined our app's screens and explicitly defined how screens would be connected. In a similar fashion, before diving into the photo code, let's think about what specific photo related features we want to offer and how they will be structured.
+Recall from our _Setting Up the App Structure_ tutorial that, after deciding on our app's features, we outlined our app's screens and explicitly defined how screens would be connected. In a similar fashion, before diving into the photo code, let's think about what specific photo related features we want to offer and how they will be structured.
 
 Regarding features, as **Makestagram** is a photo sharing app, users should be able to either upload photos from their existing photo library or capture new photos with the built-in camera.
 
@@ -134,12 +132,12 @@ Regarding structure, let's discuss the process step-by-step:
 
 ![image](assets/photo_taking_structure.png)
 
-1. The user taps the camera button, which triggers an event in the `MainTabBarController`. (Currently, we are logging "take photo" to the console during this step.)
-2. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. (We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.)
-3. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.)
-4. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. (The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.)
-5. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`
-6. The `MGPhotoHelper` notifies the `MainTabBarController` that a photo has been picked, and returns the image to the `MainTabBarController`.
+1. The user taps the camera button, which triggers an event in the `MainTabBarController`. (Currently, we are printing "take photo" to the console during this step.)
+1. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. (We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.)
+1. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.)
+1. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. (The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.)
+1. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`
+1. The `MGPhotoHelper` notifies the `MainTabBarController` that a photo has been picked, and returns the image to the `MainTabBarController`.
 
 As you can see, there are many steps to getting our photo features up and running. If we skipped diagramming our structure and went straight to coding, we would probably make the mistake of putting all of our code into the `MainTabBarController`, which would lead to an *extremely messy project*!
 
@@ -152,8 +150,8 @@ Create a new source file called `MGPhotoHelper.swift`:
 > [action]
 >
 1. Create a new Cocoa Touch class within the *Helpers* directory
-2. Name this class *MGPhotoHelper* and make it a subclass of *NSObject* (we will discuss why this is necessary later on):
-3. Select your new helper class and add it to a *Helpers* group
+1. Name this class *MGPhotoHelper* and make it a subclass of *NSObject* (we will discuss why this is necessary later on):
+1. Select your new helper class and add it to a *Helpers* group
 
 ![image](assets/new_photo_helper.png)
 
@@ -164,8 +162,8 @@ Now that we have a plan and a place to put our code, let's start implementing th
 Our `MGPhotoHelper` will have three main responsibilities:
 
 1. Presenting the popover to allow the user to choose between taking a new photo or selecting one from the photo library
-2. Depending on the user's selection, presenting the camera or photo library
-2. Returning the image that the user has taken or selected
+1. Depending on the user's selection, presenting the camera or photo library
+1. Returning the image that the user has taken or selected
 
 The first and second responsibilities of the `MGPhotoHelper` require it to present a `UIAlertController` and `UIImagePickerController`. However, in iOS, only view controllers can present other view controllers, and the `MGPhotoHelper` is a simple `NSObject`, not a `UIViewController`. To enable view controller presentation inside the `MGPhotoHelper` class, we will pass our method a reference to our `UITabBarController` to our `MGPhotoHelper`.
 
@@ -177,22 +175,21 @@ Let's get started with building the `MGPhotoHelper`!
 
 > [action]
 Replace the entire content of `MGPhotoHelper.swift` with the following code:
-
+>
 ```
 import UIKit
-
+>
 class MGPhotoHelper: NSObject {
-
+>
     // MARK: - Properties
-
+>
     var completionHandler: ((UIImage) -> Void)?
-
+>
     // MARK: - Helper Methods
-
+>
     func presentActionSheet(from viewController: UIViewController) {
-
+>
     }
-
 }
 ```
 
@@ -246,12 +243,12 @@ Replace the empty implementation of `showPhotoSourceSelection()` with the follow
     }
 
 1. Initialize a new `UIAlertController` of type `actionSheet`. `UIAlertController` can be used to present different types of alerts. An action sheet is a popup that will be displayed at the bottom edge of the screen.
-2. Check if the current device has a camera available. The simulator doesn't have a camera and won't execute the if clause.
-3. Create a new `UIAlertAction`. Each `UIAlertAction` represents an action on the `UIAlertController`. As part of the `UIAlertAction` initializer, you can provide a title, style, and handler that will execute when the action is selected.
-4. Add the action to the `alertController` instance we created.
-5. Repeat the previous sets 2-4 for the user's photo library.
-6. Add a cancel action to allow an user to close the `UIAlertController` action sheet. Notice that the style is `.cancel` instead of `.default`.
-7. Present the `UIAlertController` from our `UIViewController`. Remember, we must pass in a reference from the view controller presenting the alert controller for this method to properly present the `UIAlertController`.
+1. Check if the current device has a camera available. The simulator doesn't have a camera and won't execute the if clause.
+1. Create a new `UIAlertAction`. Each `UIAlertAction` represents an action on the `UIAlertController`. As part of the `UIAlertAction` initializer, you can provide a title, style, and handler that will execute when the action is selected.
+1. Add the action to the `alertController` instance we created.
+1. Repeat the previous sets 2-4 for the user's photo library.
+1. Add a cancel action to allow an user to close the `UIAlertController` action sheet. Notice that the style is `.cancel` instead of `.default`.
+1. Present the `UIAlertController` from our `UIViewController`. Remember, we must pass in a reference from the view controller presenting the alert controller for this method to properly present the `UIAlertController`.
 
 None of this code will run at this point - to test it we need to connect it to the `MainTabBarController`. Let's do that next! After we've connected the `MainTabBarController` and the `MGPhotoHelper`, we will come back to complete this code so that we actually present the camera or the photo library when one of the two options is selected.
 
@@ -303,7 +300,7 @@ Change the the tab bar related code to call the `presentActionSheet(from:)` meth
 >
     extension MainTabBarController: UITabBarControllerDelegate {
         func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            if viewController.tabBarItem.tag == Constants.TabBarItem.centerTag {
+            if viewController.tabBarItem.tag == 1 {
                 photoHelper.presentActionSheet(from: self)
                 return false
             }
@@ -334,22 +331,27 @@ Let's add a method to the `MGPhotoHelper` that presents the `UIImagePickerContro
 Add the `presentImagePickerController(with:from:)` method to the `MGPhotoHelper` class:
 >
     func presentImagePickerController(with sourceType: UIImagePickerControllerSourceType, from viewController: UIViewController) {
+        // 1
         let imagePickerController = UIImagePickerController()
+        // 2
         imagePickerController.sourceType = sourceType
 >
+        // 3
         viewController.present(imagePickerController, animated: true)
     }
 
-In the first line, this method creates a `UIImagePickerController`. In the second line, we set the `sourceType` of that controller. Depending on the `sourceType` the `UIImagePickerController` will activate the camera and display a photo taking overlay - or will show the user's photo library. Our `presentImagePickerController(with:from:)` method takes the `sourceType` as an argument and hands it on to the `imagePickerController` - that allows the caller of this method to specify whether the camera or the photo library should be used as an image source.
+Breaking down the code line-by-line:
 
-Once the `imagePickerController` is initialized and configured, we present it.
+1. We create a new instance of `UIImagePickerController`. This object will present a native UI component that will allow the user to take a photo from the camera or choose an existing image from their photo library.
+1. We set the `sourceType` to determine whether the `UIImagePickerController` will activate the camera and display a photo taking overlay or show the user's photo library. The `sourceType` is specified by the argument passed into the function.
+1. Last, after our `imagePickerController` is initialized and configured, we present the view controller.
 
-Now we need to call this method when a `UIAlertAction` is selected. Currently we aren't performing any code when a user selects one of the two options.
+We'll need to configure our `UIAlertController` to call this method when each corresponding `UIAlertAction` is selected.
 
 > [action]
 Change the following section within `presentActionSheet(from:)` so that the `presentImagePickerController(with:from:)` method is called:
 >
-    ...
+    // ...
 >
     if UIImagePickerController.isSourceTypeAvailable(.camera) {
         let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { [unowned self] action in
@@ -367,7 +369,7 @@ Change the following section within `presentActionSheet(from:)` so that the `pre
         alertController.addAction(uploadAction)
     }
 >
-    ...
+    // ...
 
 In both `UIAlertAction` actions, we call our method to present the `UIImagePickerController` with the appropriate `sourceType`, based on the user's selection.
 
@@ -385,17 +387,15 @@ If you check the debug consule, you'll notice that Xcode is complaining that you
 1. Open your `Info.plist`
 ![Info.plist](assets/info_plist.png)
 >
-2. Add a key to your `.plist` for `Privacy - Photo Library Usage Description`
+1. Add a key to your `.plist` for `Privacy - Photo Library Usage Description`
 ![Add Photo Privacy](assets/add_photo_privacy.png)
 >
-3. Add a short description for why you need to access the user's data
+1. Add a short description for why you need to access the user's data
 ![Add Permission Description](assets/photos_permission_desc.png)
 
-Repeat the same steps for `Privacy - Camera Usage Description` to ask permission for camera usage. When added both keys, your `Info.plist` should look like the following:
+Repeat the same steps for `Privacy - Camera Usage Description` to ask permission for camera usage. When added both keys, your `Info.plist` should look like the following: ![Photo Permission](assets/plist_permissions.png)
 
-![Photo Permission](assets/plist_permissions.png)
-
-Now an user can pick an image; however, currently we don't get informed when the user has selected an image and we don't gain access to the selected image.
+Now a user can pick an image from the `UIImagePickerController`. However we still haven't implemented any logic to handle the selected image that's returned from the `UIImagePickerController`. Let's take care of that next.
 
 # Closing the Loop
 
@@ -410,7 +410,7 @@ Correct! We'll use the `imagePickerController(picker: UIImagePickerController, d
 We'll need to implement this in two steps:
 
 1. Sign up to become the delegate of the `UIImagePickerController`
-2. Implement `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)`
+1. Implement `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)`
 
 Let's start with the simple part - becoming the delegate of `UIImagePickerController`.
 

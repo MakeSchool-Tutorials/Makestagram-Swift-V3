@@ -46,7 +46,7 @@ userRef.setValue(["username": "chase"])
 
 Now that we know how to write data to our database, we can move forward with handling our login flow for new users.
 
-Let's implement creating a new user inside the Firebase database.
+Let's implement the functionality for creating a new user inside our Firebase database.
 
 # Writing a New User to our Database
 
@@ -66,78 +66,64 @@ Stop here! Don't continue until you've tried implementing `CreateUsernameViewCon
 If you got stuck above or just want to review your solution, we'll walk through the process step by step next. If you feel confident in your code, feel free to skip ahead to the next section.
 
 1. Open `Login.storyboard` and drag a new view controller into the storyboard from the object library.
-
-2. Add two new `UILabel`s onto the new view controller.
-
-![Add Two Labels](assets/add_two_labels.png)
-
-3. Format each label respectively:
-
-**Title Label**
+1. Add two new `UILabel`s onto the new view controller. ![Add Two Labels](assets/add_two_labels.png)
+1. Format each label respectively:
+>
+```
+// Title Label
 Text: Create Username
 Font: System 24
 Alignment: Center
 Color: Black
-
-**Subtitle Label**
+>
+// Subtitle Label
 Text: Add a username so your friends can find you.
 Font: System 16
 Alignment: Center
 Color: Black
 Number of Lines: 0
-
+```
+>
 Don't worry about constraints yet, we'll use a stack view to position our views later.
 
-4. Add a `UITextField` and `UIButton` from the object library:
-
-![Text Field and Button](assets/raw_subviews.png)
-
-5. Format both the `UITextField` and `UIButton`:
-
-**Username Text Field**
+1. Add a `UITextField` and `UIButton` from the object library: ![Text Field and Button](assets/raw_subviews.png)
+1. Format both the `UITextField` and `UIButton`:
+>
+```
+// Username Text Field
 Placeholder Text: Username
-Background Color: `#FAFAFA`
-
-**Next Button**
+Background Color: #FAFAFA
+>
+// Next Button
 Type: Custom
-Background Color: `#61A8ED`
+Background Color: #61A8ED
 Title: Next
 Title Font: System Semibold 15
+```
 
-6. Select all of the subviews that we've added onto our view controller. You can select all by clicking inside the view controller and dragging a box around all elements within:
+1. Select all of the subviews that we've added onto our view controller. You can select all by clicking inside the view controller and dragging a box around all elements within: ![Selected Subviews](assets/selected_subviews.png)
+After all subviews are selected, add them to a stack view by clicking the `Embed In Stack` icon. All subviews we've added onto the view controller should now be inside the stack: ![New Stack](assets/new_stack.png)
 
-![Selected Subviews](assets/selected_subviews.png)
+1. Select the stack view and format it with the following constraints: ![Stack Constraints](assets/stack_constraints.png)
 
-After all subviews are selected, add them to a stack view by clicking the `Embed In Stack` icon. All subviews we've added onto the view controller should now be inside the stack:
+1. Keep the stack view selected and open the _Attributes Inspector_. Update the spacing between items to 18: ![Stack Spacing](assets/stack_spacing.png)
 
-![New Stack](assets/new_stack.png)
+1. Update the formatting for both `UITextField` and `UIButton` with the following constraints: ![Text Field Constraints](assets/text_field_constraints.png)
 
-7. Select the stack view and format it with the following constraints:
-
-![Stack Constraints](assets/stack_constraints.png)
-
-8. Keep the stack view selected and open the _Attributes Inspector_. Update the spacing between items to 18:
-
-![Stack Spacing](assets/stack_spacing.png)
-
-9. Update the formatting for both `UITextField` and `UIButton` with the following constraints:
-
-![Text Field Constraints](assets/text_field_constraints.png)
-
-Your final `CreateUsernameViewController` should look like this:
-
-![Finished Create Username VC](assets/create_username_sb.png)
+Your final `CreateUsernameViewController` should look like this: ![Finished Create Username VC](assets/create_username_sb.png)
 
 Remember, to finish creating our view controller we'll need to create a corresponding source file.
 
 > [action]
 Create a new `.swift` file in the `Controllers` folder called `CreateUsernameViewController.swift`:
 >
+```
 import UIKit
 >
 class CreateUsernameViewController: UIViewController {
     // ...
 }
+```
 
 After creating the source file, we'll need to set the class of our `CreateUsernameViewController` in storyboard.
 
@@ -150,7 +136,7 @@ You should now have a new view controller in your `Login.storyboard` and a `Crea
 
 ![Create Username View Controller](assets/create_username.png)
 
-## Seguing to our New View Controller
+## Segueing to our New View Controller
 
 Before we can implement the logic for when the next button is tapped, we need to first make the Login View Controller segue to the Create Username View Controller when a new user is created. To do that, we'll need to make sure our `LoginViewController` is in a `UINavigationController`.
 
@@ -170,7 +156,7 @@ Before we move on, we won't need the navigation bar that a `UINavigationControll
 Next, add the segue between view controllers.
 
 > [action]
-Open `Login.storyboard` and ctrl-drag from `LoginViewController` to `CreateUsernameViewController`. Set the `Identifier` in the _Attributes Inspector_ to `toCreateUsername`:
+Open `Login.storyboard` and ctrl-drag from `LoginViewController` to `CreateUsernameViewController`. When prompted to select the segue type, select `show`. Set the `Identifier` in the _Attributes Inspector_ to `toCreateUsername`:
 >
 ![Create Username Segue](assets/create_username_segue.png)
 >
@@ -178,15 +164,9 @@ After creating the segue in storyboard, we'll need to perform the segue in code.
 >
     extension LoginViewController: FUIAuthDelegate {
         func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            if let error = error {
-                print("Error signing in: \(error.localizedDescription)")
-            }
+            // ...
 >
-            guard let user = user else { return }
->
-            let ref = FIRDatabase.database().reference().child("users").child(user.uid)
->
-            ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+            userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
                 if let user = User(snapshot: snapshot) {
                     print("Welcome back, \(user.username).")
                 } else {
@@ -211,17 +191,19 @@ Let's review the current code in `CreateUsernameViewController` for `nextButtonT
 When a user taps the next button we want the following to happen:
 
 1. Get a reference to the current user that's logged into Firebase. We'll need the user uid to create the relative path to write to.
-2. Check that the user has entered a username in the username text field.
-3. Create a reference to the location we want to store the data
-4. Create a dictionary of the data we want to store in our database
-5. Write the dictionary at the specified location
-6. Handle the success or failure of writing to the database
+1. Check that the user has entered a username in the username text field.
+1. Create a reference to the location we want to store the data
+1. Create a dictionary of the data we want to store in our database
+1. Write the dictionary at the specified location
+1. Handle the success or failure of writing to the database
 
 First we'll import the necessary libraries.
 
 > [action]
 Add the following to the top of `CreateUsernameViewController`:
+>
 ```
+import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 ```
@@ -282,7 +264,9 @@ Now, if we try logging in with the same existing user, you'll notice that our `L
 
 ![Existing User Print](assets/existing_user.png)
 
-Now that our code is running, let's take a moment to refactor our current code. You'll notice a pattern where we're writing code that works and then refactoring after we've implemented the quick and dirty solution. This two-step process allows us to quick figure out how to get our code to work, without having our codebase turn into spaghetti code.
+Now that our code is running, let's take a moment to refactor our current code.
+
+You'll notice a pattern where we're writing code that works and then refactoring after we've implemented the quick and dirty solution. This two-step process allows us to quickly figure out how to get our code to work, without having our codebase turn into spaghetti.
 
 # Service Classes
 
@@ -299,9 +283,12 @@ A huge benefit of good code architecture is being able to easily change your cod
 
 A service layer helps you decouple your view controllers from your networking logic. We want to remove the networking code, such as reading and writing to our database, so that we can reuse the same code and access our networking logic from other view controllers.
 
-Let's create a new struct called `UserService.swift`. We'll put all our methods related to user networking in here.
-
+> [action]
+Let's create a new struct called `UserService.swift`. We'll put all our backend methods related to our user in here.
+>
 ```
+import Foundation
+>
 struct UserService {
     // insert user-related networking code here
 }
@@ -311,7 +298,7 @@ Make sure you place all your service structs in the `Services` directory and cre
 
 ![Service Grouping](assets/service_grouping.png)
 
-Next let's create a static method that encapsulates create an user.
+Next let's create a static method that encapsulates the functionality for creating an user on Firebase.
 
 ```
 import Foundation
@@ -340,17 +327,20 @@ struct UserService {
 
 Here we remove the networking-related code of creating a new user in our `CreateUsernameViewController` and place it inside our service struct. The service struct will act as an intermediary for communicating between our app and Firebase.
 
-Now let's go back to our Create Username View Controller and refactor the code to use our new service class.
+Now let's go back to our `CreateUsernameViewController` and refactor the code to use our new service class.
 
+> [action]
+Modify `nextButtonTapped(_:)` to the following:
+>
 ```
 @IBAction func nextButtonTapped(_ sender: UIButton) {
     guard let firUser = FIRAuth.auth()?.currentUser,
         let username = usernameTextField.text,
         !username.isEmpty else { return }
-
+>
     UserService.create(firUser, username: username) { (user) in
         guard let user = user else { return }
-
+>
         print("Created new user: \(user.username)")
     }
 }
@@ -362,16 +352,17 @@ Let's make sure everything works as expected. Run the app and create a new user 
 
 After creating a new user in our `CreateUsernameViewController`, we want to let the user into the main storyboard of the app. To do that we need to change the current window's root view controller. Just as we initially set the root view controller in the `AppDelegate` to the intial view controller of the login storyboard, after the user has logged in, we need to change it back to the main storyboard.
 
-Add the following code below:
-
+> [action]
+In your `nextButtonTapped(_:)` method, add the following:
+>
 ```
 UserService.create(firUser, username: username) { (user) in
     guard let _ = user else {
         return
     }
-
+>
     let storyboard = UIStoryboard(name: "Main", bundle: .main)
-
+>
     if let initialViewController = storyboard.instantiateInitialViewController() {
         self.view.window?.rootViewController = initialViewController
         self.view.window?.makeKeyAndVisible()
@@ -381,9 +372,9 @@ UserService.create(firUser, username: username) { (user) in
 
 Let's walk through the code we just added:
 
-1. Create a new instance of our main storyboard.
-2. Check that the storyboard has an initial view controller that's set.
-3. Get reference to the current window and set the rootViewController to the initial view controller.
+1. Create a new instance of our main storyboard
+1. Check that the storyboard has an initial view controller
+1. Get reference to the current window and set the `rootViewController` to the initial view controller
 
 Let's run the app and test it out! You may need to delete the user JSON object in your database. If everything works correctly, you should be redirected to a blank white screen that is the initial view controller of the main storyboard.
 
@@ -391,13 +382,15 @@ Let's run the app and test it out! You may need to delete the user JSON object i
 
 Simliarly to our approach to new users, if we recieved an existing user on our login view controller, we also want to redirect them to the main storyboard by setting the window's root view controller.
 
-Go ahead and add the following code to our `LoginViewController`. This is the exact same code we used to set the root view controller after a new user was created.
+Go ahead and add the following code to our `LoginViewController` in the `FUIAuthDelegate` method. This is the exact same code we used to set the root view controller after a new user was created.
 
 ```
-ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+// ...
+
+userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
     if let _ = User(snapshot: snapshot) {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
-                
+
         if let initialViewController = storyboard.instantiateInitialViewController() {
             self.view.window?.rootViewController = initialViewController
             self.view.window?.makeKeyAndVisible()
@@ -449,19 +442,22 @@ Let's walk through the code we just created:
 4. If _current isn't nil, it will be returned to the user.
 5. Create a custom setter method to set the current user.
 
-Now that we've created a User singleton, we need to make sure to set it once we recieve the user from the database we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It can also be accessed from any view controller with the following code:
+Now that we've created a User singleton, we need to make sure to set it once we receive the user from the database we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It will be accessible from any view controller with the following code:
 
 ```
 let user = User.current
 ```
 
-Let's go ahead and make sure we set the current user. Add the following code in your Login View Controller:
+Let's go ahead and make sure we set the current user.
 
+> [action]
+Open `LoginViewController` and add the following code in `authUI(_:didSignInWith:error:)`:
+>
 ```
-ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
     if let user = User(snapshot: snapshot) {
         User.setCurrent(user)
-
+>
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         if let initialViewController = storyboard.instantiateInitialViewController() {
             self.view.window?.rootViewController = initialViewController
@@ -492,4 +488,6 @@ UserService.create(firUser, username: username) { (user) in
 }
 ```
 
-Congrats, now we successfully handle both new and existing users when they sign up or login in through our authentication system. Run the app a couple times and try create new user accounts as well as logging into existing user accounts. Make sure that for each case, you're being taken through the correct user flow and redirect to the main storyboard.
+Congrats, now we successfully handle both new and existing users when they sign up or login in through our authentication system.
+
+Run the app a couple times and try create new user accounts as well as logging into existing user accounts. Make sure that for each case, you're being taken through the correct user flow and redirected to the main storyboard.

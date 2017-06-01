@@ -33,7 +33,11 @@ You should come up with a similar diagram before writing code for your original 
 
 # Directory Structure
 
-Now let's create our directory structure to better organize our code. Open the Makestagram subdirectory in the root directory of your Makestagram project. This is where all the new code and files you create will go. Create the following folders to help organize our files:
+Now let's create our directory structure to better organize our code. Open the Makestagram subdirectory in the root directory of your Makestagram project. You can open this directory in Finder by right-clicking on your `AppDelegate` and selecting the option to `Show in Finder`.
+
+![Show In Finder](assets/show_in_finder.png)
+
+All the new code and files you create will go in this directory. Create the following folders to help organize our files:
 
 - Controllers
 - Extensions

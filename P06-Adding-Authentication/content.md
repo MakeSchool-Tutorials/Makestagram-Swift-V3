@@ -43,6 +43,8 @@ After enabling the Email/Password provider, your have a status of `Enabled`:
 
 ![Enabled Email Provider](assets/enabled_email.png)
 
+Now that we've enabled our Email/Password provider, we can switch back to Xcode to continue implementing authentication.
+
 ## Using FirebaseUI's AuthViewController
 
 Within FirebaseUI, we'll be using the AuthViewController. To implement the `AuthViewController`, we'll need to
@@ -81,7 +83,7 @@ When `authViewController` is presented, Firebase presents it's own UI to handle 
 
 However, we haven't finished all 4 steps we previously defined and that's why Xcode is yelling at us with a compiler error. In step 2, we set our `LoginViewController` to be a delegate of `authUI`, however our `LoginViewController` hasn't conformed to the `FUIAuthDelegate` protocol. Let's do that now!
 
-Before the closing curly brace of the `LoginViewController` class, add the following extension:
+After the closing curly brace of the `LoginViewController` class, add the following extension:
 
 ```
 class LoginViewController: UIViewController {
@@ -95,9 +97,13 @@ extension LoginViewController: FUIAuthDelegate {
 }
 ```
 
-We've implemented the beginnings of our authentication logic. Run the app and sign up with a new user account. Go back to the authentication tab in your Firebase dashboard and verify that you've created a new user. If everything goes well you should see the following:
+We've implemented the beginnings of our authentication logic.
+
+Stop and run the app. Sign up with a new user account. Go back to the authentication tab in your Firebase dashboard and verify that you've created a new user. If everything goes well you should see the following in your Firebase project:
 
 ![Newly Created User](assets/first_user.png)
+
+You can find a list of all users in the `users` tab of your Firebase project authentication tab.
 
 ## Basic Error Handling in FUIAuthDelegate
 
@@ -108,6 +114,7 @@ extension LoginViewController: FUIAuthDelegate {
     func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
         if let error = error {
             assertionFailure("Error signing in: \(error.localizedDescription)")
+            return
         }
 
         print("handle user signup / login")
@@ -116,6 +123,8 @@ extension LoginViewController: FUIAuthDelegate {
 ```
 
 Now, whenever there's an error while we're in development, the app will crash with an formatted error message of what went wrong. In production code, assertions are ignored and are a nice tool to let us know if something's going unexpectedly while we're building our apps.
+
+There are much more elegant solutions for error handling, but for the sake of complexity we'll keep our error handling simple.
 
 ## FIRUser
 

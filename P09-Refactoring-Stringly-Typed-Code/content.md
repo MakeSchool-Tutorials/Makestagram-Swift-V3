@@ -3,7 +3,9 @@ title: "Refactoring Stringly Typed Code"
 slug: refactoring-stringly-typed-code
 ---
 
-In the previous few sections we implemented our first feature: authentication and managing new/existing users. Before we move on to building out the main flow of the app, we'll pause to refactor our current code. Refactoring and cleaning up your code will make it easier to build and debug your app in the future.
+In the previous few sections we implemented our first feature: authentication and managing new/existing users. Before we move on to building out the main flow of the app, we'll pause to refactor our current code.
+
+Refactoring and cleaning up your code will make it easier to build and debug your app in the future.
 
 # Refactoring Show User
 
@@ -28,29 +30,36 @@ struct UserService {
 }
 ```
 
-Now we can remove the networking code in `LoginViewController` like the following:
+Now we can remove the networking code in `LoginViewController`.
 
+> [action]
+Modify `authUI(_:didSignInWith:error:)` to the following:
+>
 ```
-UserService.show(forUID: user.uid) { (user) in
-    if let user = user {
-        // handle existing user
-        User.setCurrent(user)
-
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        if let initialViewController = storyboard.instantiateInitialViewController() {
-            self.view.window?.rootViewController = initialViewController
-            self.view.window?.makeKeyAndVisible()
+func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+    // ...
+>
+    UserService.show(forUID: user.uid) { (user) in
+        if let user = user {
+            // handle existing user
+            User.setCurrent(user)
+>
+            let storyboard = UIStoryboard(name: "Main", bundle: .main)
+            if let initialViewController = storyboard.instantiateInitialViewController() {
+                self.view.window?.rootViewController = initialViewController
+                self.view.window?.makeKeyAndVisible()
+            }
+        } else {
+            // handle new user
+            self.performSegue(withIdentifier: "toCreateUsername", sender: self)
         }
-    } else {
-        // handle new user
-        self.performSegue(withIdentifier: "toCreateUsername", sender: self)
     }
 }
 ```
 
-# Stringly Typed Constants
+# Stringly-typed Constants
 
-You may have noticed, several times within our code we use strings as identifiers for storyboards, segues, dictionary keys, etc. Although our code works, it's bad practice to have what's referred to as "stringly-typed" code because it's very error-prone to misspelling and the compiler can't help us catch these bugs.
+You may have noticed, several times within our code we use strings as identifiers for storyboards, segues, dictionary keys, etc. Although our code works, it's bad practice to have what's referred to as "stringly-typed" code because it's very error-prone to misspellings. If we do make a spelling error, the compiler won't be able to help us catch these bugs.
 
 A common example you might run into is misspelling the name of a segue identifier in storyboard. Previously we set the segue identifer from our `LoginViewController` to the `CreateUsernameViewController` to be `toCreateUsername`.
 
@@ -66,7 +75,7 @@ Instead of:
 self.performSegue(withIdentifier: "toCreateUsername", sender: self)
 ```
 
-You can see how these mistakes are very easy to make. Let's take a look at the two most common ways of protecting ourselves from stringly typed code: static constants and enums!
+Two letters off! You can see how these mistakes are very easy to make. Let's take a look at the two most common ways of protecting ourselves from stringly-typed code: static constants and enums!
 
 ## Creating Constants
 
@@ -84,7 +93,7 @@ struct Constants {
 }
 ```
 
-Let's add our first constant to get rid of our stringly typed segue identifier in our LoginViewController. Let's add the following to our constants file:
+Let's add our first constant to get rid of our stringly-typed segue identifier in our LoginViewController. Let's add the following to our constants file:
 
 ```
 struct Constants {
@@ -112,13 +121,13 @@ ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
 })
 ```
 
-As you can see, we've removed the string identifier for `toCreateUsername` and replaced it with a constant from our `Constants.swift` file. As you can see the main benefits of storing stringly typed identifiers are:
+As you can see, we've removed the string identifier for `toCreateUsername` and replaced it with a constant from our `Constants.swift` file. As you can see the main benefits of using constants are:
 
 - constants can be reused in other code
 - Xcode will allow us to quickly remember and fill in constants with autocomplete
 - the compiler will throw a error if we misspell an identifier
 
-Pretty handy! Let's take look at the second way of handling stringly typed code: enums!
+Pretty handy! Let's take look at the second way of handling stringly-typed code: enums!
 
 # Using Enums
 
@@ -214,8 +223,10 @@ We no longer have to optionally unwrap the initial view controller and instead c
 
 # Wrapping Up
 
-In this section, we refactored our existing code so that it's more managable as we continue to build. Refactoring may seem tedious in the moment, but pays off as we add more and more features and our app becomes more and more complex.
+In this section, we refactored our existing code so that it's more manageable as we continue to build. Refactoring may seem tedious in the moment, but pays off as we add more and more features and our app becomes more and more complex.
 
 As you advance in iOS development, you'll realize that you're not only building the codebase to add more features, but you're also building reusable components and evolving the Swift language itself to make it easier to build your app.
 
-Before you move onto the next section, remember to refactor all of your stringly typed code for changing root view controllers in your `AppDelegate`, `LoginViewController` and `CreateUsernameViewController` to use our new extensions.
+Before you move onto the next section, remember to refactor all of your stringly-typed code for changing root view controllers in your `AppDelegate`, `LoginViewController` and `CreateUsernameViewController` to use our new extensions.
+
+Beyond this step, we won't include refactoring strings for the sake of brevity. If you see stringly-typed code in future steps, take the initiative to use the techniques learned to make your code type-safe!

@@ -47,7 +47,7 @@ Let's start building our *login flow* by creating a new storyboard. Create a new
 
 ![New Storyboard](assets/new_storyboard.png)
 
-Make you name it `Login.storyboard` and that you're creating the `.storyboard` file in the Storyboard folder:
+Name it `Login.storyboard` and make sure that you're creating the `.storyboard` file in the _Storyboards_ folder:
 
 ![Naming Storyboard](assets/naming_storyboard.png)
 
@@ -120,9 +120,11 @@ This is because, by default, the initial view controller of the `Main.storyboard
 
 Instead of changing our `Info.plist` directly, we'll add code so when the app first launches it'll direct new users to our `Login.storyboard`. We'll need to add our logic with the `AppDelegate`'s life cycle method `application(_:didFinishLaunchingWithOptions:)`.
 
+We'll learn about the `AppDelegate` next.
+
 # What is the App Delegate?
 
-The App Delegate is a singleton object that handles important events in the life cycle of your app. This includes:
+The App Delegate is a _singleton_ object that handles important events in the life cycle of your app. This includes:
 
 - executing your app's startup code
 - handling app lifecycle events such as transitioning to the background or termination
@@ -143,6 +145,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     if let initialViewController = storyboard.instantiateInitialViewController() {
         // 3
         window?.rootViewController = initialViewController
+        // 4
         window?.makeKeyAndVisible()
     }
 

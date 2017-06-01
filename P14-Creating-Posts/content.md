@@ -13,14 +13,16 @@ This means that we'll need to create a `Post` class.
 # Creating a Post Class
 
 > [action]
-Create a new class `Post.swift`:
+Create a new class `Post.swift` in your `Models` directory:
 >
-    import UIKit
-    import FirebaseDatabase.FIRDataSnapshot
+```
+import UIKit
+import FirebaseDatabase.FIRDataSnapshot
 >
-    class Post {
-        // properties and initializers
-    }
+class Post {
+    // properties and initializers
+}
+```
 
 Next let's add properties to store all the additional information we need. Add the following to your post class.
 
@@ -57,34 +59,36 @@ private static func create(forURLString urlString: String, aspectHeight: CGFloat
 }
 ```
 
-Note that our class method is private because we don't want to allow access to this class method from anywhere except our previous `PostService.create(for:)` method. We don't to be able to create a new post in the database without a image URL and aspect height. If we're working with other developers, this helps prevent them from using this method in ways other than which we originally intended.
+Note that our class method is private because we don't want to allow access to this class method from anywhere except our previous `PostService.create(for:)` method. We don't want to be able to create a new post in the database without a image URL and aspect height. If we're working with other developers, this helps prevent them from using this method in ways other than which we originally intended.
 
 Next let's setup the code to create a new `Post` JSON object in our database:
 
 > [action]
 Add the following code in `create(forURLString:aspectHeight:)`:
 >
-    private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
-        // 1
-        let currentUser = User.current
-        // 2
-        let post = Post(imageURL: urlString, imageHeight: aspectHeight)
-        // 3
-        let dict = post.dictValue
+```
+private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
+    // 1
+    let currentUser = User.current
+    // 2
+    let post = Post(imageURL: urlString, imageHeight: aspectHeight)
+    // 3
+    let dict = post.dictValue
 >
-        // 4
-        let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
-        //5
-        postRef.updateChildValues(dict)
-    }
+    // 4
+    let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
+    //5
+    postRef.updateChildValues(dict)
+}
+```
 
 This will create a JSON object in our database. Let's break down our steps:
 
 1. Create a reference to the current user. We'll need the user's UID to construct the location of where we'll store our post data in our database.
-2. Initialize a new `Post` using the data passed in by the parameters.
-3. Convert the new post object into a dictionary so that it can be written as JSON in our database. We haven't added this computed variable to our `Post` object yet so the compiler will throw an error right now.
-4. Construct the relative path to the location where we want to store the new post data. Notice that we're using the current user's UID as child nodes to keep track of which `Post` belongs to which user.
-5. Write the data to the specified location.
+1. Initialize a new `Post` using the data passed in by the parameters.
+1. Convert the new post object into a dictionary so that it can be written as JSON in our database. We haven't added this computed variable to our `Post` object yet so the compiler will throw an error right now.
+1. Construct the relative path to the location where we want to store the new post data. Notice that we're using the current user's UID as child nodes to keep track of which `Post` belongs to which user.
+1. Write the data to the specified location.
 
 To fix the compiler error, add the following computed variable to our `Post` class. This will be convenient for turning our `Post` objects into dictionaries of type `[String : Any]`:
 
@@ -102,23 +106,31 @@ var dictValue: [String : Any] {
 
 <!-- tough topic, probably needs to be revised again -->
 
+Storing and structuring your data inside of your Firebase database requires forethought on the best way to structure your JSON tree.
+
 Let's take another look at the relative path for which we stored our new `Post`:
 
 ```
 let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
 ```
 
-Storing and structuring your data inside of your Firebase database requires forethought on the best way to structure your JSON tree. Another possible way of structuring our data would be to make each post a child node of a user. The relative path might look like this:
+Another possible way of structuring our data would be to make each post a child node of a user. If so, the relative path would look like this:
 
 ```
 let postRef = FIRDatabase.database().reference().child("users").child(currentUser.uid).child("posts").childByAutoId()
 ```
 
-In this structure, it's also easy to navigate to and find a user's post. However, now whenever we read a `User` object from Firebase, all of the child nodes will be returned with it. This means whenever we read the `User` from Firebase, all of their posts will be returned as well. Imagine if each time you wanted to fetch a user's information, thousands of their posts were returned with it. This makes reading slower and unoptimal.
+In both tree structures, it's easy to read and write data. However, the second tree structure comes with a disadvantage that's not immediately obvious.
 
-To fix this, we branch `Post` into it's own node within our JSON tree and use each user's UID as a child node to group posts by UID. This allows us to quickly retrieve all of the user's information without retrieving all of their posts with it – because a user's data and their posts are stored in two separate locations. In addition, if we wanted to retrieve all of a user's posts, there's still easy way for us to navigate and read them using JSON tree structure we built.
+If all of the posts stored within each respective user, then anytime we want to fetch the a user object from Firebase, we'll also fetching all of the user's posts within the snapshot as well.
 
-As you create apps with Firebase and practice structuring your data, you'll generally want to keep your JSON tree as flat as possible. Many times, this will involve a similar process as we're doing here by breaking out child nodes into thier own subtrees.
+If each user only has a couple posts, this isn't a big deal. However, in the scenario that a user has hundreds of thousands of posts, reading the user object from Firebase will return a slow response. In addition, storing all of the posts in memory might cause a memory warning that kills your app.
+
+The solution, as we've already implement is flattening our Firebase database JSON tree by separating `Post` objects into it's own root level node. With the `posts` subtree, individual `Post` objects will be grouped by user UIDs that will identify the poster of each subset of posts.
+
+This tree structure allows us to quickly retrieve any user's JSON object from Firebase, without automatically retrieving their posts as well. In addition, if we wanted to retrieve all of a user's posts, it's easy to find the relative path to read all of a single user's posts.
+
+As you create apps with Firebase and practice structuring your data, you'll want to keep your JSON tree as flat as possible. Many times, this will involve a similar tree structure to the one we're implementing right now.
 
 # Connecting our Image Upload to Creating a New Post
 
@@ -158,8 +170,15 @@ Create a new file under extensions called `UIImage+Size.swift`:
         }
     }
 
-We added a computed property to `UIImage` that will calculate the aspect height for the instance of a `UIImage` based on the size property of an image. Now we can update our `create(for:)` method in our `PostService`:
+We added a computed property to `UIImage` that will calculate the aspect height for the instance of a `UIImage` based on the size property of an image.
 
+This solution overlooks a lot of complexity for the sake of being easy to implement. What would happen if we ran the app on an iPad?
+
+Now we can update our `PostService` to calculate each image's aspect height when creating a post.
+
+> [action]
+Open `PostService` and modify `create(for:)` to use our new extension:
+>
 ```
 static func create(for image: UIImage) {
     let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
@@ -167,7 +186,7 @@ static func create(for image: UIImage) {
         guard let downloadURL = downloadURL else {
             return
         }
-
+>
         let urlString = downloadURL.absoluteString
         let aspectHeight = image.aspectHeight
         create(forURLString: urlString, aspectHeight: aspectHeight)
@@ -175,7 +194,7 @@ static func create(for image: UIImage) {
 }
 ```
 
-Last, we'll need to create a more suitable location for our post image files to be stored. Right now, since we're storing all of our images at the same path, they're being overwritten. Let's create a new extension for `FIRStorageReference` that generates a new storage location for each user's post:
+Last, we'll need to create a more suitable location for our post image files to be stored. Right now, since we're storing all of our images at the same path. If you haven't figured it out already; they're being overwritten. Let's create a new extension for `FIRStorageReference` that generates a new storage location for each user's post:
 
 > [action]
 Create a new extension file called `FIRStorageReference+Post.swift` with the following content:
@@ -196,8 +215,11 @@ Create a new extension file called `FIRStorageReference+Post.swift` with the fol
 
 Here we create an extension to FIRStorageReference with a class method that will generate a new location for each new post image that is created by the current ISO timestamp.
 
-We can update our code to use the new location generation:
+We can update our code in `PostService` to use the new location generation:
 
+> [action]
+Modify `create(for:)` to the following:
+>
 ```
 static func create(for image: UIImage) {
     let imageRef = FIRStorageReference.newPostImageReference()
@@ -205,7 +227,7 @@ static func create(for image: UIImage) {
         guard let downloadURL = downloadURL else {
             return
         }
-
+>
         let urlString = downloadURL.absoluteString
         let aspectHeight = image.aspectHeight
         create(forURLString: urlString, aspectHeight: aspectHeight)
@@ -215,17 +237,21 @@ static func create(for image: UIImage) {
 
 # Testing our Code
 
-Before we move on, let's test our code. First let's delete any previous images we uploaded to `Firebase Storage`:
+Before we move on, let's test our code. To do that we'll need to clean out some of old data.
 
-<!-- insert image, no internet right now -->
-
-Also make sure that our database current doesn't have any previously incomplete posts. If there are, make sure to delete them as well:
-
-<!-- insert image of delete posts from firebase -->
+> [action]
+Delete you test image or any other previous images from `Firebase Storage`: ![Delete Test Image](assets/delete_test_image.png)
+>
+Also delete any previous posts in your Firebase database. This will remove any posts with incomplete data. In the image below, note that we've deleted the `posts` subtree by hovering over the _posts_ text and clicking the red X button. ![Empty Posts Database](assets/no_posts_db.png)
 
 As we build and add new code, our database might contain incomplete or inconsistent data. We want to make sure that we delete this previous data, otherwise it might create bugs in our production code.
 
-Run the app and create a new `Post`. If everything is working correctly, you'll see a new `Post` object created in our database and the accompanying image stored at the correct path in `Firebase Storage`.
+Now that we've finished cleaning our data, let's test our code!
+
+> [action]
+Run the app and create a new `Post`.
+
+If everything is working correctly, you'll see a new `Post` object created in our database and the accompanying image stored at the correct path in `Firebase Storage`.
 
 # Conclusion
 

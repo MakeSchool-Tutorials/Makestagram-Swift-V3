@@ -5,7 +5,7 @@ slug: keeping-users-logged-in
 
 When testing our code in the previous section, we were forced to reauthenticate ourselves every time we ran the app. The process of reauthenticating over and over again is tedious and makes us less likely to run our code often! We want to make it fast and easy to test new features.
 
-From the perspective of a user who downloaded your app, it would be annoying to have to remember my email/password and typing it out each time I open your app. Imagine if you had to reauthenticate yourself every time you opened your favorite app?
+From the perspective of a user who downloaded your app, it would be annoying to have to remember my email/password and type it out each time I open your app. Imagine if you had to login yourself every time you opened your favorite app?
 
 For both reasons, once a user is authenticated into your app, we want their authentication to persist between app uses. They should stay logged in and authenticated until they delete the app or log out. To implement this functionality, we'll need to use local persistance to store some data on the user's device that tells us whether the user has previously authenticated.
 
@@ -82,7 +82,7 @@ extension User: NSCoding {
 }
 ```
 
-You'll notice that we're using our constants files to manage stringly-typed keys. Make sure to update your constants file with the following:
+You'll notice that we're using our constants files to manage stringly-typed keys. This is the last time we'll bring up creating constants in this tutorial! Make sure to update your constants file with the following:
 
 ```
 struct Constants {
@@ -144,40 +144,51 @@ Let's break this down:
 
 Great, now we can use this method to store our current user in `UserDefaults`. Let's go to our `LoginViewController` to make use of this method when an existing user logs in.
 
+> [action]
+Open `LoginViewController` and modify `authUI(_:didSignInWith:error:)` to the following:
+>
 ```
-UserService.show(forUID: user.uid) { (user) in
-    if let user = user {
-        // handle existing user
+func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+    // ...
+>
+    UserService.show(forUID: user.uid) { (user) in
+        if let user = user {
+            // handle existing user
+            User.setCurrent(user, writeToUserDefaults: true)
+>
+            let initialViewController = UIStoryboard.initialViewController(for: .main)
+            self.view.window?.rootViewController = initialViewController
+            self.view.window?.makeKeyAndVisible()
+        } else {
+            // handle new user
+            self.performSegue(withIdentifier: Constants.Segue.toCreateUsername, sender: self)
+        }
+    }
+}
+```
+>
+Next, navigate to the `CreateUsernameViewController` and do the same in `nextButtonTapped(_:)`:
+>
+```
+@IBAction func nextButtonTapped(_ sender: UIButton) {
+    // ...
+>
+    UserService.create(user, username: username) { (user) in
+        guard let user = user else {
+            // handle error
+            return
+        }
+>
         User.setCurrent(user, writeToUserDefaults: true)
-
+>
         let initialViewController = UIStoryboard.initialViewController(for: .main)
         self.view.window?.rootViewController = initialViewController
         self.view.window?.makeKeyAndVisible()
-    } else {
-        // handle new user
-        self.performSegue(withIdentifier: Constants.Segue.toCreateUsername, sender: self)
     }
 }
 ```
 
-Next, navigate to the `CreateUsernameViewController` and do the same:
-
-```
-UserService.create(user, username: username) { (user) in
-    guard let user = user else {
-        // handle error
-        return
-    }
-
-    User.setCurrent(user, writeToUserDefaults: true)
-
-    let initialViewController = UIStoryboard.initialViewController(for: .main)
-    self.view.window?.rootViewController = initialViewController
-    self.view.window?.makeKeyAndVisible()
-}
-```
-
-Now whenever a user signs up or logs in, the user will be stored in UserDefaults.
+Now whenever a user signs up or logs in, the user will be stored in `UserDefaults`.
 
 # Keeping Users Logged In on Launch
 
