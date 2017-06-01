@@ -3,7 +3,7 @@ title: "Liking Posts"
 slug: liking-posts
 ---
 
-Users on our app are now able to create new posts and see them displayed as a timeline in `HomeViewController`. However, you'll notice the `PostActionCell` for each `Post` doesn't work. Let's fix that.
+Users on our app are now able to create new posts and see them displayed as a timeline in `HomeViewController`. However, we haven't implemented any of the logic for liking each `Post` or displaying the current number of likes each post has.
 
 In this section, we'll working implementing likes. Likes are a common feature in most social media apps, first popularized by the Facebook like button.
 
@@ -20,9 +20,9 @@ Before adding new functionality, it's helpful to think about if the feature will
 
 Remember back to when we added the functionality for creating posts?
 
-We intentionally _flattened_ our database by separating our `users` JSON subtree from our `posts`. Moving forward, we'll store new like data using a similar strategy.
+We intentionally _flattened_ our database by separating our `posts` JSON subtree from our `users`. Moving forward, we'll store our new like data using the same strategy by flattenting our Firebase tree structure.
 
-Instead of nesting the like data of each post within the `posts` node, we'll _flatten_ our database by creating a new `postLikes` node at the root of our JSON database.
+Instead of nesting our like data of each post within the `posts` node, we'll _flatten_ our database by creating a new `postLikes` node at the root of our JSON database.
 
 Let's see what our new `postLikes` node will look like below:
 
@@ -48,9 +48,9 @@ makestagram-b3260 : {
 
 Notice that we've created a child node named `postLikes` under the root node `makestagram-b3260`. We should have 3 root level child nodes: `users`, `posts`, `postLikes`.
 
-Within the `postLikes` subtree, we store keys corresponding to child IDs for each post. Each post with more than one like will have it's own JSON object within `postLikes`.
+Within the `postLikes` subtree, we store keys corresponding to child IDs for each post. Each post with one or more likes will have a corresponding JSON object within `postLikes` that matches it's post key.
 
-Last, within each post key, we store the UID of all users who have liked the given post. Using this data structure, we're able to easily track which users have liked which posts.
+Last, within each post key, we'll store UIDs of each user that liked the given post. Using this data structure, we'll be able to easily track which users have liked which posts.
 
 ## Adding a Like Count
 
@@ -84,7 +84,7 @@ Although, it's not immediately obvious, a `like_count` is an read optimization t
 - having to make two network requests to display a post
 - reading all likes into memory (imagine if a user had a couple million likes!)
 
-Adding an additional `like_count` allows us to quickly read post data from Firebase.
+Adding an additional `like_count` allows us to quickly read our post object from Firebase.
 
 However, we're not done!
 
@@ -100,7 +100,7 @@ We'll use a strategy called _denormalization_ to fix this!
 
 ## What is Denormalization?
 
-_Denormalization_ is a method of improving the read performance by storing redundant copies of the same data in multiple locations. In our case, instead of reading each post and making another read to join it's poster, we store an additional copy of the poster in the post JSON object.
+_Denormalization_ is a method of improving the read performance by storing redundant copies of the same data in multiple locations. In our case, instead of reading each post and making another read to _join_ it's poster, we store an additional copy of the poster in the post JSON object.
 
 Our new post JSON will look like:
 
@@ -127,11 +127,11 @@ posts: {
 
 With this tree structure, our Firebase database will have multiple copies of the same user in both the `users` node and multiple post objects. However, this cost comes at the benefit of not needing to make multiple reads to database to fetch the poster with each post.
 
-It's important to take time to think about how to organize and structure data in Firebase. Otherwise, you'll find yourself fight your database and data structure to implement new features and functionality. Now that we've organized our thoughts on what we want our data structure to look like, let implement a like service for our app!
+It's important to take time to think about how to organize and structure data in Firebase. Otherwise, you'll find yourself fight your database and data structure to implement new features and functionality. Now that we've organized our thoughts on what we want our data structure to look like, let implement a new `LikeService` for our app!
 
 # Creating a Like Service
 
-As with all new functionality, we want to design easy APIs that allow use to reuse code. We'll create a new service for likes. Our like service will contain all networking and Firebase database code that will allow us to:
+As with all new functionality, we want to design easy APIs that allow use to reuse code. We'll create a new service struct for any networking requests regarding likes and their functionality. Our `LikeService` will allow us to:
 
 - like posts
 - unlike posts
@@ -376,6 +376,8 @@ After creating a reference to the location of `like_count`, we use `runTransacti
 > [challenge]
 > Now that we've implementing incrementing the like count after liking a post, implement the reverse of decrementing the like count of a post whenever a user unlikes a post.
 
+<!--  -->
+
 > [solution]
 >
     static func delete(for post: Post, success: @escaping (Bool) -> Void) {
@@ -424,7 +426,7 @@ Without transaction blocks, the like count will be incremented by one when it sh
 
 Transaction operation solve this problem for us by making sure only one user can update the value at a time. In addition, it'll handle incrementing the current value without losing data written by other users.
 
-In the situation above, it would handle requests from User A and B one by one. The first request would update the like count of post A from 5 to 6. The second would update the value from 6 to 7. Just what we wanted!
+In the situation above, it would handle requests from User A and B one at a time. The first request would update the like count of post A from 5 to 6. The second would update the value from 6 to 7. Just what we wanted!
 
 ## When to use Transactions
 
@@ -459,7 +461,7 @@ We implement a transaction with the following steps:
 2. Check that the value exists and increment it if it does
 3. Return the updated value
 4. Handle the completion block if there's an error
-5. Handle the completino block if the transaction was successful
+5. Handle the completion block if the transaction was successful
 
 Transaction operations are an important tool provided by Firebase to help developer solve specific problems around maintaining data integrity. Now that you know what they're used for and how to use them, you can build more complex data structures and apps.
 
@@ -509,10 +511,17 @@ Create a new service method for determining whether the current `Post` is liked:
         })
     }
 
-First we make sure that the post has a key. Then we create a relative path to the location of where we store the data of our uid for the current user if there is a like. Then we use a special query that checks whether anything exists at the value that we're reading from. If there is, we know that the current user has liked the post. Otherwise, we know that the user hasn't.
+Breaking down the code above:
 
-We'll need to update our reading from posts to check if each post returned is liked by the current user. Let's do that now:
+1. First we make sure that the post has a key.
+2. Then we build a relative path to the location of where we store the current user's like data for a specific post, if a like were to exist.
+3. Last we use a special query that checks whether a value exists at the location that we're reading from. If there is, we know that the current user has liked the post. Otherwise, we know that the user hasn't.
 
+We'll need to update our service method that reads a single user's posts to check if each post returned is liked by the current user. Let's do that now.
+
+> [action]
+Open `UserService` and modify `posts(for:completion:)` to the following:
+>
 ```
 static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
     let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
@@ -520,27 +529,27 @@ static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
         guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
             return completion([])
         }
-
+>
         let dispatchGroup = DispatchGroup()
-
+>
         let posts: [Post] =
             snapshot
                 .reversed()
                 .flatMap {
                     guard let post = Post(snapshot: $0)
                         else { return nil }
-
+>
                     dispatchGroup.enter()
-
+>
                     LikeService.isPostLiked(post) { (isLiked) in
                         post.isLiked = isLiked
-
+>
                         dispatchGroup.leave()
                     }
-
+>
                     return post
                 }
-
+>
         dispatchGroup.notify(queue: .main, execute: {
             completion(posts)
         })
@@ -548,11 +557,13 @@ static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
 }
 ```
 
-Here we rewrite our code to check whether each of our posts is liked by the current user. We use dispatch groups to wait for all of the asychronous code to return. Once all of our requests have returned, we send our posts to the completion handler on the main thread. Now each post that is returned with our `posts(for:completion:)` service method will have whether the user has liked it or not.
+In the code above, we rewrite our code to check whether each of our posts is liked by the current user. We use dispatch groups to wait for all of the asynchronous code to complete before calling our completion handler on the _main thread_. Now each post that is returned with our `posts(for:completion:)` service method will have data on whether the current user has liked it or not.
 
 ## What are Dispatch Groups?
 
-Dispatch groups are an advanced GCD topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed. They work by matching the number of items that have been started with the number that have been finished. You can begin and complete a new item by calling `enter()` and `leave()` on the dispatch group instance respectively. When the number of tasks that have been started equal the number completed, the dispatch group can notify you that all tasks have been executed.
+Dispatch groups are an advanced GCD topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed.
+
+They work by matching the number of items that have been started with the number that have been finished. You can begin and complete a new item by calling `enter()` and `leave()` on the dispatch group instance respectively. When the number of tasks that have been started equal the number completed, the dispatch group can notify you that all tasks have been executed.
 
 In the code we just wrote, notice we add a new item to the dispatch group as we run a async network call to determine whether the post is liked by the current user. We complete the item after we get a response from Firebase.
 
@@ -645,19 +656,20 @@ extension HomeViewController: UITableViewDataSource {
 }
 ```
 
-We'll move the configuring of our cell outside into another method so we can reference it later to redisplay our cell.
+We'll move the configuring of our cell outside into another method so we can reference it later to refresh the UI of our cell.
 
-You'll notice that if the post is liked, we set the `isSelected` of the `UIButton` to true. For this to work and change the button UI, we'll need to add an image for the selected state of our button.
+You'll notice, in the code above, that if the post is liked, we set the `isSelected` of the `UIButton` to `true`. For this to work and change the button UI, we'll need to add an image for the selected state of our button.
 
 > [action]
-Open `Home.storyboard` and set the image of the selected `likeButton`:
-![Selected Like Properties](assets/selected_like_buttonproperties.png)
+1. Open `Home.storyboard` and selected the like button on the `PostActionCell`. ![Select Like Button](assets/select_like_btn.png)
+2. Open the _Attributes Inspector_ in the right pane and change the `State Config` attribute from `Default` to `Selected`. This will allow us to set attributes for the `UIButton` selected state. ![Selected Button State Config](assets/selected_btn_config.png)
+3. Set the image of the selected `likeButton` by setting it's `Image` attribute to `btn_heart_red_solid`: ![Set Selected Image](assets/set_selected_image.png)
 
-Next we'll need to add the logic to handle the event when the `likeButton` of the `PostActionCell` is tapped. But first we'll add a convenience method to our like service that we'll use the easily like and unlike posts.
+Next we'll need to add the logic to handle the event when the `likeButton` of the `PostActionCell` is tapped. But first we'll add a convenience method to our `LikeService` that we'll use the easily like and unlike posts.
 
 > [action]
 Open `LikeService` and add the following method:
-
+>
 ```
 static func setIsLiked(_ isLiked: Bool, for post: Post, success: @escaping (Bool) -> Void) {
     if isLiked {
@@ -691,8 +703,7 @@ Open `HomeViewController` and add the following in `didTapLikeButton(_:on:)`:
                 }
 >
                 // 6
-                guard success
-                    else { return }
+                guard success else { return }
 >
                 // 7
                 post.likeCount += !post.isLiked ? 1 : -1
@@ -721,4 +732,8 @@ Let's walk through the code we just added step by step:
 8. Get a reference to the current cell.
 9. Update the UI of the cell on the main thread. Remember that all UI updates must happen on the main thread.
 
-Congrats, we've implemented our likes feature! We'll move on next to implementing followers.
+# Conclusion
+
+Congrats, we've implemented our likes feature! Run the app and like a couple of your posts. See if the count and UI increment and decrement as expected!
+
+In the next section, we'll move on next to implementing followers.

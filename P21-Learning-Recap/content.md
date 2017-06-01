@@ -36,7 +36,7 @@ Let's take a look at what you have learned so far.
 - app architecture for managing complex apps
 - handling authentication with FirebaseAuth and FirebaseAuthUI
 - managing multiple user flows with multiple storyboards
-- managing user accounts with FirebaseAuth and FirebaseDatabase 
+- managing user accounts with FirebaseAuth and FirebaseDatabase
 - handling persistence with UserDefaults
 - uploading media to FirebaseStorage
 - displaying complex UI with table view sections

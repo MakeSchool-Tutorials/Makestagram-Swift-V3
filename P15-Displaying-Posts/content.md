@@ -21,7 +21,7 @@ Open `Main.storyboard` and select the `HomeViewController`; click on top menu it
 
 ## Refactoring to Storyboard
 
-Next we'll repeat a similar process.
+Next we'll refactor our first tab into it's own storyboard.
 
 > [action]
 >
@@ -42,7 +42,7 @@ And your `Home.storyboard` file should look like the following:
 Let's add a table view to the `HomeViewController` - we will use that table view to display the posts in a user's timeline.
 
 > [action]
-Open _Home.storyboard_ and add a Table View to the _HomeViewController_. The resulting scene hierarchy should look like this:
+Open `Home.storyboard` and add a Table View to the `HomeViewController`. The resulting scene hierarchy should look like this:
 >
 ![image](assets/tableview_hiearchy.png)
 >
@@ -57,19 +57,20 @@ Make sure that the top and bottom constraints are relative to the `HomeViewContr
 In order to fill this table view with data, we need to define a data source (just as we did in the _Make School Notes_ app).
 
 > [action]
-Set the `HomeViewController` to be the data source of the table view.
+Set the `HomeViewController` to be the data source of the table view. ![Set Data Source](assets/set_datasource.png)
 
 # Implementing Home View Controller
 
 Let's start building our `HomeViewController`.
 
 > [action]
-Confirm that you have already created a source file named `HomeViewController.swift`. Also, make sure you've set the class of `HomeViewController` in the storyboard _Identity Inspector_:
-![Create Home View Controller](assets/confirm_home_vc.png)
+Confirm that you have already created a source file named `HomeViewController.swift`. Also, make sure you've set the class of `HomeViewController` in the storyboard _Identity Inspector_: ![Create Home View Controller](assets/confirm_home_vc.png)
+>
+If you haven't already, go ahead and follow the steps above now.
 
 ## Defining a Referencing Outlet
 
-We will also need to access this table view in code; therefore we need to set up a referencing outlet. Ctrl-drag from your storyboard tableView to your `HomeViewController.swift` to create an `IBOutlet`.
+We will also need to access this table view in code; therefore we need to set up a referencing outlet. Ctrl-drag from your storyboard table view to your `HomeViewController.swift` to create an `IBOutlet`.
 
 > [action]
 Set up a referencing outlet, as shown below, and name the property `tableView`:
@@ -83,14 +84,14 @@ We'll need a cell to display the images that we download.
 Drag a _Prototype Cell_ from the object library to the `UITableView`:
 ![Add Storyboard Cell](assets/add_cell.png)
 >
-Next, select the cell and open the attributes inspector. We want to add a `Reuse Identifer` so we can reference our cell in code.
+Next, select the cell and open the _Attributes Inspector_. We want to add a `Reuse Identifer` so we can reference our cell in code. If you don't see the `Reuse Identifier` field, make sure you have the `UITableViewCell` prototype selected and not it's content view.
 >
 Set the identifier to `PostImageCell`:
 ![Set Cell Identifier](assets/cell_identifier.png)
 
 # Reading Data from Firebase
 
-We retrieve data the same way we did in our login flow. First we'll setup a way to retrieve all of our user's post. Later in this tutorial, we'll setup building a timeline of posts from followers.
+We retrieve data the same way we did in our login flow. In our first iteration, we'll retrieve and display all of the current user's posts. Later in this tutorial, we'll implement an actual timeline of users that we're following.
 
 Similar to our `User` model, let's create a failable initialer in our `Post` class to take a `FIRDataSnapshot`.
 
@@ -141,7 +142,15 @@ First we'll need to setup our `HomeViewController` to have a data source.
 > [action]
 Create an empty array of posts in `HomeViewController`:
 >
+```
+class HomeViewController: UIViewController {
+>
+    // MARK: - Properties
+>
     var posts = [Post]()
+>
+    // ...
+}
 
 Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` array.
 
@@ -175,7 +184,7 @@ override func viewDidLoad() {
 }
 ```
 
-Let's run our code and see if it's working. If all goes right, you should see some of the posts that are stored in your database.
+Let's run our code and see if it's working. If all goes right, you should see some of the posts that are stored in your database. Right now, we're only displaying blank red cells, but each one represents one of the current user's posts.
 
 If you open your Firebase project and navigate to the database, you should be able to expand your JSON tree and see your posts. If everything has gone right your project should look like this:
 

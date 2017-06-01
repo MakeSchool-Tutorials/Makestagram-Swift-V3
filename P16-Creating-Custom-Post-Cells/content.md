@@ -51,16 +51,20 @@ Next we'll need to install a pod to download our image and display it in our tab
 
 ## Installing Kingfisher
 
-Navigate to the following [github link](https://github.com/onevcat/Kingfisher) and follow the instructions for downloading *Kingfisher*. You'll have to add *Kingfisher* to your pod file and type `pod install` to download the associated pod.
+[Kingfisher](https://github.com/onevcat/Kingfisher) is a popular Swift library for asynchronously downloading and caching images. We'll be using _Kingfisher_ to display our post images. But first, we'll need to install Kingfisher via **CocoaPods**.
 
-*Kingfisher* is a popular Swift library for asynchronously downloading and caching images. We'll be able to use it like this:
+Navigate to the _Kingfisher_ installation guide by [clicking here](https://github.com/onevcat/Kingfisher/wiki/Installation-Guide). Follow the instructions under **CocoaPods** to install the library.
+
+You should be instructed to add _Kingfisher_ pod to your _Podfile_. Don't forget to run the `pod install` command in your Makestagram root directory.
+
+Once you have _Kingfisher_ installed, you should be able to use it as follows:
 
 ```
 let url = URL(string: "https://domain.com/image.jpg")!
 imageView.kf.setImage(with: url)
 ```
 
-As you can see, *Kingfisher* allows us to easily download and turn `URL`s into `UIImage`s.
+As you can see, *Kingfisher* provides an easy API for us to download `URL` and display `UIImage`s.
 
 ## Creating the PostImageCell
 
@@ -91,32 +95,41 @@ Next open `Home.storyboard` and do the following:
 
 Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fit`.
 
+> [action]
+Select the `UIImageView` on the cell in `Home.storyboard` and click on the _Attributes Inspector_. Change the _Content Mode_ from `Scale To Fill` to `Aspect Fit`. ![Change Content Mode](assets/change_content_mode.png)
+
 # Displaying the Image
 
 Last, let's update our tableview's datasource to show our image. First let's import the Kingfisher library with the following line:
 
+> [action]
+Add the following line to top of your `HomeViewController.swift`:
+>
 ```
 import Kingfisher
 ```
-
-Change your `UITableViewDataSource` in your `HomeViewController` to the following:
-
+>
+Next change your `UITableViewDataSource` in your `HomeViewController` to the following:
+>
 ```
 func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let post = posts[indexPath.row]
     let cell = tableView.dequeueReusableCell(withIdentifier: "PostImageCell", for: indexPath) as! PostImageCell
-
+>
     let imageURL = URL(string: post.imageURL)
     cell.postImageView.kf.setImage(with: imageURL)
-
+>
     return cell
 }
 ```
 
 # Configuring our TableView
 
-Next let's add some UI configuration for our table:
+Next let's add some styling for our table view. This code will add some minor UI changes to your table view.
 
+> [action]
+Add the following method within your `HomeViewController`:
+>
 ```
 func configureTableView() {
     // remove separators for empty cells
@@ -125,15 +138,15 @@ func configureTableView() {
     tableView.separatorStyle = .none
 }
 ```
-
+>
 Next let's call the method in our `viewDidLoad`:
-
+>
 ```
 override func viewDidLoad() {
     super.viewDidLoad()
-
+>
     configureTableView()
-
+>
     // ...
 }
 ```
@@ -142,8 +155,6 @@ Now you can run the app again. And for the first time you should see our photos 
 
 # Conclusion
 
-In this chapter you have learned how to set up a custom table view cell. Almost all iOS apps use table views in combination with custom cells, so this knowledge will be very useful for your own app! For now we have implemented downloading the photos for each post - after all, the focus of this chapter was to make some visual progress!
+In this chapter you have learned how to set up a custom table view cell. Almost all iOS apps use table views in combination with custom cells, so this knowledge will be very useful for your own app!
 
-In the next step we will focus on improving the UI by adding a header and action footer for each post.
-
-Let's turn this working solution into a good one!
+For now we have implemented downloading the photos for each post - after all, the focus of this chapter was to make some visual progress! In the next step we will focus on improving the UI by adding a header and action footer for each post.
