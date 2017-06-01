@@ -3,7 +3,7 @@ title: "Uploading Photos to Firebase"
 slug: uploading-photos-to-firebase
 ---
 
-Up until now, we have interacted mainly with `FirebaseAuth` and the `Firebase Realtime Database`. Moving forward, we'll take our first look at `Firebase Storage` which is built on Google's cloud storage platform. Both *Snapchat* and *Spotify* are using the same *Google* infrastructure in production. In this section you will learn how to store media, specifically photos, using Firebase. Later on, you'll also learn how to retrieve and download your media.
+Up until now, we have interacted mainly with `FirebaseAuth` and the `Firebase Realtime Database`. Moving forward, we'll take our first look at `Firebase Storage` which is built on Google's cloud storage platform. Both _Snapchat_ and _Spotify_ are using the same _Google_ infrastructure in production. In this section you will learn how to store media, specifically photos, using Firebase. Later on, you'll also learn how to retrieve and download your media.
 
 Let's start coding the functionality that uploads our photo to Firebase!
 

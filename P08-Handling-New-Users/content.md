@@ -5,14 +5,14 @@ slug: handling-new-users
 
 In the previous section, we've successfully setup some logic in our `LoginViewController` that is supposed to determines whether an authenticated user is a new or existing user. We uncovered through testing that it currently doesn't work. In this section, we'll look handle the login flow for new users which will fix our previous code.
 
-# Writing Data to a FIRDatabaseReference Location
+# Writing Data to Firebase
 
 We've previously learned how to read data from our database. To make use of our database, we'll need to learn how to write data to our database as well.
 
 To write data to the database we'll need to implement the following steps:
 
 1. Build a `FIRDatabaseReference` to the location you want to read from
-2. Use `setValue` or `updateChildValues` method of `FIRDatabaseReference` to write data to the database
+1. Use `setValue` or `updateChildValues` method of `FIRDatabaseReference` to write data to the database
 
 Let's walk through an example of writing to the database:
 
@@ -175,6 +175,8 @@ After creating the segue in storyboard, we'll need to perform the segue in code.
             })
         }
     }
+}
+```
 
 Now when a new user signs up, they'll be redirected to choose their username. Run the app and make sure our code works up to this point before moving onto the next step of implementing the code for writing a new user to the database.
 
@@ -243,10 +245,10 @@ Then modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swif
 Let's walk through the code above:
 
 1. First we guard to check that a `FIRUser` is logged in and that the user has provided a username in the text field.
-2. We create a dictionary to store the username the user has provided inside our database
-3. We specify a relative path for the location of where we want to store our data
-4. We write the data we want to store at the location we provided in step 3
-5. We read the user we just wrote to the database and create a user from the snapshot
+1. We create a dictionary to store the username the user has provided inside our database
+1. We specify a relative path for the location of where we want to store our data
+1. We write the data we want to store at the location we provided in step 3
+1. We read the user we just wrote to the database and create a user from the snapshot
 
 Now whenever an user is created, a user JSON object will also be created for them within our database.
 
@@ -273,7 +275,7 @@ You'll notice a pattern where we're writing code that works and then refactoring
 To refactor our code, we're going to refactor all code that interfaces with Firebase into a service layer. This does two things:
 
 1. Keeps our code clean and decoupled by removing networking code from our view controllers
-2. Allows us to reuse the method in our service classes from all view controllers
+1. Allows us to reuse the method in our service classes from all view controllers
 
 One reason why decoupling our networking code into a service layer is helpful is that in the case we decide to switch to another backend, we'll only need to re-write our service layer. We won't need to change our view controllers!
 
@@ -437,10 +439,10 @@ static func setCurrent(_ user: User) {
 Let's walk through the code we just created:
 
 1. Create a private static variable to hold our current user. This method is private so it can't be access outside of this class.
-2. Create a computed variable that only has a getter that can access the private _current variable.
-3. Check that _current that is of type User? isn't nil. If _current is nil, and current is being read, the guard statement will crash with fatalError().
-4. If _current isn't nil, it will be returned to the user.
-5. Create a custom setter method to set the current user.
+1. Create a computed variable that only has a getter that can access the private _current variable.
+1. Check that _current that is of type User? isn't nil. If _current is nil, and current is being read, the guard statement will crash with fatalError().
+1. If _current isn't nil, it will be returned to the user.
+1. Create a custom setter method to set the current user.
 
 Now that we've created a User singleton, we need to make sure to set it once we receive the user from the database we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It will be accessible from any view controller with the following code:
 

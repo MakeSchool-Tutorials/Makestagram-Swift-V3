@@ -8,9 +8,9 @@ slug: managing-user-accounts
 The default fields include:
 
 1. UID (unique identifier)
-2. Display Name (first & last name)
-3. Email
-4. Photo URL
+1. Display Name (first & last name)
+1. Email
+1. Photo URL
 
 What if we want to store a custom property such as an username? Although `FirebaseAuth` won't help us, we can use a combination of `FirebaseAuth` and the Firebase Realtime Database to store additional user information.
 
@@ -23,22 +23,24 @@ The Firebase Realtime Database is a NoSQL database that can be used to store and
 Here, we see an example Firebase database that has users and posts. The root path of the database is `makestagram-b5d74`.
 
 If we wanted to fetch all posts within our database, we'd fetch from the relative path:
-
-    root > posts
+```
+root > posts
+```
 
 Similarly, if we wanted to write a user, we would write to a specific location within our database:
-
+```
     root > users > uid
+```
 
-<!-- maybe talk about how to structure data -->
+<!-- TODO: maybe talk about how to structure data -->
 
 # Reading from the Database
 
 To read data from the database, we need to implement the following steps:
 
 1. Build a `FIRDatabaseReference` to the location you want to read from
-2. Use `observe(_:with)` or `observeSingleEvent(of:with:)` method of `FIRDatabaseReference` to observe `FIRDataEventTypeValue` events
-3. Handle the event callback that is passed a snapshot that contains all data at the location
+1. Use `observe(_:with)` or `observeSingleEvent(of:with:)` method of `FIRDatabaseReference` to observe `FIRDataEventTypeValue` events
+1. Handle the event callback that is passed a snapshot that contains all data at the location
 
 Let's walk through an example with each of these steps to see what reading looks like in code:
 
@@ -67,8 +69,8 @@ if let user = FIRAuth.auth()?.currentUser {
 Let's break this down:
 
 1. We check if there is a current user logged into Firebase by checking the `FIRAuth` current user singleton. We'll need the uid of the current user to build a relative path to the location we want to read from
-2. If a `FIRUser` exists, we get a reference to the root of our JSON dictionary with the `FIRDatabase.database().reference()` singleton
-3. We create a `FIRDatabaseReference` by adding a relative path of `/users/#{user.uid}`
+1. If a `FIRUser` exists, we get a reference to the root of our JSON dictionary with the `FIRDatabase.database().reference()` singleton
+1. We create a `FIRDatabaseReference` by adding a relative path of `/users/#{user.uid}`
 
 We've successfully created a relative path to the location we want to read from! Now we need to read the data at the location we specified.
 
@@ -91,7 +93,7 @@ if let user = FIRAuth.auth()?.currentUser {
 ```
 
 1. We use the userRef location that we previously created and call the `observeSingleEvent(of:with:)` method to read the data stored at that location. We observe the `FIRDataEventTypeValue` event to read the data at a given path, as it exists at the time of the event.
-2. We need to handle the `FIRDataSnapshot` that contains the data returned. If there is no data at the location read from, the value of the snapshot returned is nil.
+1. We need to handle the `FIRDataSnapshot` that contains the data returned. If there is no data at the location read from, the value of the snapshot returned is nil.
 
 ## Handling the Event Callback
 
@@ -112,23 +114,24 @@ if let user = FIRAuth.auth()?.currentUser {
 ```
 
 1. We retrieve the data from the `FIRDataSnapshot` using the `value` property. We unwrap and check that the type is what we're expecting it to be, in this case a dictionary.
-2. We print the contents of the dictionary using the convenient `debugDescription` property.
+1. We print the contents of the dictionary using the convenient `debugDescription` property.
 
 Following the previous steps, we've successfully read the current user's data from our database. This was a helpful example. Let's translate our new knowledge into a solution for managing new and existing users.
 
 # Managing User Accounts
 
 To manage our user accounts, we'll need to create a location within our database to store all data related to each user account. Following the previous example, we'll store data in the following relative path:
-
-    root > users > uid
+```
+root > users > uid
+```
 
 Remember, the `FIRUser` and our database user are separate. We'll be using them together to manage user accounts, but it's important not to get them confused for the same thing. A `FIRUser` is an user that has been authenticated with `FirebaseAuth`. A database user is a JSON object of additional data we want to store within our database at a relative user path of `/users/#{uid}`.
 
 Our logic for managing new and existing users will be:
 
 1. Create a corresponding user JSON in our database whenever a `FIRUser` is created.
-2. Whenever a user is authenticated with `FIRAuth`, check our database for an existing user JSON object at the `/users/#{uid}` relative path.
-3. If data exists at the `/users/#{uid}` location, we'll know that the current user is a returning existing user. If no data is returned, we'll know the current user is a new user that just signed up.
+1. Whenever a user is authenticated with `FIRAuth`, check our database for an existing user JSON object at the `/users/#{uid}` relative path.
+1. If data exists at the `/users/#{uid}` location, we'll know that the current user is a returning existing user. If no data is returned, we'll know the current user is a new user that just signed up.
 
 ## Implementing Database User Accounts
 
@@ -166,8 +169,8 @@ func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
 Let's break down the code we just added:
 
 1. First we check that the FIRUser returned from authentication is not nil by unwrapping it. We guard this statement, because we cannot proceed further if the user is nil. We need the `FIRUser` object's uid property to build the relative path for the user at `/users/#{uid}`.
-2. We construct a relative path to the reference of the user's information in our database.
-3. We read from the path we created and pass an event closure to handle the data (snapshot) is passed back from the database.
+1. We construct a relative path to the reference of the user's information in our database.
+1. We read from the path we created and pass an event closure to handle the data (snapshot) is passed back from the database.
 
 Now we'll need to handle the user data to check that the user exists.
 
@@ -202,7 +205,7 @@ userRef.observeSingleEvent(of: .value, with: { (snapshot) in
 To retrieve the user data from `FIRDataSnapshot` we:
 
 1. We check that the snapshot exists, and that it is of the expected Dictionary type
-2. Handle and execute the appropriate logic based on whether the user dictionary exists. Based on whether the user dictionary exists, we'll know that the current user is a new or returning user.
+1. Handle and execute the appropriate logic based on whether the user dictionary exists. Based on whether the user dictionary exists, we'll know that the current user is a new or returning user.
 
 # Testing our Logic
 
@@ -226,7 +229,7 @@ We'll fix this by handling the new user login flow in the next section, but befo
 
 # Refactoring Users
 
-Fetching user information as a dictionary is very error prone because it forces us to retrieve values with keys that are *stringly* typed. Let's refactor this by creating our first data model: User.
+Fetching user information as a dictionary is very error prone because it forces us to retrieve values with keys that are _stringly_ typed. Let's refactor this by creating our first data model: User.
 
 Create a new `.swift` file called `User.swift` and add it into the Models folder. Create a new grouping in your project navigator for your Models.
 

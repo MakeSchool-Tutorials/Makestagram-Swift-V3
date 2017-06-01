@@ -5,7 +5,7 @@ slug: implementing-login-flow
 
 The previous sections of this tutorial have focused on set up. So far we've created a new Firebase and Xcode project. Enough setup! Let's start building Makestagram.
 
-In this section, we'll work on creating our *login flow* for:
+In this section, we'll work on creating our _login flow_ for:
 
 - new users to create new accounts
 - existing users to login
@@ -24,7 +24,7 @@ In addition, if a user logs out, their data will be safely stored in our databas
 
 ## Firebase Auth
 
-Firebase provides us with an easy way of authenticating users with their built in SDK and libraries. Throughout our *login flow*, we'll be using these pre-built components to save time and not have to worry about securely handling sensitive information.
+Firebase provides us with an easy way of authenticating users with their built in SDK and libraries. Throughout our _login flow_, we'll be using these pre-built components to save time and not have to worry about securely handling sensitive information.
 
 To make sure we have access to these APIs and components, confirm you have `FirebaseAuth` and `FirebaseUI/Auth` listed and installed in your `Podfile`. Refer to the previous section `Setup Xcode Project` for details on how to setup your `Podfile`. If the following lines are missing from your `Podfile`, be sure to add them and run `pod install` before continuing:
 
@@ -35,7 +35,7 @@ pod 'FirebaseUI/Auth', '~> 3.0'
 
 # Building a Login Flow
 
-Our *login flow* will allow new users to sign up and existing users to login. The designs for our *login flow* will look like:
+Our _login flow_ will allow new users to sign up and existing users to login. The designs for our _login flow_ will look like:
 
 ![Login Flow Designs](assets/login_flow.png)
 
@@ -43,7 +43,7 @@ Before building a feature, it's always helpful to an idea of how the feature wil
 
 # Creating a Login storyboard
 
-Let's start building our *login flow* by creating a new storyboard. Create a new storyboard file:
+Let's start building our _login flow_ by creating a new storyboard. Create a new storyboard file:
 
 ![New Storyboard](assets/new_storyboard.png)
 
@@ -72,9 +72,9 @@ To begin, we'll need to create a new view controller within the `Login.storyboar
 > [action]
 >
 > 1. Navigate to the Login storyboard and open the object library.
-> 1. Drag a new view controller from the object library onto your Login storyboard.
-> 1. Click on the new view controller and open the attributes inspector.
-> 1. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step.
+> 2. Drag a new view controller from the object library onto your Login storyboard.
+> 3. Click on the new view controller and open the attributes inspector.
+> 4. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step.
 >
 > ![Login Initial View Controller](assets/login_initial_view_controller.png)
 
@@ -156,9 +156,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 As our app launches, we redirect the user to the `Login.storyboard`'s initial view controller:
 
 1. Create a instance of our Login storyboard that has `LoginViewController` set as it's initial view controller
-2. Check if the storyboard has a initial view controller set
-3. If the storyboard's initial view controller exists, set it to the window's `rootViewController` property
-4. Position the window above any other existing windows
+1. Check if the storyboard has a initial view controller set
+1. If the storyboard's initial view controller exists, set it to the window's `rootViewController` property
+1. Position the window above any other existing windows
 
 Most of the steps should be self-explanatory except the concept of windows. In an iOS app, an `UIWindow` has the responsibilities of:
 
@@ -278,8 +278,8 @@ Keep your `Login.storyboard` file open in your main editor and open the `LoginVi
 When you have both your `Login.storyboard` and `LoginViewController.swift` files open side by side:
 
 1. create an IBOutlet for the login button
-2. add an IBAction for tapping the login button
-3. place a print statement for tapping the login button
+1. add an IBAction for tapping the login button
+1. place a print statement for tapping the login button
 
 Your code should look like the following:
 

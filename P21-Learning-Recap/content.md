@@ -2,6 +2,7 @@
 title: "What You Have Learned So Far"
 slug: learned-so-far
 ---
+
 You have come a very long way since starting **Makestagram**!
 
 At this point we have covered many of the most important fundamentals of iOS development. This chapter is designed to be a decision point for you:
@@ -15,15 +16,15 @@ From here, Makestagram is broken into features and key concepts:
 <!-- TODO: Update with final list of Makestagram extensions -->
 
 1. Type-Safety with Generics
-2. Pagination
-3. Introducing UICollectionView
-4. Facebook and Google Login
-5. App Stylesheet using Extensions
-6. Analytics with Firebase and Fabric
-7. Firebase Router using Enums
-8. Realtime Messaging
-9. Adding Location Tags
-10. Custom Login with UIPageViewController
+1. Pagination
+1. Introducing UICollectionView
+1. Facebook and Google Login
+1. App Stylesheet using Extensions
+1. Analytics with Firebase and Fabric
+1. Firebase Router using Enums
+1. Realtime Messaging
+1. Adding Location Tags
+1. Custom Login with UIPageViewController
 
 These extensions are for you to learn new features and concepts that you may want to add into your app. You can pick and choose which ones you'd like to implement and which ones you'd like to skip.
 

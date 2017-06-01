@@ -26,8 +26,8 @@ Next we'll refactor our first tab into it's own storyboard.
 > [action]
 >
 1. Select both the `UINavigationController` and `HomeViewController` by clicking and dragging so that both are selected
-2. Click on the top menu item `Editor`>`Refactor to Storyboard`
-3. Create your new `Home.storyboard` file in the Storyboards folder
+1. Click on the top menu item `Editor`>`Refactor to Storyboard`
+1. Create your new `Home.storyboard` file in the Storyboards folder
 
 You have now refactored one of the tab bar view controllers into another storyboard. Your `Main.storyboard` file should now look like this:
 
@@ -98,36 +98,40 @@ Similar to our `User` model, let's create a failable initialer in our `Post` cla
 > [action]
 Open your `Post.swift` class and add the following:
 >
-    init?(snapshot: FIRDataSnapshot) {
-        guard let dict = snapshot.value as? [String : Any],
-            let imageURL = dict["image_url"] as? String,
-            let imageHeight = dict["image_height"] as? CGFloat,
-            let createdAgo = dict["created_at"] as? TimeInterval
-            else { return nil }
+```
+init?(snapshot: FIRDataSnapshot) {
+    guard let dict = snapshot.value as? [String : Any],
+        let imageURL = dict["image_url"] as? String,
+        let imageHeight = dict["image_height"] as? CGFloat,
+        let createdAgo = dict["created_at"] as? TimeInterval
+        else { return nil }
 >
-        self.key = snapshot.key
-        self.imageURL = imageURL
-        self.imageHeight = imageHeight
-        self.creationDate = Date(timeIntervalSince1970: createdAgo)
-    }
+    self.key = snapshot.key
+    self.imageURL = imageURL
+    self.imageHeight = imageHeight
+    self.creationDate = Date(timeIntervalSince1970: createdAgo)
+}
+```
 
 Next we need a service method that will retrieve all of a user's posts from Firebase. This will be the data that we display in our timeline.
 
 > [action]
 Add the following class method to `UserService`:
 >
-    static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
-        let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+```
+static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
+    let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
 >
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
-                return completion([])
-            }
+    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
+            return completion([])
+        }
 >
-            let posts = snapshot.reversed().flatMap(Post.init)
-            completion(posts)
-        })
-    }
+        let posts = snapshot.reversed().flatMap(Post.init)
+        completion(posts)
+    })
+}
+```
 
 We follow the same steps as previously discussed from reading from Firebase. Look through and make sure you understand what's going on!
 

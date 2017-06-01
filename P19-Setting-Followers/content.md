@@ -79,8 +79,8 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
 Let's walk through our code:
 
 1. We create a dictionary to update multiple locations at the same time. We set the appropriate key-value for our followers and following.
-2. We write our new relationship to Firebase.
-3. We return whether the update was successful based on whether there was an error.
+1. We write our new relationship to Firebase.
+1. We return whether the update was successful based on whether there was an error.
 
 Now, let's move on to implementing the service method for unfollowing a user.
 

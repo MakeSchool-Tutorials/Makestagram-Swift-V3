@@ -8,9 +8,9 @@ As always, we'll need to create a new Xcode project.
 ## Create a new Xcode project
 
 1. Open Xcode and create a new project.
-2. Choose the Single View Application as template. Click next.
-3. Fill out the remaining info for your project. See the example provided below:
-4. Save your Xcode project somewhere you'll be able to easily find later. i.e. `~/Code/`
+1. Choose the Single View Application as template. Click next.
+1. Fill out the remaining info for your project. See the example provided below:
+1. Save your Xcode project somewhere you'll be able to easily find later. i.e. `~/Code/`
 
 ![Sample Project Info](assets/sample-project-info.png)
 

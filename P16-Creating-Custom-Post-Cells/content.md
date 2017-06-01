@@ -73,24 +73,26 @@ Next we're going to implement displaying images for our `PostImageCell`. First, 
 > [action]
 Create a new source file in the `Views` directory called `PostImageCell` that is a subclass of `UITableViewCell`; replace the contents of the file with the following:
 >
-    import UIKit
+```
+import UIKit
 >
-    class PostImageCell: UITableViewCell {
+class PostImageCell: UITableViewCell {
 >
-        override func awakeFromNib() {
-            super.awakeFromNib()
-        }
+    override func awakeFromNib() {
+        super.awakeFromNib()
     }
+}
+```
 
 Next open `Home.storyboard` and do the following:
 
 > [action]
 >
 1. Set the class of the cell to `PostImageCell` in the Identity Inspector
-1. Open the Size Inspector and change the default height of the prototype cell to be 375
-1. Drag an `UIImageView` from the object library onto your `PostImageCell`
-1. Constraint the `UIImageView` to each side of the cell
-1. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
+2. Open the Size Inspector and change the default height of the prototype cell to be 375
+3. Drag an `UIImageView` from the object library onto your `PostImageCell`
+4. Constraint the `UIImageView` to each side of the cell
+5. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
 ![Post Image Cell](assets/post_image_cell.png)
 
 Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fit`.

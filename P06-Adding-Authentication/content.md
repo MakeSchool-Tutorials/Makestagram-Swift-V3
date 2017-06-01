@@ -31,7 +31,7 @@ To use FirebaseUI to manage our user accounts, we'll need to tell Firebase which
 
 ![Setup Sign-in Method Button](assets/sign_in_button.png)
 
-You should see a list of *Sign-In Providers* that are all currently disabled:
+You should see a list of _Sign-In Providers_ that are all currently disabled:
 
 ![Sign-In Providers](assets/sign_in_providers.png)
 
@@ -50,9 +50,9 @@ Now that we've enabled our Email/Password provider, we can switch back to Xcode 
 Within FirebaseUI, we'll be using the AuthViewController. To implement the `AuthViewController`, we'll need to
 
 1. access the `FUIAuth` default auth UI singleton
-2. set the `FUIAuth`'s singleton's delegate
-3. present the auth view controller
-4. implement `FUIAuthDelegate` protocol
+1. set the `FUIAuth`'s singleton's delegate
+1. present the auth view controller
+1. implement `FUIAuthDelegate` protocol
 
 Within our `LoginViewController`, add the following to our `loginButtonTapped(sender:)` method:
 
@@ -76,8 +76,8 @@ Within our `LoginViewController`, add the following to our `loginButtonTapped(se
 You'll notice each line of code corresponds closely to each of the steps we previously defined:
 
 1. access the `FUIAuth` default auth UI singleton
-2. set `FUIAuth`'s singleton delegate
-3. present the auth view controller
+1. set `FUIAuth`'s singleton delegate
+1. present the auth view controller
 
 When `authViewController` is presented, Firebase presents it's own UI to handle signing up or logging in the user. Keep in mind that Firebase's authViewController can also be customized to include different types of login. i.e. Facebook, Google, Github
 
@@ -153,6 +153,6 @@ A singleton is similar to a global variable in that it provides an easy way for 
 After the user is authenticated, we'll want to redirect the user to a different view controller depending on whether they are a new user or an existing user:
 
 1. **New users** will be sent to choose their username
-2. **Existing users** will be sent to the home view controller that displays their feed
+1. **Existing users** will be sent to the home view controller that displays their feed
 
 To determine if the user is a new user, we'll need to have some way to retrieve previous data about the user. Your first instinct might be to see if the FUIAuthDelegate returns any information that'll tell us if the user is a new or existing user. Unfortunately, it doesn't provide us much information outside of confirming that a new or existing user with authenticated by Firebase. FirebaseAuth doesn't help us much outside of providing a easy way to authenticate users. Instead we'll have to make use the Firebase realtime database!

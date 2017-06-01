@@ -5,12 +5,12 @@ slug: setting-up-firebase
 
 In order to build a photo sharing app, we will need to exchange information between multiple users on multiple devices.
 
-In the *Make School Notes* tutorial we built an app that only stores information locally on the user's phone. There is no way of sharing information with other users or accessing notes from other devices. This is fine for some apps; however, most applications need to provide a way for multiple users to interact with each other. In such cases we need to store the information used in the app on a server that is accessible by all users.
+In the _Make School Notes_ tutorial we built an app that only stores information locally on the user's phone. There is no way of sharing information with other users or accessing notes from other devices. This is fine for some apps; however, most applications need to provide a way for multiple users to interact with each other. In such cases we need to store the information used in the app on a server that is accessible by all users.
 
 In this section you will set up a new Firebase project. The contents of this tutorial is as follows:
 
 1. What is Firebase?
-2. Setting up a new Firebase project
+1. Setting up a new Firebase project
 
 # What is Firebase?
 
@@ -37,18 +37,12 @@ Go to the Firebase website by [clicking here.](https://firebase.google.com/) You
 <!-- TODO: figure out why list isn't properly formatted -->
 
 1. Get started by clicking on the `GET STARTED FOR FREE` button or the top right `Go to Console` button in the navigation bar.
-
 ![Navigate to Firebase Console](assets/01_go_to_console.png)
-
-2. This is your Firebase console. Here, you will see an overview of all your Firebase projects. Click `Add project` to create your first project.
-
+1. This is your Firebase console. Here, you will see an overview of all your Firebase projects. Click `Add project` to create your first project.
 ![Empty Firebase Console](assets/02_empty_firebase_console.png)
-
-3. Set your project name to "Makestagram" and select your country.
-
+1. Set your project name to "Makestagram" and select your country.
 ![Create New Project](assets/03_create_new_project.png)
-
-4. Wait for Firebase to setup your new project and redirect you to the project overview. It can take 15-30 seconds for this process to complete.
+1. Wait for Firebase to setup your new project and redirect you to the project overview. It can take 15-30 seconds for this process to complete.
 
 ![Loading New Project](assets/04_loading_project.png)
 

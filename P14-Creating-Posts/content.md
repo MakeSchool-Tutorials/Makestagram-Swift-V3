@@ -3,8 +3,7 @@ title: "Improving the Upload Code and Adding a Post Class"
 slug: improving-photo-upload-firebase
 ---
 
-<!-- need to add images -->
-<!-- rethink about image height calculation -->
+<!-- TODO: rethink about image height calculation -->
 
 Now it's time to move from a working solution to a good one. We need to store more information along with the `Post` that we're creating. Right now we are only storing the image file, but we also need to store the `User` to which the post belongs.
 
@@ -139,17 +138,19 @@ To use the service method we just created, we'll need to make some modifications
 > [action]
 Modify the `create(for:)` method to the following:
 >
-    static func create(for image: UIImage) {
-        let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
-        StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
-            guard let downloadURL = downloadURL else {
-                return
-            }
->
-            let urlString = downloadURL.absoluteString
-            create(forURLString: urlString, aspectHeight: 320)
+```
+static func create(for image: UIImage) {
+    let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
+    StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
+        guard let downloadURL = downloadURL else {
+            return
         }
+>
+        let urlString = downloadURL.absoluteString
+        create(forURLString: urlString, aspectHeight: 320)
     }
+}
+```
 
 You'll notice here that we hardcode the aspect height of the image. The reason we want to store the aspect height is because when we render our image, we'll need to know the height of the image to display. We do this by calculating what the height of the image should be based on the maximum width and height of an iPhone.
 
@@ -158,17 +159,19 @@ We'll create a new image extension that calculates the aspect height based on th
 > [action]
 Create a new file under extensions called `UIImage+Size.swift`:
 >
-    import UIKit
+```
+import UIKit
 >
-    extension UIImage {
-        var aspectHeight: CGFloat {
-            let heightRatio = size.height / 736
-            let widthRatio = size.width / 414
-            let aspectRatio = fmax(heightRatio, widthRatio)
+extension UIImage {
+    var aspectHeight: CGFloat {
+        let heightRatio = size.height / 736
+        let widthRatio = size.width / 414
+        let aspectRatio = fmax(heightRatio, widthRatio)
 >
-            return size.height / aspectRatio
-        }
+        return size.height / aspectRatio
     }
+}
+```
 
 We added a computed property to `UIImage` that will calculate the aspect height for the instance of a `UIImage` based on the size property of an image.
 
@@ -199,19 +202,21 @@ Last, we'll need to create a more suitable location for our post image files to 
 > [action]
 Create a new extension file called `FIRStorageReference+Post.swift` with the following content:
 >
-    import Foundation
-    import FirebaseStorage
+```
+import Foundation
+import FirebaseStorage
 >
-    extension FIRStorageReference {
-        static let dateFormatter = ISO8601DateFormatter()
+extension FIRStorageReference {
+    static let dateFormatter = ISO8601DateFormatter()
 >
-        static func newPostImageReference() -> FIRStorageReference {
-            let uid = User.current.uid
-            let timestamp = dateFormatter.string(from: Date())
+    static func newPostImageReference() -> FIRStorageReference {
+        let uid = User.current.uid
+        let timestamp = dateFormatter.string(from: Date())
 >
-            return FIRStorage.storage().reference().child("images/posts/\(uid)/\(timestamp).jpg")
-        }
+        return FIRStorage.storage().reference().child("images/posts/\(uid)/\(timestamp).jpg")
     }
+}
+```
 
 Here we create an extension to FIRStorageReference with a class method that will generate a new location for each new post image that is created by the current ISO timestamp.
 
