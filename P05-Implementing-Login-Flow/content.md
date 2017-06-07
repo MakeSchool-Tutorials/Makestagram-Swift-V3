@@ -30,7 +30,7 @@ To make sure we have access to these APIs and components, confirm you have `Fire
 
 ```
 pod 'Firebase/Auth'
-pod 'FirebaseUI/Auth', '~> 3.0'
+pod 'FirebaseUI/Auth'
 ```
 
 # Building a Login Flow
@@ -136,7 +136,7 @@ To direct users to the correct storyboard, we'll add code into our `AppDelegate`
 
 ```
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-    FIRApp.configure()
+    FirebaseApp.configure()
 
     // 1
     let storyboard = UIStoryboard(name: "Login", bundle: .main)
