@@ -93,7 +93,7 @@ target 'Makestagram' do
 >
   pod 'Firebase/Core'
   pod 'Firebase/Auth'
-  pod 'FirebaseUI/Auth', '~> 3.0'
+  pod 'FirebaseUI/Auth'
   pod 'Firebase/Database'
   pod 'Firebase/Storage'
 end
@@ -107,6 +107,9 @@ pod install
 > This step may take some time the first time you run it, up to 10 or 15 minutes.
 
 Now your dependencies will be download and installed.
+
+> [action]
+Verify that you have the correct version of each SDK by running `pod update` in the root directory of your Makestagram project. You should see the following: ![Verify Version](assets/verify_versions.png)
 
 **The next step is very important.** After you have installed your first library, _CocoaPods_ will generate an _Xcode workspace_ for you. When using _CocoaPods_, you need work with that _workspace_ and no longer with the Xcode _project_ that you have been working with.
 
