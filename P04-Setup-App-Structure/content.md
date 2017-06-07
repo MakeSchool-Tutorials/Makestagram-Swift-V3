@@ -96,15 +96,24 @@ Oops! Our app doesn't run and returns the following error:
 
 ![Missing Info.plist](assets/missing_info_plist.png)
 
-Our Info.plist file is a XML representation of many of our app's settings. After moving it into the _supporting_ folder, we need to reconfigure our project with the Info.plist file.
+Our Info.plist file is a XML representation of many of our app's settings. After moving it into the _supporting_ folder, we need to reconfigure our project with the _Info.plist_ file.
 
-To reset the Info.plist file, select your `Makestagram` project in your project navigator.
+To reset the _Info.plist_ file, select your `Makestagram` project in your project navigator.
 
 ![Project Settings](assets/project_settings.png)
 
 By default, you should land on the _General_ tab. The first section in _General_ will be _Identity_. You'll notice a prompt to set your Info.plist by choosing a file added to the project. Select the correct Info.plist and re-run your app:
 
 ![Selecting Info.plist](assets/resetting_info_plist.png)
+
+After you've reconfigured your _Info.plist_, build the app. You'll notice a warning with the following message: `Warning: The Copy Bundle Resources build phase contains this target's Info.plist file ...`
+
+To remove this warning, we'll need to navigate to our Project _Build Phases_.
+
+> [action]
+Click on your Project and navigate to the _Build Phases_ tab. Click on the collapsed _Copy Bundle Resources_ and select the _Info.plist_. With your _.plist_ selected, click the remove (-) button just below: ![Fix Info.plist Warning](assets/fix_info_plist_warning.png)
+
+Build your app again and the warning should be gone.
 
 ## Organize our Project Structure
 
