@@ -64,7 +64,7 @@ Open `UserService` and add the following new service method:
 >
 ```
 static func followers(for user: User, completion: @escaping ([String]) -> Void) {
-    let followersRef = FIRDatabase.database().reference().child("followers").child(user.uid)
+    let followersRef = Database.database().reference().child("followers").child(user.uid)
 >
     followersRef.observeSingleEvent(of: .value, with: { (snapshot) in
         guard let followersDict = snapshot.value as? [String : Bool] else {
@@ -89,7 +89,7 @@ private static func create(forURLString urlString: String, aspectHeight: CGFloat
     let post = Post(imageURL: urlString, imageHeight: aspectHeight)
 >
     // 1
-    let rootRef = FIRDatabase.database().reference()
+    let rootRef = Database.database().reference()
     let newPostRef = rootRef.child("posts").child(currentUser.uid).childByAutoId()
     let newPostKey = newPostRef.key
 >
@@ -146,7 +146,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
     let followData = ["followers/\(user.uid)/\(currentUID)" : true,
                       "following/\(currentUID)/\(user.uid)" : true]
 >
-    let ref = FIRDatabase.database().reference()
+    let ref = Database.database().reference()
     ref.updateChildValues(followData) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -201,7 +201,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
     let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
                       "following/\(currentUID)/\(user.uid)" : NSNull()]
 >
-    let ref = FIRDatabase.database().reference()
+    let ref = Database.database().reference()
     ref.updateChildValues(followData) { (error, ref) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -252,7 +252,7 @@ Your new `PostService` class method should look like:
 >
 ```
 static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
-    let ref = FIRDatabase.database().reference().child("posts").child(posterUID).child(postKey)
+    let ref = Database.database().reference().child("posts").child(posterUID).child(postKey)
 >
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
         guard let post = Post(snapshot: snapshot) else {
@@ -276,9 +276,9 @@ Open `UserService.swift` and implementing the following:
 static func timeline(completion: @escaping ([Post]) -> Void) {
     let currentUser = User.current
 >
-    let timelineRef = FIRDatabase.database().reference().child("timeline").child(currentUser.uid)
+    let timelineRef = Database.database().reference().child("timeline").child(currentUser.uid)
     timelineRef.observeSingleEvent(of: .value, with: { (snapshot) in
-        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
+        guard let snapshot = snapshot.children.allObjects as? [DataSnapshot]
             else { return completion([]) }
 >
         let dispatchGroup = DispatchGroup()

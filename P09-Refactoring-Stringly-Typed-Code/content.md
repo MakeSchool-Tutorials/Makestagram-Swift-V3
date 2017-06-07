@@ -9,14 +9,14 @@ Refactoring and cleaning up your code will make it easier to build and debug you
 
 # Refactoring Show User
 
-We refactored the method for creating an user to our `UserService` but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `FIRDatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
+We refactored the method for creating an user to our `UserService` but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `DatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
 
 Create a new class method in our `UserService` for reading a user from the database:
 
 ```
 struct UserService {
     static func show(forUID uid: String, completion: @escaping (User?) -> Void) {
-        let ref = FIRDatabase.database().reference().child("users").child(uid)
+        let ref = Database.database().reference().child("users").child(uid)
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             guard let user = User(snapshot: snapshot) else {
                 return completion(nil)
@@ -160,7 +160,7 @@ extension UIStoryboard {
 }
 ```
 
-You'll notice we created a new enum within the `UIStoryboard` class called `MGType`. If you're wondering about the name, `MG` are simply initials for Makestagram to identify that this enum was created by our app. This will help avoid potential naming conflicts with Apple or other third-party libraries.
+You'll notice we created a new enum within the `UIStoryboard` class called `MGType`. If you're wondering about the name, `MG` are simply initials for Makestagram to identify that this enum was created by our app. This will help avoid potential namespace conflicts with Apple or other third-party libraries.
 
 Our enum contains a case for each of our app's storyboards. We also create a computed variable that capitalizes the `rawValue` of each case. This computed variable returns the corresponding filename for each storyboard.
 

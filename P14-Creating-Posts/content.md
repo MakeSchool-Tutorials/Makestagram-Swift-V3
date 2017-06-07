@@ -75,7 +75,7 @@ private static func create(forURLString urlString: String, aspectHeight: CGFloat
     let dict = post.dictValue
 >
     // 4
-    let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
+    let postRef = Database.database().reference().child("posts").child(currentUser.uid).childByAutoId()
     //5
     postRef.updateChildValues(dict)
 }
@@ -110,13 +110,13 @@ Storing and structuring your data inside of your Firebase database requires fore
 Let's take another look at the relative path for which we stored our new `Post`:
 
 ```
-let postRef = FIRDatabase.database().reference().child("posts").child(currentUser.uid).childByAutoId()
+let postRef = Database.database().reference().child("posts").child(currentUser.uid).childByAutoId()
 ```
 
 Another possible way of structuring our data would be to make each post a child node of a user. If so, the relative path would look like this:
 
 ```
-let postRef = FIRDatabase.database().reference().child("users").child(currentUser.uid).child("posts").childByAutoId()
+let postRef = Database.database().reference().child("users").child(currentUser.uid).child("posts").childByAutoId()
 ```
 
 In both tree structures, it's easy to read and write data. However, the second tree structure comes with a disadvantage that's not immediately obvious.
@@ -140,7 +140,7 @@ Modify the `create(for:)` method to the following:
 >
 ```
 static func create(for image: UIImage) {
-    let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
+    let imageRef = Storage.storage().reference().child("test_image.jpg")
     StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
         guard let downloadURL = downloadURL else {
             return
@@ -184,7 +184,7 @@ Open `PostService` and modify `create(for:)` to use our new extension:
 >
 ```
 static func create(for image: UIImage) {
-    let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
+    let imageRef = Storage.storage().reference().child("test_image.jpg")
     StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
         guard let downloadURL = downloadURL else {
             return
@@ -197,28 +197,28 @@ static func create(for image: UIImage) {
 }
 ```
 
-Last, we'll need to create a more suitable location for our post image files to be stored. Right now, since we're storing all of our images at the same path. If you haven't figured it out already; they're being overwritten. Let's create a new extension for `FIRStorageReference` that generates a new storage location for each user's post:
+Last, we'll need to create a more suitable location for our post image files to be stored. Right now, since we're storing all of our images at the same path. If you haven't figured it out already; they're being overwritten. Let's create a new extension for `StorageReference` that generates a new storage location for each user's post:
 
 > [action]
-Create a new extension file called `FIRStorageReference+Post.swift` with the following content:
+Create a new extension file called `StorageReference+Post.swift` with the following content:
 >
 ```
 import Foundation
 import FirebaseStorage
 >
-extension FIRStorageReference {
+extension StorageReference {
     static let dateFormatter = ISO8601DateFormatter()
 >
-    static func newPostImageReference() -> FIRStorageReference {
+    static func newPostImageReference() -> StorageReference {
         let uid = User.current.uid
         let timestamp = dateFormatter.string(from: Date())
 >
-        return FIRStorage.storage().reference().child("images/posts/\(uid)/\(timestamp).jpg")
+        return Storage.storage().reference().child("images/posts/\(uid)/\(timestamp).jpg")
     }
 }
 ```
 
-Here we create an extension to FIRStorageReference with a class method that will generate a new location for each new post image that is created by the current ISO timestamp.
+Here we create an extension to StorageReference with a class method that will generate a new location for each new post image that is created by the current ISO timestamp.
 
 We can update our code in `PostService` to use the new location generation:
 
@@ -227,7 +227,7 @@ Modify `create(for:)` to the following:
 >
 ```
 static func create(for image: UIImage) {
-    let imageRef = FIRStorageReference.newPostImageReference()
+    let imageRef = StorageReference.newPostImageReference()
     StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
         guard let downloadURL = downloadURL else {
             return

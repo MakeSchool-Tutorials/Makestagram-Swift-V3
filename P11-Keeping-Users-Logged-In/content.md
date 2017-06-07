@@ -55,7 +55,7 @@ class User: NSObject {
 
     // ...
 
-    init?(snapshot: FIRDataSnapshot) {
+    init?(snapshot: DataSnapshot) {
         // ...
 
         super.init()
@@ -203,7 +203,7 @@ extension AppDelegate {
         let defaults = UserDefaults.standard
         let initialViewController: UIViewController
 >
-        if FIRAuth.auth()?.currentUser != nil,
+        if Auth.auth().currentUser != nil,
             let userData = defaults.object(forKey: Constants.UserDefaults.currentUser) as? Data,
             let user = NSKeyedUnarchiver.unarchiveObject(with: userData) as? User {
 >
@@ -228,7 +228,7 @@ Now we can change our `application(_:didFinishLaunchingWithOptions:)` method to 
 
 ```
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-    FIRApp.configure()
+    FirebaseApp.configure()
 
     configureInitialRootViewController(for: window)
 

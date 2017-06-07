@@ -119,7 +119,7 @@ We'll also want to change our failable initializer to read our new JSON data fro
 Modify the `User` failable initializer to read and store the new count data:
 >
 ```
-init?(snapshot: FIRDataSnapshot) {
+init?(snapshot: DataSnapshot) {
     guard let dict = snapshot.value as? [String : Any],
         let username = dict["username"] as? String,
         let followerCount = dict["follower_count"] as? Int,
@@ -152,14 +152,14 @@ private static func create(forURLString urlString: String, aspectHeight: CGFloat
         // ...
 >
         rootRef.updateChildValues(updatedData, withCompletionBlock: { (error, ref) in
-            let postCountRef = FIRDatabase.database().reference().child("users").child(currentUser.uid).child("post_count")
+            let postCountRef = Database.database().reference().child("users").child(currentUser.uid).child("post_count")
 >
-            postCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+            postCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
                 let currentCount = mutableData.value as? Int ?? 0
 >
                 mutableData.value = currentCount + 1
 >
-                return FIRTransactionResult.success(withValue: mutableData)
+                return TransactionResult.success(withValue: mutableData)
             })
         })
     }
@@ -177,7 +177,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
     let followData = ["followers/\(user.uid)/\(currentUID)" : true,
                       "following/\(currentUID)/\(user.uid)" : true]
 >
-    let ref = FIRDatabase.database().reference()
+    let ref = Database.database().reference()
     ref.updateChildValues(followData) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -191,23 +191,23 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
         dispatchGroup.enter()
 >
         // 3
-        let followingCountRef = FIRDatabase.database().reference().child("users").child(currentUID).child("following_count")
-        followingCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+        let followingCountRef = Database.database().reference().child("users").child(currentUID).child("following_count")
+        followingCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             // 4
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         })
 >
         // 5
         dispatchGroup.enter()
-        let followerCountRef = FIRDatabase.database().reference().child("users").child(currentUID).child("follower_count")
-        followerCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+        let followerCountRef = Database.database().reference().child("users").child(currentUID).child("follower_count")
+        followerCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         })
 >
         // 6
@@ -264,7 +264,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
     let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
                       "following/\(currentUID)/\(user.uid)" : NSNull()]
 >
-    let ref = FIRDatabase.database().reference()
+    let ref = Database.database().reference()
     ref.updateChildValues(followData) { (error, ref) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -274,21 +274,21 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
         let dispatchGroup = DispatchGroup()
 >
         dispatchGroup.enter()
-        let followingCountRef = FIRDatabase.database().reference().child("users").child(currentUID).child("following_count")
-        followingCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+        let followingCountRef = Database.database().reference().child("users").child(currentUID).child("following_count")
+        followingCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         })
 >
         dispatchGroup.enter()
-        let followerCountRef = FIRDatabase.database().reference().child("users").child(currentUID).child("follower_count")
-        followerCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+        let followerCountRef = Database.database().reference().child("users").child(currentUID).child("follower_count")
+        followerCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         })
 >
         dispatchGroup.enter()
@@ -326,9 +326,9 @@ For our new service, we'll want to retrieve data to provide content for a given 
 Open `UserService` and create the following new service method:
 >
 ```
-static func observeProfile(for user: User, completion: @escaping (FIRDatabaseReference, User?, [Post]) -> Void) -> FIRDatabaseHandle {
+static func observeProfile(for user: User, completion: @escaping (DatabaseReference, User?, [Post]) -> Void) -> DatabaseHandle {
     // 1
-    let userRef = FIRDatabase.database().reference().child("users").child(user.uid)
+    let userRef = Database.database().reference().child("users").child(user.uid)
 >
     // 2
     return userRef.observe(.value, with: { snapshot in
@@ -349,10 +349,10 @@ static func observeProfile(for user: User, completion: @escaping (FIRDatabaseRef
 In the code above:
 
 1. Create a reference to the location we want to read the user object from.
-1. Observer the `FIRDatabaseReference` to retrieve the user object.
+1. Observer the `DatabaseReference` to retrieve the user object.
 1. Check that the data returned is a valid user. If not, return an empty completion block.
 1. Retrieve all posts for the respective user.
-1. Return the completion block with a reference to the `FIRDatabaseReference`, user, and posts if successful.
+1. Return the completion block with a reference to the `DatabaseReference`, user, and posts if successful.
 
 You might be wondering why we use _observe_ instead of _observe single event_ as we do in all of our other service methods. This is because we've built our new profile service method to continuously observe the user object at the specified location for changes. If any changes occur, the completion closure will be executed again.
 
@@ -769,8 +769,8 @@ class ProfileViewController: UIViewController {
     var user: User!
     var posts = [Post]()
 >
-    var profileHandle: FIRDatabaseHandle = 0
-    var profileRef: FIRDatabaseReference?
+    var profileHandle: DatabaseHandle = 0
+    var profileRef: DatabaseReference?
 
     // ...
 }
@@ -953,7 +953,7 @@ extension ProfileViewController: ProfileHeaderViewDelegate {
 
 Here, we add the logic to display a `UIAlertController` with the option to log out for the current user.
 
-Last we'll need to implement the `FIRAuth` functionality for logging out. We'll need to implement functionality from FirebaseAuth to do that.
+Last we'll need to implement the `Auth` functionality for logging out. We'll need to implement functionality from FirebaseAuth to do that.
 
 > [action]
 Add the following under your import statements:
@@ -971,7 +971,7 @@ Add a new `authHandle` property to `ProfileViewController`:
 class ProfileViewController: UIViewController {
 >
     // MARK: - Properties
-    var authHandle: FIRAuthStateDidChangeListenerHandle?
+    var authHandle: AuthStateDidChangeListenerHandle?
 >
     // ...
 }
@@ -988,7 +988,7 @@ override func viewDidLoad() {
 >
     // ...
 >
-    authHandle = FIRAuth.auth()?.addStateDidChangeListener() { [unowned self] (auth, user) in
+    authHandle = Auth.auth().addStateDidChangeListener() { [unowned self] (auth, user) in
         guard user == nil else { return }
 >
         let loginViewController = UIStoryboard.initialViewController(for: .login)
@@ -999,7 +999,7 @@ override func viewDidLoad() {
 >
 deinit {
     if let authHandle = authHandle {
-        FIRAuth.auth()?.removeStateDidChangeListener(authHandle)
+        Auth.auth().removeStateDidChangeListener(authHandle)
     }
 >
     // ...
@@ -1021,7 +1021,7 @@ func didTapSettingsButton(_ button: UIButton, on headerView: ProfileHeaderView) 
 >
     let signOutAction = UIAlertAction(title: "Sign Out", style: .default) { _ in
         do {
-            try FIRAuth.auth()?.signOut()
+            try Auth.auth().signOut()
         } catch let error as NSError {
             assertionFailure("Error signing out: \(error.localizedDescription)")
         }
@@ -1031,7 +1031,7 @@ func didTapSettingsButton(_ button: UIButton, on headerView: ProfileHeaderView) 
 }
 ```
 
-In the code above, we use `FIRAuth` to sign out the current user from Firebase.
+In the code above, we use `Auth` to sign out the current user from Firebase.
 
 Run the app and try logging out!
 

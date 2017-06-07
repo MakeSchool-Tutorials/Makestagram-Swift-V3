@@ -71,7 +71,7 @@ struct StorageService {
 Next we'll create a class method that will help us upload images to `Firebase Storage`. Add the following code in `StorageService.swift`:
 
 ```
-static func uploadImage(_ image: UIImage, at reference: FIRStorageReference, completion: @escaping (URL?) -> Void) {
+static func uploadImage(_ image: UIImage, at reference: StorageReference, completion: @escaping (URL?) -> Void) {
     // 1
     guard let imageData = UIImageJPEGRepresentation(image, 0.1) else {
         return completion(nil)
@@ -119,7 +119,7 @@ Next let's create a static method within our new service for creating a `Post` f
 
 ```
 static func create(for image: UIImage) {
-    let imageRef = FIRStorage.storage().reference().child("test_image.jpg")
+    let imageRef = Storage.storage().reference().child("test_image.jpg")
     StorageService.uploadImage(image, at: imageRef) { (downloadURL) in
         guard let downloadURL = downloadURL else {
             return

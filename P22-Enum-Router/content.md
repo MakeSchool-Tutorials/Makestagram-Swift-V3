@@ -6,11 +6,11 @@ slug: firebase-router
 In the base Makestgram tutorial, we built a service layer to interface between our app and Firebase. Within many of our service methods, we define relative paths to different locations our database. Let's take a look at one now:
 
 > [action]
-Open `UserService` and navigate to `posts(for:completion:)`. Look at the first line within the method, setting a constant `ref` to a `FIRDatabaseReference`:
+Open `UserService` and navigate to `posts(for:completion:)`. Look at the first line within the method, setting a constant `ref` to a `DatabaseReference`:
 >
 ```
 static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
-    let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+    let ref = Database.database().reference().child("posts").child(user.uid)
 >
     // ...
 }
@@ -19,12 +19,12 @@ static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
 Let's examine this line of code more closely:
 
 ```
-let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+let ref = Database.database().reference().child("posts").child(user.uid)
 ```
 
 You can see here we're constructing a relative path to a location within our database: 
 
-1. `FIRDatabase.database().reference()` is a single to the root node of our database JSON tree.
+1. `Database.database().reference()` is a single to the root node of our database JSON tree.
 2. `.child("posts")` adds the relative path of the post node within the database. This node contains a JSON tree of all posts in our database, grouped by user UIDs.
 3. Last, `.child(user.uid)` finds the child node an individual user's posts and gives us access to a single user's posts.
 
@@ -73,26 +73,26 @@ As you see, we've created an enum where additional info can be attached to each 
 let exampleCase = ExampleAssociation.name("Joe")
 ```
 
-Using this knowledge, let's build a enum router for different `FIRDatabaseReference` for our service layer.
+Using this knowledge, let's build a enum router for different `DatabaseReference` for our service layer.
 
 # What is a Router?
 
-A router can mean many different things depending on the context. In our case, we'll be directing network requests to the correct database location in Firebase. We'll use our router to store an enum that will help us construct `FIRDatabaseReference` to read or write data.
+A router can mean many different things depending on the context. In our case, we'll be directing network requests to the correct database location in Firebase. We'll use our router to store an enum that will help us construct `DatabaseReference` to read or write data.
 
 Using a router will help us keep our code modular and organized. It'll make it easier for us to create, reuse and modify as we build our service method.
 
 ## Building our Router
 
-We'll start by creating a new extension called `FIRDatabaseReference+Location.swift`.
+We'll start by creating a new extension called `DatabaseReference+Location.swift`.
 
 > [action]
-Create a new source file called `FIRDatabaseReference+Location.swift` in the `Extensions` folder:
+Create a new source file called `DatabaseReference+Location.swift` in the `Extensions` folder:
 >
 ```
 import Foundation
 import FirebaseDatabase
 >
-extension FIRDatabaseReference {
+extension DatabaseReference {
     enum MGLocation {
         // insert cases to read/write to locations in Firebase
     }
@@ -110,7 +110,7 @@ enum MGLocation {
 }
 ```
 
-Our root case won't need any associated values, so we don't have to worry about for this case. However, if we want to access the root location, we'll need to be able to convert the case into a `FIRDatabaseReference`. We'll add a function within our `MGLocation` enum that returns a `FIRDatabaseReference` for each specific case.
+Our root case won't need any associated values, so we don't have to worry about for this case. However, if we want to access the root location, we'll need to be able to convert the case into a `DatabaseReference`. We'll add a function within our `MGLocation` enum that returns a `DatabaseReference` for each specific case.
 
 > [action]
 Add the following function right below the root case:
@@ -119,8 +119,8 @@ Add the following function right below the root case:
 enum MGLocation {
     case root
 >
-    func asDatabaseReference() -> FIRDatabaseReference {
-        let root = FIRDatabase.database().reference()
+    func asDatabaseReference() -> DatabaseReference {
+        let root = Database.database().reference()
 >
         switch self {
         case .root:
@@ -133,7 +133,7 @@ enum MGLocation {
 We'll now be able to access the root location of our database with the following:
 
 ```
-let rootRef = FIRDatabaseReference.MGLocation.root.asDatabaseReference()
+let rootRef = DatabaseReference.MGLocation.root.asDatabaseReference()
 ```
 
 ## Using Associated Values
@@ -157,8 +157,8 @@ Our new `posts` case can store an `String` as `uid`.
 Also, we'll need to handle the new case in our `switch` statement in `asDatabaseReference()`:
 
 ```
-func asDatabaseReference() -> FIRDatabaseReference {
-    let root = FIRDatabase.database().reference()
+func asDatabaseReference() -> DatabaseReference {
+    let root = Database.database().reference()
 
     switch self {
     case .root:
@@ -169,23 +169,23 @@ func asDatabaseReference() -> FIRDatabaseReference {
 }
 ```
 
-You can see how we're able to extract the associated value of the enum value and construct a new value for our `posts` case. Whenever we want to construct a `FIRDatabaseReference` that will return all of a given user's post, we can now use the following code:
+You can see how we're able to extract the associated value of the enum value and construct a new value for our `posts` case. Whenever we want to construct a `DatabaseReference` that will return all of a given user's post, we can now use the following code:
 
 ```
 let uid = ...
-let postsRef = FIRDatabaseReference.MGLocation.posts(uid: uid).asDatabaseReference()
+let postsRef = DatabaseReference.MGLocation.posts(uid: uid).asDatabaseReference()
 ```
 
-Last, to make our API easier to access, we'll create a static method for constructing a `FIRDatabaseReference` given a `MGLocation` case.
+Last, to make our API easier to access, we'll create a static method for constructing a `DatabaseReference` given a `MGLocation` case.
 
 > [action]
-Add the follow static method right below your enum, within the `FIRDatabaseReference` extension:
+Add the follow static method right below your enum, within the `DatabaseReference` extension:
 >
 ```
-extension FIRDatabaseReference {
+extension DatabaseReference {
     // ...
 >
-    static func toLocation(_ location: MGLocation) -> FIRDatabaseReference {
+    static func toLocation(_ location: MGLocation) -> DatabaseReference {
         return location.asDatabaseReference()
     }
 }
@@ -195,7 +195,7 @@ Using our new static method, we'll be able to access the location for a user's p
 
 ```
 let uid = ...
-let postsRef = FIRDatabaseReference.toLocation(.posts(uid: uid))
+let postsRef = DatabaseReference.toLocation(.posts(uid: uid))
 ```
 
 Let's make a change to our `UserService` to use our new enum router.
@@ -205,19 +205,19 @@ Open `UserService` and modify `posts(for:completion:)` to the following:
 >
 ```
 static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
-    let ref = FIRDatabaseReference.toLocation(.posts(uid: user.uid))
+    let ref = DatabaseReference.toLocation(.posts(uid: user.uid))
 >
     // ...
 }
 ```
 
-Let's go through the process one more time for another service method. This time we'll refactor the `FIRDatabaseReference` for `PostService.show(forKey:posterUID:completion:)`.
+Let's go through the process one more time for another service method. This time we'll refactor the `DatabaseReference` for `PostService.show(forKey:posterUID:completion:)`.
 
 > [action]
 Open `PostService` and take a look at `show(forKey:posterUID:completion:)`:
 ```
 static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
-    let ref = FIRDatabase.database().reference().child("posts").child(posterUID).child(postKey)
+    let ref = Database.database().reference().child("posts").child(posterUID).child(postKey)
 >
     // ...
 }
@@ -234,7 +234,7 @@ Try implementing a new case for `MGLocation` called `showPost` for for reading a
 The relative path for reading a single post contains both a `uid` and a `postKey`. We'll need to add both of these to our `showPost` case as associated values:
 >
 ```
-extension FIRDatabaseReference {
+extension DatabaseReference {
     enum MGLocation {
         case root
         case posts(uid: String)
@@ -243,11 +243,11 @@ extension FIRDatabaseReference {
 }
 ```
 >
-We'll also need to update the `asDatabaseReference` to return the corresponding `FIRDatabaseReference`:
+We'll also need to update the `asDatabaseReference` to return the corresponding `DatabaseReference`:
 >
 ```
-func asDatabaseReference() -> FIRDatabaseReference {
-    let root = FIRDatabase.database().reference()
+func asDatabaseReference() -> DatabaseReference {
+    let root = Database.database().reference()
 >
     switch self {
     case .root:
@@ -267,18 +267,18 @@ Now that we've created our router, let's take another look at what it would look
 Open `PostService`. Using our new code we can change our `show(forKey:posterUID:completion:)` to the following:
 ```
 static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
-    let ref = FIRDatabaseReference.toLocation(.showPost(uid: posterUID, postKey: postKey))
+    let ref = DatabaseReference.toLocation(.showPost(uid: posterUID, postKey: postKey))
 
     // ...
 }
 ```
 
-Notice that we now have a type-safe, reusable way to reference and construct `FIRDatabaseReference` in our services!
+Notice that we now have a type-safe, reusable way to reference and construct `DatabaseReference` in our services!
 
 Now that we've gone through the process of creating enum cases with associated values twice, and refactored our `PostService.show(forKey:posterUID:completion:)` with our new code, try implementing the remaining cases in `MGLocation` for all the remaining locations used in our services.
 
 > [challenge]
-Create cases in `MGLocation` for the remaining locations used in our services. Then refactor your service layer to construct `FIRDatabaseReference` with your new router!
+Create cases in `MGLocation` for the remaining locations used in our services. Then refactor your service layer to construct `DatabaseReference` with your new router!
 
 <!--  -->
 
@@ -289,7 +289,7 @@ When you're finished, your code should extension file should look closely to the
 import Foundation
 import FirebaseDatabase
 >
-extension FIRDatabaseReference {
+extension DatabaseReference {
     enum MGLocation {
         case root
 >
@@ -307,8 +307,8 @@ extension FIRDatabaseReference {
         case isLiked(postKey: String)
         case likesCount(posterUID: String, postKey: String)
 >
-        func asDatabaseReference() -> FIRDatabaseReference {
-            let root = FIRDatabase.database().reference()
+        func asDatabaseReference() -> DatabaseReference {
+            let root = Database.database().reference()
 >
             switch self {
             case .root:
@@ -347,7 +347,7 @@ extension FIRDatabaseReference {
         }
     }
 >
-    static func toLocation(_ location: MGLocation) -> FIRDatabaseReference {
+    static func toLocation(_ location: MGLocation) -> DatabaseReference {
         return location.asDatabaseReference()
     }
 }

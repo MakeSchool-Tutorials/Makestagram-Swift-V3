@@ -403,7 +403,7 @@ Change our timeline service method to the following:
 static func timeline(pageSize: UInt, lastPostKey: String? = nil, completion: @escaping ([Post]) -> Void) {
     let currentUser = User.current
 
-    let ref = FIRDatabase.database().reference().child("timeline").child(currentUser.uid)
+    let ref = Database.database().reference().child("timeline").child(currentUser.uid)
     var query = ref.queryOrderedByKey().queryLimited(toLast: pageSize)
     if let lastPostKey = lastPostKey {
         query = query.queryEnding(atValue: lastPostKey)

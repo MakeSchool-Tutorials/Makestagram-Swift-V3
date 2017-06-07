@@ -91,7 +91,7 @@ class LoginViewController: UIViewController {
 }
 
 extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
         print("handle user signup / login")
     }
 }
@@ -107,16 +107,19 @@ You can find a list of all users in the `users` tab of your Firebase project aut
 
 ## Basic Error Handling in FUIAuthDelegate
 
-As you'll notice through running the app, each time you sign up or log into an existing accounts, the `FUIAuthDelegate` method `authUI(_:didSignInWith:error:)` will be called. This method's parameters are the FirebaseAuth user that was authenticated and/or an error that occurred. Let's implement some basic error handling that will let us know if something went wrong. Modify your `FUIAuthDelegate` as follows:
+As you'll notice through running the app, each time you sign up or log into an existing accounts, the `FUIAuthDelegate` method `authUI(_:didSignInWith:error:)` will be called. This method's parameters are the FirebaseAuth user that was authenticated and/or an error that occurred. Let's implement some basic error handling that will let us know if something went wrong.
 
+> [action]
+Modify your `FUIAuthDelegate` as follows:
+>
 ```
 extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
         if let error = error {
             assertionFailure("Error signing in: \(error.localizedDescription)")
             return
         }
-
+>
         print("handle user signup / login")
     }
 }
@@ -126,20 +129,74 @@ Now, whenever there's an error while we're in development, the app will crash wi
 
 There are much more elegant solutions for error handling, but for the sake of complexity we'll keep our error handling simple.
 
-## FIRUser
+## The Firebase User
 
-Another important parameter is the `FIRUser` object as defined in `FIRAuth`. Each `FIRUser` represents an authenticated user within our Firebase dashboard. There's a few bits of information stored within the `FIRUser` object, but the most important is the user's UID.
+Another important parameter is the `User` object as defined in `FirebaseAuth` class. Each `User` represents an authenticated user within our Firebase dashboard. There's a few bits of information stored within the `User` object, but the most important is the user's UID.
 
 ## What is an UID?
 
 UID is an acronym for unique identifier and represents a way to uniquely identify each of our users. When a user creates an account with FirebaseAuth, Firebase will assign each new user a unique string for that user account. We don't have to worry about creating the string ourselves, Firebase will manage that for us.
 
-# Accessing the FIRUser Singleton
+## Handling Future Namespace Conflicts
 
-Whenever a user is authenticated with Firebase, the current `FIRUser` object can be accessed through the `FIRUser` singleton. This allows easy access to our `FIRUser` object anywhere within our app. The `FIRUser` single can be accessed with the following code snippet:
+`User` is a very commonly used class name in most iOS projects. Because `FirebaseAuth` has also named their class `User`, we need to be mindful of namespace conflicts. In other words, if multiple `User` classes exist, Xcode won't know which one we're referring to in our code.
+
+For example, if we were to create our own `User.swift` class, Xcode have a namespace conflict and confuse our project-defined `Makestagram.User` and the `FirebaseAuth.User` class.
+
+This becomes confusing for us as we're coding well. If you see a property of type `User`, you won't immediately know whether it's referring to the type of `Makestagram.User` or `FirebaseAuth.User`.
+
+There's two ways to handle this problem. The first is to refer to the full namespace of the `User` type. In our `FUIAuthDelegate` method, we could refer to the full namespace of the `User`:
 
 ```
-let user: FIRUser? = FIRAuth.auth()?.currentUser
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FirebaseAuth.User?, error: Error?) {
+        // ...
+    }
+}
+```
+
+Notice we changed the argument type of `User` to `FirebaseAuth.User`. This will prevent namespace conflicts by being specific to which `User` type we're referring to in our code.
+
+The second solution to make use of `FirebaseAuth.User` explicitly clear is to use a type alias. This means we'll create an alias namespace for an existing type. We can define a type alias with the following syntax:
+
+```
+typealias aliasName = existingType
+```
+
+Let's apply this to our current code. In our case, we'll change `FirebaseAuth.User` to `FIRUser`.
+
+> [action]
+At the top of your `LoginViewController.swift` file, add the following type alias:
+>
+```
+typealias FIRUser = FirebaseAuth.User
+>
+class LoginViewController: UIViewController {
+    // ...
+}
+```
+
+Now we can use `FIRUser` to refer to the `FirebaseAuth.User` type. Let's change our delegate method to user our new type alias.
+
+> [action]
+In `LoginViewController`, change the `FUIAuthDelegate` delegate method definition to the following:
+>
+```
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+        // ...
+    }
+}
+```
+
+From this point, we'll use `FIRUser` instead of `User` to refer to the `FirebaseAuth.User` type.
+
+# Accessing the FIRUser Singleton
+
+Whenever a user is authenticated with Firebase, the current `FIRUser` object can be accessed through the `FIRUser` singleton. This allows easy access to our `FIRUser` object anywhere within our app. The `FIRUser` singleton can be accessed with the following code snippet:
+
+```
+let user: FIRUser? = Auth.auth().currentUser
 ```
 
 The type of the singleton is `FIRUser?`, which is an optional. This singleton can be nil when there is no user that is currently logged in with Firebase.

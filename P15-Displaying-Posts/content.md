@@ -93,13 +93,13 @@ Set the identifier to `PostImageCell`:
 
 We retrieve data the same way we did in our login flow. In our first iteration, we'll retrieve and display all of the current user's posts. Later in this tutorial, we'll implement an actual timeline of users that we're following.
 
-Similar to our `User` model, let's create a failable initialer in our `Post` class to take a `FIRDataSnapshot`.
+Similar to our `User` model, let's create a failable initialer in our `Post` class to take a `DataSnapshot`.
 
 > [action]
 Open your `Post.swift` class and add the following:
 >
 ```
-init?(snapshot: FIRDataSnapshot) {
+init?(snapshot: DataSnapshot) {
     guard let dict = snapshot.value as? [String : Any],
         let imageURL = dict["image_url"] as? String,
         let imageHeight = dict["image_height"] as? CGFloat,
@@ -120,10 +120,10 @@ Add the following class method to `UserService`:
 >
 ```
 static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
-    let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+    let ref = Database.database().reference().child("posts").child(user.uid)
 >
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
-        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
+        guard let snapshot = snapshot.children.allObjects as? [DataSnapshot] else {
             return completion([])
         }
 >

@@ -63,7 +63,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
                       "following/\(currentUID)/\(user.uid)" : true]
 >
     // 2
-    let ref = FIRDatabase.database().reference()
+    let ref = Database.database().reference()
     ref.updateChildValues(followData) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -100,7 +100,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
     let followData = ["followers/\(user.uid)/\(currentUID)" : NSNull(),
                       "following/\(currentUID)/\(user.uid)" : NSNull()]
 >
-    let ref = FIRDatabase.database().reference()
+    let ref = Database.database().reference()
     ref.updateChildValues(followData) { (error, ref) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -141,7 +141,7 @@ The following method allows us to determine whether a user is already followed b
 ```
 static func isUserFollowed(_ user: User, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
     let currentUID = User.current.uid
-    let ref = FIRDatabase.database().reference().child("followers").child(currentUID)
+    let ref = Database.database().reference().child("followers").child(currentUID)
 >
     ref.queryEqual(toValue: nil, childKey: currentUID).observeSingleEvent(of: .value, with: { (snapshot) in
         if let _ = snapshot.value as? [String : Bool] {
@@ -393,11 +393,11 @@ Open `UserService` and create the follow new service method:
 static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
     let currentUser = User.current
     // 1
-    let ref = FIRDatabase.database().reference().child("users")
+    let ref = Database.database().reference().child("users")
 >
     // 2
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
-        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot]
+        guard let snapshot = snapshot.children.allObjects as? [DataSnapshot]
             else { return completion([]) }
 >
         // 3
@@ -428,9 +428,9 @@ static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
 
 The code we've implemented here is similar to the code we've previous wrote for determining whether each of a user's posts was liked by the current user. Let's break it down:
 
-1. Create a `FIRDatabaseReference` to read all users from the database.
+1. Create a `DatabaseReference` to read all users from the database.
 1. Read the `users` node from the database.
-1. Take the snapshot and perform a few transformations. First, we convert all of the child `FIRDataSnapshot` into `User` using our failable initializer. Next we filter out the current user object from the `User` array.
+1. Take the snapshot and perform a few transformations. First, we convert all of the child `DataSnapshot` into `User` using our failable initializer. Next we filter out the current user object from the `User` array.
 1. Create a new `DispatchGroup` so that we can be notified when all asynchronous tasks are finished executing. We'll use the `notify(queue:)` method on `DispatchGroup` as a completion handler for when all follow data has been read.
 1. Make a request for each individual user to determine if the user is being followed by the current user.
 1. Run the completion block after all follow relationship data has returned.

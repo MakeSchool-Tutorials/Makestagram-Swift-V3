@@ -186,7 +186,7 @@ In the same `create(for:success)` method, add the following code:
 static func create(for post: Post, success: @escaping (Bool) -> Void) {
     // ...
 >
-    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    let likesRef = Database.database().reference().child("postLikes").child(key).child(currentUID)
     likesRef.setValue(true) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -217,7 +217,7 @@ static func delete(for post: Post, success: @escaping (Bool) -> Void) {
 >
     let currentUID = User.current.uid
 >
-    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    let likesRef = Database.database().reference().child("postLikes").child(key).child(currentUID)
     likesRef.setValue(nil) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
@@ -229,7 +229,7 @@ static func delete(for post: Post, success: @escaping (Bool) -> Void) {
 }
 ```
 
-The code for unliking a post is mostly the same for liking a post. However instead of setting the value of the location to true, we set it to `nil` to delete the current node at that location. You could have also used the `removeValue(completionBlock:)` method of `FIRDatabaseReference` to delete the like object in our database.
+The code for unliking a post is mostly the same for liking a post. However instead of setting the value of the location to true, we set it to `nil` to delete the current node at that location. You could have also used the `removeValue(completionBlock:)` method of `DatabaseReference` to delete the like object in our database.
 
 At this point, we've created our first two service methods in our `LikeService`. We can use these methods to like and unlike posts. To complete the implementation of our like service, we'll need to add a `like_count` that we can increment and decrement whenever a post is liked / unliked.
 
@@ -287,7 +287,7 @@ Update each `Post` init method to configure our new properties:
 ```
 // MARK: - Init
 >
-init?(snapshot: FIRDataSnapshot) {
+init?(snapshot: DataSnapshot) {
     guard let dict = snapshot.value as? [String : Any],
         // ...
 >
@@ -359,20 +359,20 @@ Open `LikeService` and modify the existing methods for liking and unliking posts
 static func create(for post: Post, success: @escaping (Bool) -> Void) {
     // ...
 >
-    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    let likesRef = Database.database().reference().child("postLikes").child(key).child(currentUID)
     likesRef.setValue(true) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
             return success(false)
         }
 >
-        let likeCountRef = FIRDatabase.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
-        likeCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+        let likeCountRef = Database.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
+        likeCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
 >
             mutableData.value = currentCount + 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
@@ -400,20 +400,20 @@ After creating a reference to the location of `like_count`, we use `runTransacti
 static func delete(for post: Post, success: @escaping (Bool) -> Void) {
     // ...
 >
-    let likesRef = FIRDatabase.database().reference().child("postLikes").child(key).child(currentUID)
+    let likesRef = Database.database().reference().child("postLikes").child(key).child(currentUID)
     likesRef.setValue(nil) { (error, _) in
         if let error = error {
             assertionFailure(error.localizedDescription)
             return success(false)
         }
 >
-        let likeCountRef = FIRDatabase.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
-        likeCountRef.runTransactionBlock({ (mutableData) -> FIRTransactionResult in
+        let likeCountRef = Database.database().reference().child("posts").child(post.poster.uid).child(key).child("like_count")
+        likeCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
 >
             mutableData.value = currentCount - 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
@@ -456,14 +456,14 @@ Let's look at a sample use of the Firebase transaction API:
 
 ```
 // 1
-ref.runTransactionBlock({ (currentData: FIRMutableData) -> FIRTransactionResult in
+ref.runTransactionBlock({ (currentData: MutableData) -> TransactionResult in
     // 2 increment value
     let currentValue = currentData.value as? Int ?? 0
     currentData.value = currentValue + 1
 
     // 3
-    return FIRTransactionResult.success(withValue: currentData)
-}, andCompletionBlock: { (error: Error?, committed: Bool, snapshot: FIRDataSnapshot?) in
+    return TransactionResult.success(withValue: currentData)
+}, andCompletionBlock: { (error: Error?, committed: Bool, snapshot: DataSnapshot?) in
     // 4
     if let error = error {
         // handle error
@@ -475,7 +475,7 @@ ref.runTransactionBlock({ (currentData: FIRMutableData) -> FIRTransactionResult 
 
 We implement a transaction with the following steps:
 
-1. Call the transaction API on the FIRDatabaseReference location we want to update
+1. Call the transaction API on the DatabaseReference location we want to update
 2. Check that the value exists and increment it if it does
 3. Return the updated value
 4. Handle the completion block if there's an error
@@ -522,7 +522,7 @@ static func isPostLiked(_ post: Post, byCurrentUserWithCompletion completion: @e
         return completion(false)
     }
 >
-    let likesRef = FIRDatabase.database().reference().child("postLikes").child(postKey)
+    let likesRef = Database.database().reference().child("postLikes").child(postKey)
     likesRef.queryEqual(toValue: nil, childKey: User.current.uid).observeSingleEvent(of: .value, with: { (snapshot) in
         if let _ = snapshot.value as? [String : Bool] {
             completion(true)
@@ -546,9 +546,9 @@ Open `UserService` and modify `posts(for:completion:)` to the following:
 >
 ```
 static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
-    let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+    let ref = Database.database().reference().child("posts").child(user.uid)
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
-        guard let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] else {
+        guard let snapshot = snapshot.children.allObjects as? [DataSnapshot] else {
             return completion([])
         }
 >

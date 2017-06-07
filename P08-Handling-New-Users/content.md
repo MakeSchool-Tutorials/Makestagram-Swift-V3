@@ -11,12 +11,12 @@ We've previously learned how to read data from our database. To make use of our 
 
 To write data to the database we'll need to implement the following steps:
 
-1. Build a `FIRDatabaseReference` to the location you want to read from
-1. Use `setValue` or `updateChildValues` method of `FIRDatabaseReference` to write data to the database
+1. Build a `DatabaseReference` to the location you want to read from
+1. Use `setValue` or `updateChildValues` method of `DatabaseReference` to write data to the database
 
 Let's walk through an example of writing to the database:
 
-## Build a FIRDatabaseReference
+## Build a DatabaseReference
 
 Similar to reading, we'll need to import the appropriate library and create a reference to the location we want to write our data to:
 
@@ -24,15 +24,15 @@ Similar to reading, we'll need to import the appropriate library and create a re
 let userRef = rootRef.child("users").child(user.uid)
 ```
 
-## Writing Data to a FIRDatabaseReference Location
+## Writing Data to a DatabaseReference Location
 
-We can write data to our database with `setValue` or `updateChildValues` methods. The `setValue` will write the data we give it at the specfied location.
+We can write data to our database with `setValue` or `updateChildValues` methods. The `setValue` will write the data we give it at the specified location.
 
 One important note is that using `setValue` will overwrite any data already stored at the specified location, including any child nodes.
 
 The other method of writing data is using `updateChildValues`. The `updateChildValues` method will write data at at the specified location without overwrite other existing values or child nodes.
 
-One capability of the `updateChildValues` is the ability to simiultaneously write specific children at multiple locations. We'll explore this concept later, but keep it in the back of your head for now.
+One capability of the `updateChildValues` is the ability to simultaneously write specific children at multiple locations. We'll explore this concept later, but keep it in the back of your head for now.
 
 Let's look at how we would implement `setValue`:
 
@@ -209,33 +209,33 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 ```
-
+>
 Then modify the `nextButtonTapped(_:)` of the `CreateUsernameViewController.swift` as follows:
-
+>
 ```
 @IBAction func nextButtonTapped(_ sender: UIButton) {
     // 1
-    guard let firUser = FIRAuth.auth()?.currentUser,
+    guard let firUser = Auth.auth().currentUser,
         let username = usernameTextField.text,
         !username.isEmpty else { return }
-
+>
     // 2
     let userAttrs = ["username": username]
-
+>
     // 3
-    let ref = FIRDatabase.database().reference().child("users").child(firUser.uid)
-
+    let ref = Database.database().reference().child("users").child(firUser.uid)
+>
     // 4
     ref.setValue(userAttrs) { (error, ref) in
         if let error = error {
             assertionFailure(error.localizedDescription)
             return
         }
-
+>
         // 5
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             let user = User(snapshot: snapshot)
-
+>
             // handle newly created user here
         })
     }
@@ -311,7 +311,7 @@ struct UserService {
     static func create(_ firUser: FIRUser, username: String, completion: @escaping (User?) -> Void) {
         let userAttrs = ["username": username]
 
-        let ref = FIRDatabase.database().reference().child("users").child(firUser.uid)
+        let ref = Database.database().reference().child("users").child(firUser.uid)
         ref.setValue(userAttrs) { (error, ref) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
@@ -336,7 +336,7 @@ Modify `nextButtonTapped(_:)` to the following:
 >
 ```
 @IBAction func nextButtonTapped(_ sender: UIButton) {
-    guard let firUser = FIRAuth.auth()?.currentUser,
+    guard let firUser = Auth.auth().currentUser,
         let username = usernameTextField.text,
         !username.isEmpty else { return }
 >
@@ -470,18 +470,18 @@ userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
     }
 })
 ```
-
+>
 Next update the following code in your `CreateUsernameViewController`:
-
+>
 ```
 UserService.create(firUser, username: username) { (user) in
     guard let user = user else {
         // handle error
         return
     }
-
+>
     User.setCurrent(user)
-
+>
     let storyboard = UIStoryboard(name: "Main", bundle: .main)
     if let initialViewController = storyboard.instantiateInitialViewController() {
         self.view.window?.rootViewController = initialViewController

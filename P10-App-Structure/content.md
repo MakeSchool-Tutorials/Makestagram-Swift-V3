@@ -15,7 +15,7 @@ Now that we've built out our login flow, we'll need to implement the main flow o
 
 In our app, we'll be using a `UITabBarController`. The `UITabBarController` is a container view controller that contains a _tab bar_ and _tab bar items_. Even if you don't know what a tab bar is, you've probably used a tab bar in many of the most popular apps on the App Store today:
 
-<!-- insert image of popular apps with tab bar -->
+![Tab Bar Examples](assets/tab_bar_examples.png)
 
 Each tab bar item is connected to a specific view controller and tapping a tab bar item displays the appropriate view controller.
 
