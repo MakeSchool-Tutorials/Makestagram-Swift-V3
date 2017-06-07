@@ -15,7 +15,7 @@ Follow the instructions provided to connect Firebase with your app.
 
 ![Follow Firebase Integration Steps](assets/follow-steps.png)
 
-You will have already installed and adding the Firebase SDK in step 3. Confirm that you have added and installed the 'Firebase/Core' cocoapod and are using the `.xcworkspace` file.
+You will have already installed and adding the Firebase SDK in step 3. Confirm that you have added and installed the 'Firebase/Core' CocoaPod and are using the `.xcworkspace` file.
 
 # Finishing Up
 
