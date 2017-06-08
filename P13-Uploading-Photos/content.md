@@ -19,7 +19,7 @@ let data = Data()
 let riversRef = storageRef.child("images/rivers.jpg")
 
 // 3 Upload the file to the path "images/rivers.jpg"
-let uploadTask = riversRef.put(data, metadata: nil) { (metadata, error) in
+let uploadTask = riversRef.putData(data, metadata: nil) { (metadata, error) in
   guard let metadata = metadata else {
     // 4 Uh-oh, an error occurred!
     return
@@ -78,7 +78,7 @@ static func uploadImage(_ image: UIImage, at reference: StorageReference, comple
     }
 
     // 2
-    reference.put(imageData, metadata: nil, completion: { (metadata, error) in
+    reference.putData(imageData, metadata: nil, completion: { (metadata, error) in
         // 3
         if let error = error {
             assertionFailure(error.localizedDescription)
