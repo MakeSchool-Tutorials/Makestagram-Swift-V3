@@ -298,14 +298,15 @@ Whenever `MGPhotoHelper` receives an image, it will call this closure. This is w
 Last, we'll change the tab bar related code:
 
 > [action]
-Change the the tab bar related code to call the `presentActionSheet(from:)` method in our `MGPhotoHelper`, instead of printing to the console:
+Change the tab bar related code to call the `presentActionSheet(from:)` method in our `MGPhotoHelper`, instead of printing to the console:
 >
-    extension MainTabBarController: UITabBarControllerDelegate {
-        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            if viewController.tabBarItem.tag == 1 {
-                photoHelper.presentActionSheet(from: self)
-                return false
-            }
+```
+extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if viewController.tabBarItem.tag == 1 {
+            photoHelper.presentActionSheet(from: self)
+            return false
+        }
 >
         return true
     }
@@ -354,7 +355,7 @@ We'll need to configure our `UIAlertController` to call this method when each co
 Change the following section within `presentActionSheet(from:)` so that the `presentImagePickerController(with:from:)` method is called:
 >
 ```
-...
+// ...
 >
 if UIImagePickerController.isSourceTypeAvailable(.camera) {
     let capturePhotoAction = UIAlertAction(title: "Take Photo", style: .default, handler: { [unowned self] action in
@@ -372,7 +373,7 @@ if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
     alertController.addAction(uploadAction)
 }
 >
-...
+// ...
 ```
 
 In both `UIAlertAction` actions, we call our method to present the `UIImagePickerController` with the appropriate `sourceType`, based on the user's selection.
