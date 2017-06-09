@@ -14,7 +14,7 @@ In this section we'll go through the process of create a custom image cell that 
 Each `Post` image will be of varying size depending on the aspect height of the image. We'll need a way to dynamically adjust height of each image cell. We'll do this using the `tableView(_:heightForRowAt:)` method of `UITableViewDelegate`. This will first require us to make sure the table view's delegate property is set.
 
 > [action]
-Open `Home.storyboard` and select the table view of your `HomeViewController`. Ctrl-drag from from your storyboard to your view controller to set the delegate:
+Open `Home.storyboard` and select the table view of your `HomeViewController`. Ctrl-drag from your storyboard to your view controller to set the delegate:
 ![Set Table View Delegate](assets/set_delegate.png)
 
 Next we'll need to conform `HomeViewController` to `UITableViewDelegate`. Open `HomeViewController.swift` and add the following:

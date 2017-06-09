@@ -243,7 +243,7 @@ To center our stack view in the center of our header view, we'll select the stac
 
 ![Centered Stack View](assets/stack_view_centered.png)
 
-Last, we'll format our stack view's size ratio. Select the tagline label and set a fixed with of 240. With these changes, your header view should look like the following:
+Last, we'll format our stack view's size ratio. Select the tagline label and set a fixed width of 240. With these changes, your header view should look like the following:
 
 ![Completed Header](assets/finished_header.png)
 

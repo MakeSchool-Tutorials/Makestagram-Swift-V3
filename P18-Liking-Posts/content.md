@@ -432,7 +432,7 @@ At this point, we've updated our `LikeService` to increment and decrement a post
 
 One problem with multiple users using the app at the same time is handling multiple users writing different data to the database at the same time. For example, imagine the following scenario:
 
-1. User 1 and 2 both open the app and see post A in thier timeline
+1. User 1 and 2 both open the app and see post A in their timeline
 1. For both users, post A has 5 likes
 1. User 1 and 2 both like post A at the exact same time
 

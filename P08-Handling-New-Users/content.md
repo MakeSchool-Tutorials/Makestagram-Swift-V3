@@ -11,7 +11,7 @@ We've previously learned how to read data from our database. To make use of our 
 
 To write data to the database we'll need to implement the following steps:
 
-1. Build a `DatabaseReference` to the location you want to read from
+1. Build a `DatabaseReference` to the location you want to write to
 1. Use `setValue` or `updateChildValues` method of `DatabaseReference` to write data to the database
 
 Let's walk through an example of writing to the database:
@@ -30,7 +30,7 @@ We can write data to our database with `setValue` or `updateChildValues` methods
 
 One important note is that using `setValue` will overwrite any data already stored at the specified location, including any child nodes.
 
-The other method of writing data is using `updateChildValues`. The `updateChildValues` method will write data at at the specified location without overwrite other existing values or child nodes.
+The other method of writing data is using `updateChildValues`. The `updateChildValues` method will write data at the specified location without overwriting other existing values or child nodes.
 
 One capability of the `updateChildValues` is the ability to simultaneously write specific children at multiple locations. We'll explore this concept later, but keep it in the back of your head for now.
 
@@ -258,7 +258,7 @@ Run the app and the code we have so far. If you want to reuse previous emails an
 
 ![Delete Auth User](assets/delete_firuser.png)
 
-Now, whenever you sign up with a user email you should be redirect to the `CreateUsernameViewController`. When you input a username and click the next button, you should also be able to verify that a new user has been written to the database:
+Now, whenever you sign up with a user email you should be redirected to the `CreateUsernameViewController`. When you input a username and click the next button, you should also be able to verify that a new user has been written to the database:
 
 ![Created Database User](assets/created_db_user.png)
 

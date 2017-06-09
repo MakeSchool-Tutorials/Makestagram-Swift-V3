@@ -426,7 +426,7 @@ static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
 }
 ```
 
-The code we've implemented here is similar to the code we've previous wrote for determining whether each of a user's posts was liked by the current user. Let's break it down:
+The code we've implemented here is similar to the code we've previously written for determining whether each of a user's posts was liked by the current user. Let's break it down:
 
 1. Create a `DatabaseReference` to read all users from the database.
 1. Read the `users` node from the database.
