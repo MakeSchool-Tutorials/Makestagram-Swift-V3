@@ -173,7 +173,7 @@ Next, navigate to the `CreateUsernameViewController` and do the same in `nextBut
 @IBAction func nextButtonTapped(_ sender: UIButton) {
     // ...
 >
-    UserService.create(user, username: username) { (user) in
+    UserService.create(firUser, username: username) { (user) in
         guard let user = user else {
             // handle error
             return

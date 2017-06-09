@@ -9,7 +9,7 @@ Let's start coding the functionality that uploads our photo to Firebase!
 
 # Writing Media to Firebase
 
-In most cases, writing media to Firebase includes three main1steps, in addition to handling the result of the upload. Here's the simplest example from the *Firebase Storage* documentation:
+In most cases, writing media to Firebase includes three main steps, in addition to handling the result of the upload. Here's the simplest example from the *Firebase Storage* documentation:
 
 ```
 // 1 Media Data in memory

@@ -208,7 +208,7 @@ However, we need to keep one thing in mind: we want to run our app on the iOS Si
 Let's add the code for the popup to `MGPhotoHelper`:
 
 > [action]
-Replace the empty implementation of `showPhotoSourceSelection()` with the following one:
+Replace the empty implementation of `presentActionSheet()` with the following one:
 >
 ```
 func presentActionSheet(from viewController: UIViewController) {
