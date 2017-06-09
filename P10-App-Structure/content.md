@@ -91,7 +91,8 @@ Currently the tab bar has three entries and looks like this:
 The empty tab bar looks pretty bad, so let's add an image to each tab bar item to make things look nicer. (Images will also have the benefit of making it easier to identify the different tabs.)
 
 > [action]
-Download the .zip file for image resources for this app: [Asset Pack](https://github.com/MakeSchool-Tutorials/Makestagram-Swift-V3/tree/master/makestagram_assets)
+Download the .zip file for image resources for this app: [Asset Pack](https://www.dropbox.com/s/147e63jb9nvjsp4/makestagram_assets.zip?dl=1)
+
 
 <!-- TODO: insert link for tab bar images pack, currently in Github repo -->
 
