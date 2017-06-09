@@ -202,7 +202,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
 >
         // 5
         dispatchGroup.enter()
-        let followerCountRef = Database.database().reference().child("users").child(currentUID).child("follower_count")
+        let followerCountRef = Database.database().reference().child("users").child(user.uid).child("follower_count")
         followerCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
@@ -283,7 +283,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
         })
 >
         dispatchGroup.enter()
-        let followerCountRef = Database.database().reference().child("users").child(currentUID).child("follower_count")
+        let followerCountRef = Database.database().reference().child("users").child(user.uid).child("follower_count")
         followerCountRef.runTransactionBlock({ (mutableData) -> TransactionResult in
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
