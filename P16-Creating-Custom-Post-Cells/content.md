@@ -95,10 +95,10 @@ Next open `Home.storyboard` and do the following:
 5. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
 ![Post Image Cell](assets/post_image_cell.png)
 
-Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fit`.
+Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fill`.
 
 > [action]
-Select the `UIImageView` on the cell in `Home.storyboard` and click on the _Attributes Inspector_. Change the _Content Mode_ from `Scale To Fill` to `Aspect Fit`. ![Change Content Mode](assets/change_content_mode.png)
+Select the `UIImageView` on the cell in `Home.storyboard` and click on the _Attributes Inspector_. Change the _Content Mode_ from `Scale To Fill` to `Aspect Fill`. ![Change Content Mode](assets/change_content_mode.png)
 
 # Displaying the Image
 
