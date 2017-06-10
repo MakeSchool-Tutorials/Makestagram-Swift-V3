@@ -15,14 +15,14 @@ static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
     // ...
 }
 ```
-    
+
 Let's examine this line of code more closely:
 
 ```
 let ref = Database.database().reference().child("posts").child(user.uid)
 ```
 
-You can see here we're constructing a relative path to a location within our database: 
+You can see here we're constructing a relative path to a location within our database:
 
 1. `Database.database().reference()` is a single to the root node of our database JSON tree.
 2. `.child("posts")` adds the relative path of the post node within the database. This node contains a JSON tree of all posts in our database, grouped by user UIDs.
@@ -152,7 +152,7 @@ enum MGLocation {
 }
 ```
 
-Our new `posts` case can store an `String` as `uid`. 
+Our new `posts` case can store an `String` as `uid`.
 
 Also, we'll need to handle the new case in our `switch` statement in `asDatabaseReference()`:
 
@@ -190,7 +190,7 @@ extension DatabaseReference {
     }
 }
 ```
-    
+
 Using our new static method, we'll be able to access the location for a user's post with the following:
 
 ```
@@ -215,6 +215,7 @@ Let's go through the process one more time for another service method. This time
 
 > [action]
 Open `PostService` and take a look at `show(forKey:posterUID:completion:)`:
+>
 ```
 static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
     let ref = Database.database().reference().child("posts").child(posterUID).child(postKey)
@@ -265,6 +266,7 @@ func asDatabaseReference() -> DatabaseReference {
 Now that we've created our router, let's take another look at what it would look like to refactor one of our service methods using our new `MGLocation` enum.
 
 Open `PostService`. Using our new code we can change our `show(forKey:posterUID:completion:)` to the following:
+
 ```
 static func show(forKey postKey: String, posterUID: String, completion: @escaping (Post?) -> Void) {
     let ref = DatabaseReference.toLocation(.showPost(uid: posterUID, postKey: postKey))

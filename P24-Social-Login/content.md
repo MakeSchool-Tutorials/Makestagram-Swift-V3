@@ -37,14 +37,14 @@ Add the iOS platform to your registered Facebook app:
 >
 1. Under your basic settings, look for the `Add Platform` button. ![Add Platform Button](assets/add_platform_btn.png)
 >
-1. Select the iOS platform to add. You should see a new form for setting up your iOS app with Facebook. Make sure to add your `Bundle Identifier` from your iOS app. ![iOS Facebook Settings](assets/ios_fb_settings)
+1. Select the iOS platform to add. You should see a new form for setting up your iOS app with Facebook. Make sure to add your `Bundle Identifier` from your iOS app. ![iOS Facebook Settings](assets/ios_fb_settings.png)
 
 ## Installing the Facebook SDK Cocoapods
 
 Next, we'll install the Facebook SDK. There's multiple ways of installing the Facebook SDK, but we'll use CocoaPods because we're most familiar with it.
 
 > [action]
-Add the following lines to your Podfile. 
+Add the following lines to your Podfile.
 >
 ```
 target 'Makestagram' do
@@ -72,7 +72,7 @@ In the left-side navigation pane, click the `+ Add Product` button.
 When prompted, select the iOS platform. You'll be directed to a list of instructions to follow. You should see the screen below:
 ![iOS Facebook Login Steps](assets/ios_fb_login_steps.png)
 >
-**Skip** steps 1 and 2. You have already installed the Facebook SDK via Cocoapods. 
+**Skip** steps 1 and 2. You have already installed the Facebook SDK via Cocoapods.
 >
 To finish the configuration for Facebook login, you'll need to follow steps 3 through 5. You don't need to complete steps 6-10 because we'll be using `FirebaseAuthUI` to handle our Facebook login UI.
 
@@ -122,7 +122,13 @@ Last, we'll need to add some code to implement our new Facebook login UI.
 First, we'll add a new method to our `AppDelegate`:
 
 > [action]
-Open `AppDelegate` and add the following method:
+Open `AppDelegate` and make sure you import `FirebaseAuthUI` at the top of the file:
+>
+```
+import FirebaseAuthUI
+```
+>
+Next add the following method to your app delegate:
 >
 ```
 func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
@@ -136,13 +142,19 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpe
     return false
 }
 ```
-    
+
 This will handle any URL that direct back to our app. Specifically it'll handle redirecting data and control back to our app after a user has logged into Facebook.
 
 Next, we'll need to add two lines of code to implement the actual Facebook login UI.
 
 > [action]
-Open `LoginViewController` and add the following two lines to `loginButtonTapped(_:)`:
+Open `LoginViewController` and make sure you add the line below at the top of your source file:
+>
+```
+import FirebaseFacebookAuthUI
+```
+>
+Then add the following two lines to `loginButtonTapped(_:)`:
 >
 ```
 @IBAction func loginButtonTapped(_ sender: UIButton) {
@@ -159,7 +171,7 @@ Open `LoginViewController` and add the following two lines to `loginButtonTapped
     present(authViewController, animated: true)
 }
 ```
-    
+
 By setting the `authUI` providers, we configure the `authViewController` with the ability to allow users to login with Facebook! Next, we'll look at implementing the same functionality with Google.
 
 # Adding Google Login
@@ -191,7 +203,7 @@ Similar to how we configured Firebase with a Sign-In Provider for Facebook login
 Follow the steps below to enable Google as a Sign-In Provider:
 >
 1. Navigate and enable the Sign-In Provider for Google for your Firebase project. ![Enable Google Provider](assets/enable_google_signin.png)
-> 
+>
 1. ![Enable Google Button](assets/enable_google_btn.png)
 
 Follow all steps to this point, you should now have 3 Sign-In Providers enabled:
@@ -218,6 +230,8 @@ We've already done a lot of setup previous when we added the Facebook login UI t
 
 > [challenge]
 Install the pod `FirebaseUI/Google`.
+
+<!--  -->
 
 > [solution]
 Your Podfile should now look like:
@@ -257,7 +271,7 @@ Open `LoginViewController` and change `loginButtonTapped(_:)` to the following:
     present(authViewController, animated: true)
 }
 ```
-    
+
 In the code above, we added the FUIGoogleAuth provider so our UI will update accordingly.
 
 Let's run the app to test things out! You might need to delete the app off of your phone if you're already logged in. When you click the login button, you should see the ability to sign in with Google and Facebook!

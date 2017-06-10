@@ -687,7 +687,7 @@ We'll move the configuring of our cell outside into another method so we can ref
 You'll notice, in the code above, that if the post is liked, we set the `isSelected` of the `UIButton` to `true`. For this to work and change the button UI, we'll need to add an image for the selected state of our button.
 
 > [action]
-1. Open `Home.storyboard` and selected the like button on the `PostActionCell`. ![Select Like Button](assets/select_like_btn.png)
+1. Open `Home.storyboard` and select the like button on the `PostActionCell`. ![Select Like Button](assets/select_like_btn.png)
 2. Open the _Attributes Inspector_ in the right pane and change the `State Config` attribute from `Default` to `Selected`. This will allow us to set attributes for the `UIButton` selected state. ![Selected Button State Config](assets/selected_btn_config.png)
 3. Set the image of the selected `likeButton` by setting it's `Image` attribute to `btn_heart_red_solid`: ![Set Selected Image](assets/set_selected_image.png)
 

@@ -8,8 +8,9 @@ In this extension, we'll take a look at keeping the design across our app consis
 In this extension, we'll work on three things:
 
 1. Adding a custom font to our app
-2. Making it easy to create `UIColor` with hex values
-3. Creating a unified style sheet we can reuse through our app
+1. Making it easy to create `UIColor` with hex values
+1. Creating a unified style sheet we can reuse through our app
+
 <!-- TODO: 4. Add UIAppearance -->
 
 # Adding a Custom Font
@@ -60,14 +61,14 @@ extension UIColor {
      * Usage: UIColor(hex: 0xFFFFFF)
      *
      */
-    
+>
     private convenience init(hex: Int) {
         let components = (
             R: CGFloat((hex >> 16) & 0xff) / 255,
             G: CGFloat((hex >> 08) & 0xff) / 255,
             B: CGFloat((hex >> 00) & 0xff) / 255
         )
-        
+>
         self.init(red: components.R, green: components.G, blue: components.B, alpha: 1)
     }
 }
@@ -103,7 +104,7 @@ extension UIColor {
     }
 }
 ```
-    
+
 We've added a few brand colors that we can reuse throughout our entire app. Whenever we want to set a `UIColor` programmatically, we can simply use the code:
 
 ```
@@ -129,7 +130,7 @@ extension UIFont {
     }
 }
 ```
-    
+
 We can now reuse our regular font size with the following line:
 
 ```

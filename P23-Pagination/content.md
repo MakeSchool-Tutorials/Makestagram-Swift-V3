@@ -34,11 +34,11 @@ Starting out, it's might be hard to think of good use cases for generics. Howeve
 
 # A Basic Use Case
 
-A lot of table view data source code can be described as boilerplate code that is reused over and over again. In particular, in `tableView(_:cellForRowAt:)`, you'll notice that your code often contains explicit unwraps as you cast various custom `UITableViewCell`. 
+A lot of table view data source code can be described as boilerplate code that is reused over and over again. In particular, in `tableView(_:cellForRowAt:)`, you'll notice that your code often contains explicit unwraps as you cast various custom `UITableViewCell`.
 
 Although this is functional, there's a better solution that will allow us to get rid of extra boilerplate code, enforce type-safety and even get rid of the stringly-typed identifiers for each cell!
 
-Let's review a current example in Makestagram. 
+Let's review a current example in Makestagram.
 
 > [action]
 Open `HomeViewController` and find `tableView(_:cellForRowAt:)`:
@@ -73,11 +73,11 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
     }
 }
 ```
-    
+
 Notice the following:
 
 - we use stringly-typed identifiers to identify our cells
-- we force cast each table view 
+- we force cast each table view
 
 Both are signs of code-smell and make our development prone to errors. Let's look at how we can create a better solution for this code using generics!
 
@@ -91,7 +91,7 @@ extension UITableView {
     // ...
 }
 ```
-    
+
 We'll start by creating a new protocol that allows us to convert a custom `UITableViewCell` into it's identifier:
 
 > [action]
@@ -104,7 +104,7 @@ protocol CellIdentifiable {
 >
 extension UITableView {...}
 ```
-    
+
 This protocol defines a `cellIdentifier` property that will return the cell identifier of each cell. We'll create a protocol extension to implement a default value for each `UITableViewCell`.
 
 > [action]
@@ -126,7 +126,7 @@ extension UITableViewCell: CellIdentifiable { }
 >
 extension UITableView {...}
 ```
-    
+
 Let's break down the code above:
 
 1. We create an extension on our protocol `CellIdentifiable`. In our extension, we can define default values for our protocol properties and functions.
@@ -160,7 +160,7 @@ extension UITableView {
     }
 }
 ```
-    
+
 1. We define a generic function that extensions `UITableView`. Notice that we can add constraints to our generic type. In our function declaration we specific that `T` must be of type `UITableViewCell` and conform to `CellIdentifiable`. This allows us to guarentee that we can access the `cellIdentifier` that we added with our `CellIdentifiable` protocol.
 2. We unwrap the custom `UITableViewCell` based on it's `cellIdentifier` and make sure the type conforms to `T`. In this line, we remove the need to type out the cell identifier as a `String` and force casting the type explicitly.
 3. If the identifier or casting fails, we crash the app but print a nice error message so we'll know which cell caused the issue.
@@ -168,7 +168,7 @@ extension UITableView {
 Let's look at what this would look like in practice.
 
 > [action]
-Open `HomeViewController` and modify `tableView(_:numberOfRowsInSection:)` to the following:
+Open `HomeViewController` and modify `tableView(_:cellForRowAt:)` to the following:
 >
 ```
 // ...
@@ -210,7 +210,7 @@ Next we'll look at a more complex use of generics to help us paginate our timeli
 
 Currently on our `HomeViewController`, we're fetching all posts in our timeline in a single request and displaying it once we have the data. This can be terrible for performance. Imagine what would happen if your timeline had hundreds of millions of posts? Not only would it take a long time for the data to return from Firebase, but your app might crash because your phone can't hold all of that data in memory.
 
-To fix this, we'll use a common solution called _pagination_, or breaking our timeline into chunks of data. Each chunk of data will only contain 3 posts and will be refered to as a _page_. 
+To fix this, we'll use a common solution called _pagination_, or breaking our timeline into chunks of data. Each chunk of data will only contain 3 posts and will be refered to as a _page_.
 
 So page 1, will be the first 3 most recent posts in our timeline. Page 2 will be the next 3 most recent after page 1, etc.
 
@@ -255,7 +255,7 @@ class MGPaginationHelper<T> {
     }
 }
 ```
-    
+
 We'll be using this enum later to manage behavior for our helper in each state.
 
 Next, we'll add some new properties and an initializer to our helper.
@@ -341,7 +341,7 @@ func paginate(completion: @escaping ([T]) -> Void) {
     }
 }
 ```
-    
+
 Let's break down and walk through the code we just added:
 
 1. Notice our `completion` parameter type. We use our generic type to enforce that we return type `T`.
@@ -376,7 +376,7 @@ Open `Post` and implement the `MGKeyed` protocol:
 ```
 class Post: MGKeyed {...}
 ```
-    
+
 Before we move on, let's finish our `MGPaginationHelper` logic by adding a method that resets the pagination helper to it's initial state. We'll be able to use this with our `UIRefreshControl` to reset our timeline data.
 
 > [action]
@@ -389,7 +389,7 @@ func reloadData(completion: @escaping ([T]) -> Void) {
     paginate(completion: completion)
 }
 ```
-    
+
 ## Creating a Paginated Service Method
 
 Currently, our `UserService.timeline(completion:)` method returns all posts within our timeline. To paginate our timeline, we'll need to change our service method to handle pagination.
@@ -402,7 +402,7 @@ Change our timeline service method to the following:
 ```
 static func timeline(pageSize: UInt, lastPostKey: String? = nil, completion: @escaping ([Post]) -> Void) {
     let currentUser = User.current
-
+>
     let ref = Database.database().reference().child("timeline").child(currentUser.uid)
     var query = ref.queryOrderedByKey().queryLimited(toLast: pageSize)
     if let lastPostKey = lastPostKey {
@@ -412,7 +412,7 @@ static func timeline(pageSize: UInt, lastPostKey: String? = nil, completion: @es
     query.observeSingleEvent(of: .value, with: {...})
 }
 ```
-    
+
 We changed our service method to take a `pageSize` and `lastPostKey`. We then construct a query based on these parameters. Everything else remains the same.
 
 ## Configuring HomeViewController
@@ -457,7 +457,7 @@ func reloadTimeline() {
     })
 }
 ```
-    
+
 This will initially load our first page of posts when the view controller first loads.
 
 Next, we'll need to implement pagination when the user scrolls to the end of their timeline. This will load more posts of the current user's timeline as they scroll down.
@@ -470,7 +470,7 @@ func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forR
     if indexPath.section >= posts.count - 1 {
         paginationHelper.paginate(completion: { [unowned self] (posts) in
             self.posts.append(contentsOf: posts)
-
+>
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
