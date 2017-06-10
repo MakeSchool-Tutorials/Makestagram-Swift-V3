@@ -128,7 +128,7 @@ Drag a `UIButton` from the object library to the action cell and set the followi
 >
 - **Type**: Custom
 - **Title**: _Leave Blank_
-- **Image**: `ic_unfilled_heart`
+- **Image**: `btn_heart_black_outline`
 >
 ![Add Like Button](assets/add_like_btn.png)
 >
@@ -300,6 +300,8 @@ class PostActionCell: UITableViewCell {
         // ...
     }
 >
+```
+>
 Next, change your `UITableViewDelegate` to the following:
 >
 ```
@@ -331,7 +333,7 @@ Run the app and see if how each post is displayed in your `HomeViewController`. 
 
 # Configuring the Timestamp
 
-Currently, our post have a timestamp of when it was created. To display this data, we'll need to configure `tableView(_:cellForRowAt:)`.
+Currently, our post has a timestamp of when it was created. To display this data, we'll need to configure `tableView(_:cellForRowAt:)`.
 
 > [action]
 Open `HomeViewController` and create a new `DateFormatter`:

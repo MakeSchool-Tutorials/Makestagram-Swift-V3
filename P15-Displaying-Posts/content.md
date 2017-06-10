@@ -52,12 +52,15 @@ Next, set the table view constraints:
 Make sure that the top and bottom constraints are relative to the `HomeViewController` view and not the top and bottom layout guides:
 ![Top Constraint](assets/set_top_constraint.png)
 
-## Defining a Table View Data Source
+## Defining a Table View Data Source and Delegate
 
-In order to fill this table view with data, we need to define a data source (just as we did in the _Make School Notes_ app).
+In order to fill this table view with data, we need to define a data source and delegate.
 
 > [action]
-Set the `HomeViewController` to be the data source of the table view. ![Set Data Source](assets/set_datasource.png)
+Define the `UITableViewDataSource` and `UITableViewDelegate`:
+>
+1. Set the `HomeViewController` to be the data source of the table view by ctrl-dragging from the table view to the view controller. ![Set Data Source](assets/set_datasource.png)
+1. Repeat the same action to set the `UITableViewDelegate` as well. You should have set both the data source and delegate as shown below: ![Set Delegate](assets/set_delegate.png)
 
 # Implementing Home View Controller
 
