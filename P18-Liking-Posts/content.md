@@ -127,7 +127,7 @@ posts: {
 
 With this tree structure, our Firebase database will have multiple copies of the same user in both the `users` node and multiple post objects. However, this cost comes at the benefit of not needing to make multiple reads to database to fetch the poster with each post.
 
-It's important to take time to think about how to organize and structure data in Firebase. Otherwise, you'll find yourself fight your database and data structure to implement new features and functionality. Now that we've organized our thoughts on what we want our data structure to look like, let implement a new `LikeService` for our app!
+It's important to take time to think about how to organize and structure data in Firebase. Otherwise, you'll find yourself fighting your database and data structure to implement new features and functionality. Now that we've organized our thoughts on what we want our data structure to look like, let implement a new `LikeService` for our app!
 
 # Creating a Like Service
 
