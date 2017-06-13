@@ -297,7 +297,7 @@ extension DatabaseReference {
 >
         case posts(uid: String)
         case showPost(uid: String, postKey: String)
-        case newPost
+        case newPost(currentUID: String)
 >
         case users
         case showUser(uid: String)
@@ -322,8 +322,8 @@ extension DatabaseReference {
             case let .showPost(uid, postKey):
                 return root.child("posts").child(uid).child(postKey)
 >
-            case .newPost:
-                return root.child("posts").childByAutoId()
+            case .newPost(let currentUID):
+                return root.child("posts").child(currentUID).childByAutoId()
 >
             case .users:
                 return root.child("users")

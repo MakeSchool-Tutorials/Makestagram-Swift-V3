@@ -536,7 +536,7 @@ Notice that the size of our collection view cells is incorrect. We want rows of 
 
 ## Calculating Cell Size
 
-As we've mentioned before, `UICollectionView` give develops a lot of control over layout and how to display cells. This is made possible by `UICollectionViewDelegateFlowLayout`.
+As we've mentioned before, `UICollectionView` give developers a lot of control over managing layout and how cells are displayed. This is made possible by `UICollectionViewDelegateFlowLayout`.
 
 The `UICollectionViewDelegateFlowLayout` protocol conforms to the `UICollectionViewDelegate` protocol. You can implement the `UICollectionViewDelegateFlowLayout` by setting the delegate of the `UICollectionView`, as we did earlier.
 
@@ -585,7 +585,7 @@ func collectionView(_ collectionView: UICollectionView, layout collectionViewLay
 
 Above, we use the number of columns to calculate the item size of each `UICollectionViewCell`. This guarentees we'll have a evenly sized 3x3 row regardless of the device we're using.
 
-If you run your app, you should now notice your `UICollectionViewCell` are equally sized in a 3x3 grid! ![Profile Grid](assets/profile_grid.png)
+If you run your app, you should now notice your `UICollectionViewCell` are equally sized in a 3x1 grid! ![Profile Grid](assets/profile_grid.png)
 
 ## Adding Profile Header View
 
@@ -771,7 +771,7 @@ class ProfileViewController: UIViewController {
 >
     var profileHandle: DatabaseHandle = 0
     var profileRef: DatabaseReference?
-
+>
     // ...
 }
 ```
@@ -782,7 +782,7 @@ We create a posts array that will hold all of the user's posts.
 
 Last, we'll need a couple properties that are special to regarding handling observers. We won't go into detail here, but there will be another extension on observers and implementing real-time data flow.
 
-Side note: for this extension, we'll only display the current user in the third tab, but you can implement reuse the profile view controller to display other user's profiles on your own.
+Side note: for this extension, we'll only display the current user in the third tab. If you're interested, you can use reuse the `ProfileViewController` and implement logic for displaying profiles of other users on your own.
 
 To use Firebase objects, we'll need to import Firebase. Add the following right below your import statements:
 
