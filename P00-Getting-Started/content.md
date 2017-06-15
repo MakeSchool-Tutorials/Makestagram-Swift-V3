@@ -16,6 +16,36 @@ Here are the most important things you will learn:
 - How to architect a complex iOS app
 - How to use libraries built by other developers to speed up development
 
+Before starting the tutorial, we'll take some time upfront and install `CocoaPods`.
+
+# Installing CocoaPods
+
+CocoaPods is a _dependency manager_ that allows you to easily install and manage third-party code.
+
+We'll want to go ahead and start the installation process for CocoaPods because the first time running `pod install` may take a long time. 
+
+> [action]
+Open terminal and type:
+>
+```
+sudo gem install cocoapods
+```
+>
+Next run the following command:
+```
+pod setup
+```
+
+This step will take 10-15 minutes to complete the first time you run it. This is because it will clone the entire cocoapods master repo (~1GB) to `~/.cocoapods/repos`.
+
+During the process of running `pod setup`, you can continue on as you wait for it to complete.
+
+<!-- how to shallow clone: https://stackoverflow.com/questions/21022638/pod-install-is-staying-on-setting-up-cocoapods-master-repo/39904450#39904450 -->
+
+We'll dive more in-depth about dependency management and what CocoaPods does when we setup our Xcode project.
+
+# Conclusion
+
 After finishing the tutorial you will have a good understanding of building complex iOS apps that tie into a backend - from there you will be able to move on and create your original iPhone app!
 
 Let's get started by taking a look at how Firebase works and creating a new Firebase project.

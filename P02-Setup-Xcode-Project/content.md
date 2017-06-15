@@ -32,22 +32,11 @@ _CocoaPods_ provides a huge repository of available iOS libraries. When you want
 
 If you want to use a library, you need to enter the name (and optionally the version) of the library into your _Podfile_. Then you can use one of _CocoaPods_ commands to install the library that you listed in the _Podfile_.
 
-# Installing CocoaPods
+# Creating a Podfile
 
-As a first step, we need to install the _CocoaPods_ software.
+In the _Getting Started_ section, you should have already installed _CocoaPods_. If not, make sure to go back and follow the instructions to install _CocoaPods_.
 
-> [action]
-> Open a terminal and enter the following line:
->
-```
-sudo gem install cocoapods
-```
-
-After a while the installation should complete successfully!
-
-# Setting up A Podfile
-
-Now we can create a _Podfile_ that will allow us to declare dependencies for our project. The _CocoaPods_ tool provides us with a convenient method to do this:
+After installing _CocoaPods_, we can create a _Podfile_ that will allow us to declare dependencies for our project. The _CocoaPods_ tool provides us with a convenient method to do this:
 
 > [action]
 > Open the root directory of your project in a terminal and type:
