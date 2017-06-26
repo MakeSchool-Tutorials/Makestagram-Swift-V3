@@ -343,8 +343,9 @@ let timestampFormatter: DateFormatter = {
     let dateFormatter = DateFormatter()
     dateFormatter.dateStyle = .short
 >
-        return dateFormatter
-    }()
+    return dateFormatter
+}()
+```
 
 A date formatter allows us to convert a `Date` into a formatted string. We'll use this to display the date our post was created.
 

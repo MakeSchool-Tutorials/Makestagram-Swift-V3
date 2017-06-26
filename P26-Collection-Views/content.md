@@ -3,6 +3,8 @@ title: "Collection Views"
 slug: collection-views
 ---
 
+<!-- TODO: FirebaseAuth log out functionality should be refactored into seperate service struct -->
+
 In this extension, we'll look at another key component in `UIKit` called `UICollectionView`.
 
 Collection views allow us to build scrolling interfaces that have flexible, changeable layouts. This allows us to display content in formats such as grids and horizontal scrolling cells.

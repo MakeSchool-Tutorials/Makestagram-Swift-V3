@@ -729,8 +729,8 @@ func didTapLikeButton(_ likeButton: UIButton, on cell: PostActionCell) {
             likeButton.isUserInteractionEnabled = true
         }
 >
-                // 6
-                guard success else { return }
+        // 6
+        guard success else { return }
 >
         // 7
         post.likeCount += !post.isLiked ? 1 : -1
