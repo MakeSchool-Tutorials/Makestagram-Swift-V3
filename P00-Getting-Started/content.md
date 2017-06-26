@@ -33,7 +33,7 @@ sudo gem install cocoapods
 >
 Next run the following command:
 ```
-pod setup
+pod setup --verbose
 ```
 
 This step will take 10-15 minutes to complete the first time you run it. This is because it will clone the entire cocoapods master repo (~1GB) to `~/.cocoapods/repos`.
