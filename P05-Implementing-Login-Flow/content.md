@@ -14,7 +14,7 @@ We'll begin by learning about authentication with Firebase!
 
 # What is Authentication?
 
-Authentication is the process of identifying which user is using the app. By verifying an user's identity, we can:
+Authentication is the process of identifying which user is using the app. By verifying a user's identity, we can:
 
 - keep track of which data belongs to who
 - prevent people from accessing, stealing, modifying or deleting data without permission
@@ -155,7 +155,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 As our app launches, we redirect the user to the `Login.storyboard`'s initial view controller:
 
-1. Create a instance of our Login storyboard that has `LoginViewController` set as it's initial view controller
+1. Create a instance of our Login storyboard that has `LoginViewController` set as its initial view controller
 1. Check if the storyboard has a initial view controller set
 1. If the storyboard's initial view controller exists, set it to the window's `rootViewController` property
 1. Position the window above any other existing windows

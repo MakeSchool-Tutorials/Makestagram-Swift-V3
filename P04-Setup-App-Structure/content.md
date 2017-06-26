@@ -11,7 +11,7 @@ In this step, we'll take some time to think about how we'll build our app and or
 
 The goal of this tutorial is to build a photo sharing app. Users shall be able to share photos, follow users and interact with other users through likes.
 
-This is detailed list of features our app will have:
+This is a detailed list of features our app will have:
 
 - Sign up and login with email/password
 - Follow other users
@@ -68,7 +68,7 @@ To add back files that have been rearranged, we'll first need to delete the miss
 
 ![Delete Missing File](assets/delete_missing_file.png)
 
-Next, we'll need to either right-click in our project navigator or click on the plus button in the button left corner of the project navigator and select the option `Add Files to "Makestagram"`:
+Next, we'll need to either right-click in our project navigator or click on the plus button in the bottom left corner of the project navigator and select the option `Add Files to "Makestagram"`:
 
 ![Adding Existing Files](assets/add_existing_files.png)
 
@@ -131,7 +131,7 @@ Repeat the previous steps until you've organized our project navigator as below:
 
 ![Organizing Project Structure](assets/project_structure.png)
 
-As we build our project and add more files, we'll continue to create and reorganize our files into groups. It's a bit of initial work but this is a good way to make sure your file system and Xcode project structure both stay organized. If your interested in learning more, [click here.](http://vocaro.com/trevor/blog/2012/10/21/xcode-groups-vs-folder-references/)
+As we build our project and add more files, we'll continue to create and reorganize our files into groups. It's a bit of initial work but this is a good way to make sure your file system and Xcode project structure both stay organized. If you're interested in learning more, [click here.](http://vocaro.com/trevor/blog/2012/10/21/xcode-groups-vs-folder-references/)
 
 # Intro to App Architecture
 
@@ -142,7 +142,7 @@ When we build apps, we want to try our best to think about architecture, or how 
 - Code can be reused and shared with other projects
 - Reduces and manages complexity (you don't have to remember why you did the things you did)
 
-As we think about architecture, one of the most important points to remember is to break the functionality of our code into layers that are independent can be re-used.
+As we think about architecture, one of the most important points to remember is to break the functionality of our code into layers that are independent and can be re-used.
 
 In our project, we'll be using a very common architectural design called _Model View Controller_, or MVC for short. We will separate our code into the following:
 
@@ -156,4 +156,4 @@ We'll also create a few helper objects to make certain tasks separate and reusab
 
 ![Basic Architecture](assets/basic_architecture.png)
 
-TLDR; We'll be organizing code we write using the _Model View Controller_ architectural pattern. Having good architecture will make it easy to build new features and debug bugs.
+In summary, we'll be organizing code we write using the _Model View Controller_ architectural pattern. Having good architecture will make it easy to build new features and debug bugs.

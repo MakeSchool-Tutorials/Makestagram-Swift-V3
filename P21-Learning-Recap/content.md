@@ -17,8 +17,8 @@ From here, Makestagram is broken into features and key concepts:
 1. Introducing UICollectionView
 1. Facebook and Google Login
 1. App Stylesheet using Extensions
-<!-- 1. Analytics with Firebase and Fabric -->
 1. Firebase Router using Enums
+<!-- 1. Analytics with Firebase and Fabric -->
 <!-- 1. Realtime Messaging -->
 <!-- 1. Adding Location Tags -->
 <!-- 1. Custom Login with UIPageViewController -->

@@ -18,7 +18,7 @@ In this section you will set up a new Firebase project. The contents of this tut
 
 Firebase is a mobile _backend as a service_ that was acquired by Google in October 2014. The idea was to allow individual mobile developers to build apps without having to worry about servers.
 
-The role of the _backend_ in an internet application often revolves around _data persistence_. That means saving the user's data "in the cloud" (your backend servers) so that when they lose their phone, all their data will still be there when they reinstall your app. In reality, its much more complicated than that, often because applications require specialized business logic. But for many developers Firebase is enough to ship an amazing app, without worrying about writing backend code.
+The role of the _backend_ in an internet application often revolves around _data persistence_. That means saving the user's data "in the cloud" (your backend servers) so that when they lose their phone, all their data will still be there when they reinstall your app. In reality, it's much more complicated than that, often because applications require specialized business logic. But for many developers Firebase is enough to ship an amazing app, without worrying about writing backend code.
 
 ## What does Firebase do for us?
 
@@ -50,4 +50,4 @@ Once you have finished the steps above, you should have a new Firebase project s
 
 ![Firebase Initial Project Overview](assets/05_initial_project_overview.png)
 
-Next we'll need create a new Xcode project!
+Next we'll need to create a new Xcode project!

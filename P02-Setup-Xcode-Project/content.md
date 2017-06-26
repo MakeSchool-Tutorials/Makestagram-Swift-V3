@@ -30,7 +30,7 @@ To avoid these kinds of problems, software developers have built dependency mana
 
 _CocoaPods_ provides a huge repository of available iOS libraries. When you want to use _CocoaPods_ you add a special file to your project in which you can list your dependencies. That file is called a _Podfile_.
 
-If you want to use a library, you need to enter the name (and optionally the version) of the library into your _Podfile_. Then you can use one of _CocoaPods_ commands to install the library that you listed in the _Podfile_.
+If you want to use a library, you need to enter the name (and optionally the version) of the library into your _Podfile_. Then you can use one of the _CocoaPods_ commands to install the library that you listed in the _Podfile_.
 
 # Creating a Podfile
 
@@ -98,9 +98,9 @@ pod install
 Now your dependencies will be download and installed.
 
 > [action]
-Verify that you have the correct version of each SDK by running `pod update` in the root directory of your Makestagram project. You should see the following: ![Verify Version](assets/verify_versions.png)
+Verify that you have the correct version of each SDK by running `pod update` in the root directory of your Makestagram project. The Firebase CocoaPods should be at least 4.0.X. ![Verify Version](assets/verify_versions.png)
 
-**The next step is very important.** After you have installed your first library, _CocoaPods_ will generate an _Xcode workspace_ for you. When using _CocoaPods_, you need work with that _workspace_ and no longer with the Xcode _project_ that you have been working with.
+**The next step is very important.** After you have installed your first library, _CocoaPods_ will generate an _Xcode workspace_ for you. When using _CocoaPods_, you need to work with that _workspace_ and no longer with the Xcode _project_ that you have been working with.
 
 > [action]
 > **Close** your Xcode project. Then open the new **workspace** that _CocoaPods_ has generated:
