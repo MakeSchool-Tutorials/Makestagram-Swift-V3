@@ -7,7 +7,7 @@ Up to this point, we've created and hooked up the UI elements for the initial lo
 
 FirebaseUI is a pre-built UI component made by the Firebase team to help us easily handle sign up and log in functionality. It was made as an quick and easy, drop-in UI component for setting up authentication.
 
-FirebaseAuth is an SDK for easier authenticating users through Firebase. FirebaseAuth will abstract handling and storing sensitive information that usually comes with implementing authentication.
+FirebaseAuth is an SDK that lets developers easily authenticate users through Firebase. FirebaseAuth will abstract the handling and storing of sensitive information that usually comes with implementing authentication.
 
 Together, these libraries will make it extremely easy for us to setup and implement the authentication process for our Makestagram app. Keep in mind, it's also possible to implement your own custom authentication flow.
 
@@ -79,7 +79,7 @@ You'll notice each line of code corresponds closely to each of the steps we prev
 1. set `FUIAuth`'s singleton delegate
 1. present the auth view controller
 
-When `authViewController` is presented, Firebase presents it's own UI to handle signing up or logging in the user. Keep in mind that Firebase's authViewController can also be customized to include different types of login. i.e. Facebook, Google, Github
+When `authViewController` is presented, Firebase presents its own UI to handle signing up or logging in the user. Keep in mind that Firebase's authViewController can also be customized to include different types of login. (i.e. Facebook, Google, Github)
 
 However, we haven't finished all 4 steps we previously defined and that's why Xcode is yelling at us with a compiler error. In step 2, we set our `LoginViewController` to be a delegate of `authUI`, however our `LoginViewController` hasn't conformed to the `FUIAuthDelegate` protocol. Let's do that now!
 
@@ -125,7 +125,7 @@ extension LoginViewController: FUIAuthDelegate {
 }
 ```
 
-Now, whenever there's an error while we're in development, the app will crash with an formatted error message of what went wrong. In production code, assertions are ignored and are a nice tool to let us know if something's going unexpectedly while we're building our apps.
+Now, whenever there's an error while we're in development, the app will crash with a formatted error message of what went wrong. In production code, assertions are ignored and are a nice tool to let us know if something's going unexpectedly while we're building our apps.
 
 There are much more elegant solutions for error handling, but for the sake of complexity we'll keep our error handling simple.
 
@@ -141,9 +141,9 @@ UID is an acronym for unique identifier and represents a way to uniquely identif
 
 `User` is a very commonly used class name in most iOS projects. Because `FirebaseAuth` has also named their class `User`, we need to be mindful of namespace conflicts. In other words, if multiple `User` classes exist, Xcode won't know which one we're referring to in our code.
 
-For example, if we were to create our own `User.swift` class, Xcode have a namespace conflict and confuse our project-defined `Makestagram.User` and the `FirebaseAuth.User` class.
+For example, if we were to create our own `User.swift` class, Xcode will have a namespace conflict and confuse our project-defined `Makestagram.User` and the `FirebaseAuth.User` class.
 
-This becomes confusing for us as we're coding well. If you see a property of type `User`, you won't immediately know whether it's referring to the type of `Makestagram.User` or `FirebaseAuth.User`.
+This will become confusing when we're coding. If you see a property of type `User`, we won't immediately know whether it's referring to the type of `Makestagram.User` or `FirebaseAuth.User`.
 
 There's two ways to handle this problem. The first is to refer to the full namespace of the `User` type. In our `FUIAuthDelegate` method, we could refer to the full namespace of the `User`:
 
@@ -212,4 +212,4 @@ After the user is authenticated, we'll want to redirect the user to a different 
 1. **New users** will be sent to choose their username
 1. **Existing users** will be sent to the home view controller that displays their feed
 
-To determine if the user is a new user, we'll need to have some way to retrieve previous data about the user. Your first instinct might be to see if the FUIAuthDelegate returns any information that'll tell us if the user is a new or existing user. Unfortunately, it doesn't provide us much information outside of confirming that a new or existing user was authenticated by Firebase. FirebaseAuth doesn't help us much outside of providing a easy way to authenticate users. Instead we'll have to make use the Firebase realtime database!
+To determine if the user is a new user, we'll need to have some way to retrieve previous data about the user. Your first instinct might be to see if the FUIAuthDelegate returns any information that'll tell us if the user is a new or existing user. Unfortunately, it doesn't provide us much information outside of confirming that a new or existing user was authenticated by Firebase. FirebaseAuth doesn't help us much outside of providing an easy way to authenticate users. Instead we'll have to make use of the Firebase realtime database!

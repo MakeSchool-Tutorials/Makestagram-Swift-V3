@@ -3,7 +3,7 @@ title: "Collection Views"
 slug: collection-views
 ---
 
-<!-- TODO: FirebaseAuth log out functionality should be refactored into seperate service struct -->
+<!-- TODO: FirebaseAuth log out functionality should be refactored into separate service struct -->
 
 In this extension, we'll look at another key component in `UIKit` called `UICollectionView`.
 
@@ -663,7 +663,7 @@ At this point, your `ProfileHeaderView` should look like this:
 
 As you can see, it doesn't look like our design yet. We'll need to add more constraints. First, let's select all three vertical stack views within the horizontal stack view and set an equal width constraint. ![Equal Width Constraint](assets/equal_width_constraint.png)
 
-Next, we'll adjust the equal width of the horizontal stack view to be a 0.8 ratio to the settings button. Navigate to the _Size Inspector_ and double-click on the equal width constraint. Change the multiplier from 1 to 0.8. ![Set Width Multipler](assets/set_width_multipler.png)
+Next, we'll adjust the equal width of the horizontal stack view to be a 0.8 ratio to the settings button. Navigate to the _Size Inspector_ and double-click on the equal width constraint. Change the multiplier from 1 to 0.8. ![Set Width Multiplier](assets/set_width_multipler.png)
 
 Now, go through and change the text alignment for each label to `Center`. ![Set Center Alignment](assets/center_align.png)
 

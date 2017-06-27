@@ -39,7 +39,7 @@ Our _login flow_ will allow new users to sign up and existing users to login. Th
 
 ![Login Flow Designs](assets/login_flow.png)
 
-Before building a feature, it's always helpful to an idea of how the feature will work and what it will look like. Paper prototypes and wireframes are great tools to use so that we're able to focus on engineering as we're building.
+Before building a feature, it's always helpful to have an idea of how the feature will work and what it will look like. Paper prototypes and wireframes are great tools to use so that we're able to focus on engineering as we're building.
 
 # Creating a Login storyboard
 
@@ -57,9 +57,9 @@ Keep your project navigator organized by keeping similar files in the same group
 
 ## Why multiple storyboards?
 
-Separating the main flows of your app into specific, well-defined storyboards allows you keep your storyboards small and organized. Xcode provides many tools to make it easy for us to do this.
+Separating the main flows of your app into specific, well-defined storyboards allows you to keep your storyboards small and organized. Xcode provides many tools to make it easy for us to do this.
 
-Imagine if you had 30 view controllers in a single storyboard! Not only would it be tough to find view controllers that you're looking for, the file would be extremely slow to open because of it's size. Version control and working with other developers would also be a nightmare. As a general rule, keep your storyboards small and defined to a single flow of your app.
+Imagine if you had 30 view controllers in a single storyboard! Not only would it be tough to find view controllers that you're looking for, the file would be extremely slow to open because of its size. Version control and working with other developers would also be a nightmare. As a general rule, keep your storyboards small and defined to a single flow of your app.
 
 # Setting up the Login View Controller
 
@@ -96,7 +96,7 @@ Navigate back to the login storyboard, select the view controller we've added an
 
 # Testing progress thus far
 
-It's good practice to test as you add new code. Let's test our code to see if they work as we expect them to. To do this, we'll need some way of verifying the `LoginViewController` is the first screen that is shown.
+It's good practice to test as you add new code. Let's test our code to see if it works as we expect it to. To do this, we'll need some way of verifying the `LoginViewController` is the first screen that is shown.
 
 An easy trick we can use, is changing the background color of our `LoginViewController` to a random color such as orange. The orange is bright and out of place, and will allow us easily to confirm our code is working.
 
@@ -104,7 +104,7 @@ Navigate to the Login storyboard, click on the `LoginViewController`'s view. In 
 
 ![Selecting View](assets/selected_view.png)
 
-Next, we'll change the background color from white to orange in the property inspector:
+Next, we'll change the background color from white to orange in the _Attributes Inspector_:
 
 ![Orange View](assets/orange_view.png)
 
@@ -155,8 +155,8 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 As our app launches, we redirect the user to the `Login.storyboard`'s initial view controller:
 
-1. Create a instance of our Login storyboard that has `LoginViewController` set as its initial view controller
-1. Check if the storyboard has a initial view controller set
+1. Create an instance of our Login storyboard that has `LoginViewController` set as its initial view controller
+1. Check if the storyboard has an initial view controller set
 1. If the storyboard's initial view controller exists, set it to the window's `rootViewController` property
 1. Position the window above any other existing windows
 
@@ -174,7 +174,7 @@ We've successfully added logic in our `AppDelegate` to change our app window's r
 
 # Adding UI to the Login Screen
 
-Let's review the design our login screen:
+Let's review the design of our login screen:
 
 ![Login Screen Design](assets/login_screen.png)
 
@@ -285,15 +285,15 @@ Your code should look like the following:
 
 ![Login Screen Configured](assets/login_side_by_side.png)
 
-Let's test our code is working. You'll notice, every time we finish a major step, we run our code to make sure our code is working as expected and we haven't introduced any new bugs.
+Let's test that our code is working. You'll notice, every time we finish a major step, we run our code to make sure our code is working as expected and we haven't introduced any new bugs.
 
-Run the app and tap the login button. If the print statement shows up in the debug console, you've successfully setup your login screen.
+Run the app and tap the login button. If the print statement shows up in the debug console, you've successfully set up your login screen.
 
 ![Print Statement](assets/debug_console.png)
 
 # Conclusion
 
-So far, we've review many basic concepts in the previous tutorials as well as introduced some new ones. We've done the following:
+So far, we've reviewed many basic concepts in the previous tutorials as well as introduced some new ones. We've done the following:
 
 - created a new storyboard
 - set our window's root view controller

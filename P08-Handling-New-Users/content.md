@@ -3,7 +3,7 @@ title: "Handling New Users"
 slug: handling-new-users
 ---
 
-In the previous section, we've successfully setup some logic in our `LoginViewController` that is supposed to determines whether an authenticated user is a new or existing user. We uncovered through testing that it currently doesn't work. In this section, we'll look handle the login flow for new users which will fix our previous code.
+In the previous section, we've successfully setup some logic in our `LoginViewController` that is supposed to determine whether an authenticated user is a new or existing user. We uncovered through testing that it currently doesn't work. In this section, we'll handle the login flow for new users which will fix our previous code.
 
 # Writing Data to Firebase
 
@@ -32,7 +32,7 @@ One important note is that using `setValue` will overwrite any data already stor
 
 The other method of writing data is using `updateChildValues`. The `updateChildValues` method will write data at the specified location without overwriting other existing values or child nodes.
 
-One capability of the `updateChildValues` is the ability to simultaneously write specific children at multiple locations. We'll explore this concept later, but keep it in the back of your head for now.
+One capability of the `updateChildValues` method is the ability to simultaneously write specific children at multiple locations. We'll explore this concept later, but keep it in the back of your head for now.
 
 Let's look at how we would implement `setValue`:
 
@@ -149,7 +149,7 @@ Your storyboard should now look like the following:
 
 ![Embed In Navigation Controller](assets/02_embed_nav_controller.png)
 
-Before we move on, we won't need the navigation bar that a `UINavigationController` usually provides. Select the navigation controller and go to the property inspector. Under `Navigation Controller`, make sure you uncheck `Shows Navigation Bar` checkbox.
+Before we move on, we won't need the navigation bar that a `UINavigationController` usually provides. Select the navigation controller and go to the _Attributes Inspector_. Under `Navigation Controller`, make sure you uncheck `Shows Navigation Bar` checkbox.
 
 ![Uncheck Navigation Bar](assets/uncheck_nav_bar.png)
 
@@ -300,7 +300,7 @@ Make sure you place all your service structs in the `Services` directory and cre
 
 ![Service Grouping](assets/service_grouping.png)
 
-Next let's create a static method that encapsulates the functionality for creating an user on Firebase.
+Next let's create a static method that encapsulates the functionality for creating a user on Firebase.
 
 ```
 import Foundation

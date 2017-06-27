@@ -3,9 +3,9 @@ title: "Managing User Accounts"
 slug: managing-user-accounts
 ---
 
-`FirebaseAuth` & `FIRUser` allow us to authenticate users but don't provide much functionality outside of that. Although each `FIRUser` object contains a few properties for storing basic user information, we can't add additional properties that can be stored with the `FIRUser`. The default fields within `FIRUser`:
+`FirebaseAuth` & `FIRUser` allow us to authenticate users but don't provide much functionality outside of that. Although each `FIRUser` object contains a few properties for storing basic user information, we can't add additional properties that can be stored with the `FIRUser`. 
 
-The default fields include:
+The default fields within `FIRUser` include:
 
 1. UID (unique identifier)
 1. Display Name (first & last name)
@@ -170,13 +170,13 @@ Let's break down the code we just added:
 
 1. First we check that the `FIRUser` returned from authentication is not nil by unwrapping it. We guard this statement, because we cannot proceed further if the user is nil. We need the `FIRUser` object's uid property to build the relative path for the user at `/users/#{uid}`.
 1. We construct a relative path to the reference of the user's information in our database.
-1. We read from the path we created and pass an event closure to handle the data (snapshot) is passed back from the database.
+1. We read from the path we created and pass an event closure to handle the data (snapshot) that is passed back from the database.
 
 Now we'll need to handle the user data to check that the user exists.
 
 # Retrieving Data
 
-When we retrieve data from Firebase, we receive a `DataSnapshot` object that contains the data we retrieved. We can now access the data through it's value property:
+When we retrieve data from Firebase, we receive a `DataSnapshot` object that contains the data we retrieved. We can now access the data through its value property:
 
 ```
 let data: Any? = snapshot.value
@@ -202,10 +202,7 @@ userRef.observeSingleEvent(of: .value, with: { (snapshot) in
 })
 ```
 
-To retrieve the user data from `DataSnapshot` we:
-
-1. We check that the snapshot exists, and that it is of the expected Dictionary type
-1. Handle and execute the appropriate logic based on whether the user dictionary exists. Based on whether the user dictionary exists, we'll know that the current user is a new or returning user.
+To retrieve the user data from `DataSnapshot`, we check that the snapshot exists, and that it is of the expected Dictionary type. Based on whether the user dictionary exists, we'll know whether the current user is a new or returning user.
 
 # Testing our Logic
 
@@ -284,7 +281,7 @@ init?(snapshot: DataSnapshot) {
 }
 ```
 
-Here we guard by requiring the snapshot to be casted to a dictionary and checking the dictionary contains `username` key/value. If either of these requirements fail, we return nil. Note that we also store the key property of `DataSnapshot` which is the UID that correlates with the user being initialized.
+Here we guard by requiring the snapshot to be casted to a dictionary and checking that the dictionary contains `username` key/value. If either of these requirements fail, we return nil. Note that we also store the key property of `DataSnapshot` which is the UID that correlates with the user being initialized.
 
 This cleans up our code by creating a reusable initializer that we can use to create user objects from snapshots. In addition, we no longer have to fetch information directly from snapshots using _stringly-typed_ key/value pairs. Let's go ahead and finish by refactoring our original code to use our failable initializer.
 
