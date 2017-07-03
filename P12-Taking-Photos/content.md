@@ -57,7 +57,7 @@ class MainTabBarController: UITabBarController {
 }
 ```
 
-1. First we set the `MainTabBarController` as the delegate of it's tab bar
+1. First we set the `MainTabBarController` as the delegate of its tab bar
 1. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
 
 Build the app and you'll notice we'll get an error that `MainTabBarController` doesn't implement `UITabBarControllerDelegate`. Let's add an extension and implement `tabBarController(_:shouldSelect:)` to fix this error:
@@ -136,7 +136,7 @@ Regarding structure, let's discuss the process step-by-step:
 1. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. (We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.)
 1. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.)
 1. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. (The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.)
-1. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`
+1. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`.
 1. The `MGPhotoHelper` notifies the `MainTabBarController` that a photo has been picked, and returns the image to the `MainTabBarController`.
 
 As you can see, there are many steps to getting our photo features up and running. If we skipped diagramming our structure and went straight to coding, we would probably make the mistake of putting all of our code into the `MainTabBarController`, which would lead to an _extremely messy project_!
@@ -167,7 +167,7 @@ Our `MGPhotoHelper` will have three main responsibilities:
 
 The first and second responsibilities of the `MGPhotoHelper` require it to present a `UIAlertController` and `UIImagePickerController`. However, in iOS, only view controllers can present other view controllers, and the `MGPhotoHelper` is a simple `NSObject`, not a `UIViewController`. To enable view controller presentation inside the `MGPhotoHelper` class, we will pass our method a reference to our `UITabBarController` to our `MGPhotoHelper`.
 
-To implement the third responsibility of the `MGPhotoHelper` we will need to have a way to communicate with the `MainTabBarController` - as shown in Step 6 of our outline above. For this we could use the concept of delegation (on the previous page we used delegation to receive information from the `UITabBarController`). A more convenient solution for this specific case is using a _Callback_. A _Callback_ is basically a reference to a function. When setting up `MainTabBarController`, we'll will provide it with a callback function. As soon as the `MGPhotoHelper` has selected an image, it will call that _Callback_ function and provide the selected image to the _MainTabBarController_.
+To implement the third responsibility of the `MGPhotoHelper` we will need to have a way to communicate with the `MainTabBarController` - as shown in Step 6 of our outline above. For this we could use the concept of delegation (on the previous page we used delegation to receive information from the `UITabBarController`). A more convenient solution for this specific case is using a _Callback_. A _Callback_ is basically a reference to a function. When setting up `MainTabBarController`, we will provide it with a callback function. As soon as the `MGPhotoHelper` has selected an image, it will call that _Callback_ function and provide the selected image to the _MainTabBarController_.
 
 Let's get started with building the `MGPhotoHelper`!
 
@@ -281,7 +281,7 @@ override func viewDidLoad() {
 }
 ```
 
-In our `viewDidLoad` we set a _closure_. A closure can be thought as a function without a name.
+In our `viewDidLoad` we set a _closure_. A closure can be thought of as a function without a name.
 
 This part of the code is the closure:
 
@@ -315,13 +315,13 @@ extension MainTabBarController: UITabBarControllerDelegate {
 
 Here, we're presenting the action sheet from the `photoHelper` that will allow the user to capture a photo from their camera or upload a photo from their photo library.
 
-Now our code should compile and run! Time to test if everything is working as expected. If the action sheet isn't showing up, make sure that you've set the tag to it's correct index in the storyboard.
+Now our code should compile and run! Time to test if everything is working as expected. If the action sheet isn't showing up, make sure that you've set the tag to its correct index in the storyboard.
 
 When you run the app and tap the camera button, you should see a popup show up:
 
 ![Action Sheet](assets/action_sheet.png)
 
-Notice our action sheet only has a `Upload from Library` and `Cancel` option. This is because we're running the app on a simulator. If you're running the app on a real device you should also see the option to `Take Photo`
+Notice our action sheet only has a `Upload from Library` and `Cancel` option. This is because we're running the app on a simulator. If you're running the app on a real device you should also see the option to `Take Photo`.
 
 Well done! At this point you should have a basic understanding of how information can travel through different classes in our apps - as an iOS developer you will use callbacks in the form of closures pretty frequently.
 
@@ -398,7 +398,7 @@ If you check the debug consule, you'll notice that Xcode is complaining that you
 1. Add a short description for why you need to access the user's data
 ![Add Permission Description](assets/photos_permission_desc.png)
 
-Repeat the same steps for `Privacy - Camera Usage Description` to ask permission for camera usage. When added both keys, your `Info.plist` should look like the following: ![Photo Permission](assets/plist_permissions.png)
+Repeat the same steps for `Privacy - Camera Usage Description` to ask permission for camera usage. After adding both keys, your `Info.plist` should look like the following: ![Photo Permission](assets/plist_permissions.png)
 
 Now a user can pick an image from the `UIImagePickerController`. However we still haven't implemented any logic to handle the selected image that's returned from the `UIImagePickerController`. Let's take care of that next.
 

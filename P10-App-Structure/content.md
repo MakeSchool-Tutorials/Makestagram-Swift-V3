@@ -3,7 +3,7 @@ title: "App Structure"
 slug: app-structure
 ---
 
-We've successfully finished our login flow for new and existing users! Let's refer back to our initial app outline to see to implement our next feature:
+We've successfully finished our login flow for new and existing users! Let's refer back to our initial app outline to see how to implement our next feature:
 
 ![App Outline](assets/app_outline.png)
 
@@ -27,7 +27,7 @@ In our _Makestagram_ app, our `UITabBarController` will allow an user to select 
 
 ![Tab Bar Example](assets/tab_bar_example.png)
 
-Open `Main.storyboard`. You'll see that it currently contains the default view controller that Xcode automatically adds to each single view application. We won't be using it, so go ahead and delete the storyboard view controller and it's corresponding `ViewController.swift` class.
+Open `Main.storyboard`. You'll see that it currently contains the default view controller that Xcode automatically adds to each single view application. We won't be using it, so go ahead and delete the storyboard view controller and its corresponding `ViewController.swift` class.
 
 > [action]
 Open `Main.storyboard`. Select the existing view controller; after you have selected it you should see a blue border surrounding it: ![Select View Controller](assets/starting_vc.png)
@@ -49,11 +49,11 @@ Now that we've set up our `UITabBarController`, let's make sure things are worki
 > [action]
 Run the app!
 
-Oops! What happened? If you ran the app, you'll notice that our app just displays a empty black screen:
+Oops! What happened? If you ran the app, you'll notice that our app just displays an empty black screen:
 
 ![Empty Black Screen](assets/empty_black_screen.png)
 
-If you look at you're debug console, you'll also notice the following error:
+If you look at your debug console, you'll also notice the following error:
 
 Makestagram[79956:42367980] [Application] Failed to instantiate the default view controller for UIMainStoryboardFile 'Main' - perhaps the designated entry point is not set?
 
@@ -98,7 +98,7 @@ Download the .zip file for image resources for this app: [Asset Pack](https://ww
 
 ## Adding Assets to an App
 
-Now it's time to add some of these assets you just downloaded to our app. To keep your images organized, all assets used within an iOS app should be stored in _Asset catalogs_. Every iOS projects that you create with Xcode comes with one default asset catalog called _Images.xcassets_:
+Now it's time to add some of these assets you just downloaded to our app. To keep your images organized, all assets used within an iOS app should be stored in _Asset catalogs_. Every iOS project that you create with Xcode comes with one default asset catalog called _Assets.xcassets_:
 
 ![Asset Catalog](assets/assets_catalog.png)
 
@@ -165,7 +165,7 @@ Create two new source files for each new view controller:
 - `HomeViewController.swift`
 - `FindFriendsViewController.swift`
 
-If you are wondering why we didn't create a corresponding view controller for our capture photo tab. It's because we'll be using Apple's `UIImagePickerController` to handle taking or uploading a photo for us.
+If you are wondering why we didn't create a corresponding view controller for our capture photo tab, it's because we'll be using Apple's `UIImagePickerController` to handle taking or uploading a photo for us.
 
 ## Configuring Custom Classes in Storyboard
 

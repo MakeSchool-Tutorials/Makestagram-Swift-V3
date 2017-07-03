@@ -54,7 +54,7 @@ Our strategy for creating a new `Post` object in our database will be:
 
 You can see that our media data and database JSON object will be stored in separate Firebase services. We cannot store `Data` in the `Firebase Realtime Database`, just as we cannot store our accompanying `Post` JSON in `Firebase Storage`. Instead we'll use the `Firebase Storage` and `Firebase Realtime Database` together to build the functionality we want.
 
-First, let's create a method that will help us upload an image to Firebase. We'll create a new service as an inteface between our app and `Firebase Storage`.
+First, let's create a method that will help us upload an image to Firebase. We'll create a new service as an interface between our app and `Firebase Storage`.
 
 > [action]
 Create a new file called `StorageService.swift` in the `Services` directory:
@@ -145,9 +145,9 @@ Now it's time to test our solution! Run the app and select an image from `UIImag
 
 ![Debug Output](assets/debug_output.png)
 
-If the app crashes the first time on an error, re-run your app and try again. If it keep crashing, backpedal through the previous steps to make sure you're not missing any code.
+The first time you try to run your app, an error may cause your app to crash. If so, re-run your app and try again. If it keeps crashing, backpedal through the previous steps to make sure you're not missing any code.
 
-To confirm our image upload worked is through our Firebase dashboard. Open your Firebase project overview in your browser and click the `Storage` tab. You should see `test_image.jpg` in the root directory of your `Firebase Storage`:
+To confirm our image upload worked, we can check our Firebase dashboard. Open your Firebase project overview in your browser and click the `Storage` tab. You should see `test_image.jpg` in the root directory of your `Firebase Storage`:
 
 ![Test Image](assets/stored_test_image.png)
 

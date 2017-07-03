@@ -9,7 +9,7 @@ As a first step in implementing the _Timeline_ feature, we will set up the basic
 
 # Creating a Home Storyboard
 
-As we've discussed in previous sections, we want to keep our storyboard files small and contained to individual user flows of the app. We'll begin by refactoring our existing `HomeViewController` into it's own storyboard file.
+As we've discussed in previous sections, we want to keep our storyboard files small and contained to individual user flows of the app. We'll begin by refactoring our existing `HomeViewController` into its own storyboard file.
 
 ## Adding a Navigation Controller
 
@@ -21,7 +21,7 @@ Open `Main.storyboard` and select the `HomeViewController`; click on top menu it
 
 ## Refactoring to Storyboard
 
-Next we'll refactor our first tab into it's own storyboard.
+Next we'll refactor our first tab into its own storyboard.
 
 > [action]
 >

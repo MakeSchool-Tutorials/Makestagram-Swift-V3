@@ -34,7 +34,7 @@ class Post {
 }
 ```
 
-You'll get some compiler errors for not having an initialiers or default values for certain properties. Let's go ahead and fix that:
+You'll get some compiler errors for not having any initialiers or default values for certain properties. Let's go ahead and fix that:
 
 ```
 init(imageURL: String, imageHeight: CGFloat) {
@@ -58,9 +58,9 @@ private static func create(forURLString urlString: String, aspectHeight: CGFloat
 }
 ```
 
-Note that our class method is private because we don't want to allow access to this class method from anywhere except our previous `PostService.create(for:)` method. We don't want to be able to create a new post in the database without a image URL and aspect height. If we're working with other developers, this helps prevent them from using this method in ways other than which we originally intended.
+Note that our class method is private because we don't want to allow access to this class method from anywhere except our previous `PostService.create(for:)` method. We don't want to be able to create a new post in the database without an image URL and aspect height. If we're working with other developers, this helps prevent them from using this method in ways other than which we originally intended.
 
-Next let's setup the code to create a new `Post` JSON object in our database:
+Next let's set up the code to create a new `Post` JSON object in our database:
 
 > [action]
 Add the following code in `create(forURLString:aspectHeight:)`:
@@ -121,11 +121,11 @@ let postRef = Database.database().reference().child("users").child(currentUser.u
 
 In both tree structures, it's easy to read and write data. However, the second tree structure comes with a disadvantage that's not immediately obvious.
 
-If all of the posts stored within each respective user, then anytime we want to fetch the a user object from Firebase, we'll also fetching all of the user's posts within the snapshot as well.
+If all of the posts stored within each respective user, then any time we want to fetch the user object from Firebase, we'll also fetch all of the user's posts within the snapshot as well.
 
-If each user only has a couple posts, this isn't a big deal. However, in the scenario that a user has hundreds of thousands of posts, reading the user object from Firebase will return a slow response. In addition, storing all of the posts in memory might cause a memory warning that kills your app.
+If each user only has a couple posts, this isn't a big deal. However, in the scenario that a user has hundreds of thousands of posts, reading the user object from Firebase will result in a slow response. In addition, storing all of the posts in memory might cause a memory warning that kills your app.
 
-The solution, as we've already implement is flattening our Firebase database JSON tree by separating `Post` objects into it's own root level node. With the `posts` subtree, individual `Post` objects will be grouped by user UIDs that will identify the poster of each subset of posts.
+The solution, as we've already implemented is flattening our Firebase database JSON tree by separating `Post` objects into its own root level node. With the `posts` subtree, individual `Post` objects will be grouped by user UIDs that will identify the poster of each subset of posts.
 
 This tree structure allows us to quickly retrieve any user's JSON object from Firebase, without automatically retrieving their posts as well. In addition, if we wanted to retrieve all of a user's posts, it's easy to find the relative path to read all of a single user's posts.
 
@@ -197,7 +197,7 @@ static func create(for image: UIImage) {
 }
 ```
 
-Last, we'll need to create a more suitable location for our post image files to be stored. Right now, since we're storing all of our images at the same path. If you haven't figured it out already; they're being overwritten. Let's create a new extension for `StorageReference` that generates a new storage location for each user's post:
+Last, we'll need to create a more suitable location for our post image files to be stored. Right now, we're storing all of our images at the same path. If you haven't figured it out already; they're being overwritten. Let's create a new extension for `StorageReference` that generates a new storage location for each user's post:
 
 > [action]
 Create a new extension file called `StorageReference+Post.swift` with the following content:
@@ -242,10 +242,10 @@ static func create(for image: UIImage) {
 
 # Testing our Code
 
-Before we move on, let's test our code. To do that we'll need to clean out some of old data.
+Before we move on, let's test our code. To do that we'll need to clean out some of our old data.
 
 > [action]
-Delete you test image or any other previous images from `Firebase Storage`: ![Delete Test Image](assets/delete_test_image.png)
+Delete your test image or any other previous images from `Firebase Storage`: ![Delete Test Image](assets/delete_test_image.png)
 >
 Also delete any previous posts in your Firebase database. This will remove any posts with incomplete data. In the image below, note that we've deleted the `posts` subtree by hovering over the _posts_ text and clicking the red X button. ![Empty Posts Database](assets/no_posts_db.png)
 

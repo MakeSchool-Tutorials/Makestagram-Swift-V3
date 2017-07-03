@@ -382,7 +382,7 @@ Let's run the app and test it out! You may need to delete the user JSON object i
 
 ## Handling Existing Users
 
-Simliarly to our approach to new users, if we recieved an existing user on our login view controller, we also want to redirect them to the main storyboard by setting the window's root view controller.
+Simliar to our approach to new users, if we received an existing user on our login view controller, we also want to redirect them to the main storyboard by setting the window's root view controller.
 
 Go ahead and add the following code to our `LoginViewController` in the `FUIAuthDelegate` method. This is the exact same code we used to set the root view controller after a new user was created.
 
@@ -444,7 +444,7 @@ Let's walk through the code we just created:
 1. If _current isn't nil, it will be returned to the user.
 1. Create a custom setter method to set the current user.
 
-Now that we've created a User singleton, we need to make sure to set it once we receive the user from the database we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It will be accessible from any view controller with the following code:
+Now that we've created a User singleton, we need to make sure to set it. Once we receive the user from the database, we set the singleton with our custom setter method. After the singleton is set, it will remain in memory for the rest of the app's lifecycle. It will be accessible from any view controller with the following code:
 
 ```
 let user = User.current

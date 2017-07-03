@@ -13,9 +13,9 @@ Let's learn about `UserDefaults` and how it can help us do this!
 
 # What is UserDefaults?
 
-`UserDefaults` is an quick way to store small amounts of non-sensitive data on the user's phone. It is typically used to store flags such as whether the user has logged in.
+`UserDefaults` is a quick way to store small amounts of non-sensitive data on the user's phone. It is typically used to store flags such as whether the user has logged in.
 
-- `UserDefaults` is **not** for storing large amounts of data on the user's device. Use _Core Data_ or _Realm_ instead.
+- `UserDefaults` is **not** for storing large amounts of data on the user's device. Use _CoreData_ or _Realm_ instead.
 - `UserDefaults` is **not** for storing important, sensitive information like passwords or auth tokens. Use _Keychain_ instead.
 
 Using `UserDefaults` to store data is really easy. To write data, access the `UserDefaults` singleton and use the provided instance methods to store various types of information like so:
@@ -34,7 +34,7 @@ let isFirstTimeUser = UserDefaults.standard.bool(forKey: Constants.UserDefaults.
 
 If a user removes your app from their phone, all content stored within `UserDefaults` will also be deleted.
 
-# Persisting our User
+# Persisting Our User
 
 To persist authentication, we'll use `UserDefaults` to store our `User` singleton between sessions. Storing a custom class in `UserDefaults` requires a little additional setup. We'll need to use `NSKeyedArchiver` to convert our class from type `User` to the `Data` type.
 
@@ -98,7 +98,7 @@ struct Constants {
 
 We're using the `uid` and `username` keys to store each respective property of the user object. We'll later use `currentUser` to store our current user.
 
-If you try to build the app right now, the compiler with throw an error saying our using object doesn't conform to the `NSCoding` protocol. This is because we need to implement `init?(coder:)` in our `User` class. This allows users to be decoded from data. Add the following alongside our other initializers:
+If you try to build the app right now, the compiler with throw an error saying our user object doesn't conform to the `NSCoding` protocol. This is because we need to implement `init?(coder:)` in our `User` class. This allows users to be decoded from data. Add the following alongside our other initializers:
 
 ```
 required init?(coder aDecoder: NSCoder) {
@@ -115,7 +115,7 @@ required init?(coder aDecoder: NSCoder) {
 
 Great! Now we've successfully implemented the `NSCoding` protocol. Now we can store our current user in `UserDefaults`.
 
-# Storing our Current User in User Defaults
+# Storing Our Current User in User Defaults
 
 We'll create an option in our `setCurrent(_:)` method to persist the current user to `UserDefaults`. In our user class, change the class method for `setCurrent(_:)` to the following:
 
@@ -238,4 +238,4 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 Run the app and go through the login flow. Terminate the app and run it again. You'll notice that we're now directed to the appropriate initial view controller based on whether we previously authenticated with Firebase.
 
-Currently, we haven't implemented a way to log out, switch users, and get back to the `LoginViewController`. However, a easy hack around this is deleting the app and installing it again on your phone. Remember each user's `UserDefaults` will be cleared when the app is deleted from their phone.
+Currently, we haven't implemented a way to log out, switch users, and get back to the `LoginViewController`. However, an easy hack around this is deleting the app and installing it again on your phone. Remember each user's `UserDefaults` will be cleared when the app is deleted from their phone.

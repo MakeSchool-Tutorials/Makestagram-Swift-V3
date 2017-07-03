@@ -9,7 +9,7 @@ Refactoring and cleaning up your code will make it easier to build and debug you
 
 # Refactoring Show User
 
-We refactored the method for creating an user to our `UserService` but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `DatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
+We refactored the method for creating a user to our `UserService` but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `DatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
 
 Create a new class method in our `UserService` for reading a user from the database:
 
@@ -79,7 +79,7 @@ Two letters off! You can see how these mistakes are very easy to make. Let's tak
 
 ## Creating Constants
 
-Let's start with the more basic of the two solutions: constants. Create a new `Constants.swift` file in your Supporting directory. We'll store our string identifiers as static constants so we can reuse throughout the app without worrying about misspelling them. In fact, Xcode can now help us out with autocomplete!
+Let's start with the more basic of the two solutions: constants. Create a new `Constants.swift` file in your Supporting directory. We'll store our string identifiers as static constants so we can reuse them throughout the app without worrying about misspelling them. In fact, Xcode can now help us out with autocomplete!
 
 ![Create Constants File](assets/create_constants_file.png)
 
@@ -125,9 +125,9 @@ As you can see, we've removed the string identifier for `toCreateUsername` and r
 
 - constants can be reused in other code
 - Xcode will allow us to quickly remember and fill in constants with autocomplete
-- the compiler will throw a error if we misspell an identifier
+- the compiler will throw an error if we misspell an identifier
 
-Pretty handy! Let's take look at the second way of handling stringly-typed code: enums!
+Pretty handy! Let's take a look at the second way of handling stringly-typed code: enums!
 
 # Using Enums
 
@@ -143,7 +143,7 @@ Let's see how enums help solve this problem. First create a new file called `Sto
 
 ![Extension Group](assets/extension_group.png)
 
-Inside our new `Storyboard.Utility.swift` file, extend `UIStoryboard` with the following enum:
+Inside our new `Storyboard+Utility.swift` file, extend `UIStoryboard` with the following enum:
 
 ```
 import UIKit
@@ -164,7 +164,7 @@ You'll notice we created a new enum within the `UIStoryboard` class called `MGTy
 
 Our enum contains a case for each of our app's storyboards. We also create a computed variable that capitalizes the `rawValue` of each case. This computed variable returns the corresponding filename for each storyboard.
 
-Next, we create a convenience initializer that will make user of our enum. It'll allow use initialize the correct storyboard based each enum case. Right below the closing curly brace of `MGType` add the following convenience initializer:
+Next, we create a convenience initializer that will make user of our enum. It'll allow us to initialize the correct storyboard based each enum case. Right below the closing curly brace of `MGType` add the following convenience initializer:
 
 ```
 extension UIStoryboard {
