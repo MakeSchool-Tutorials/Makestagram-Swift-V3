@@ -354,7 +354,7 @@ static func following(for user: User = User.current, completion: @escaping ([Use
         for uid in followingDict.keys {
             dispatchGroup.enter()
 >
-            get(forUID: uid) { user in
+            show(forUID: uid) { user in
                 if let user = user {
                     following.append(user)
                 }
