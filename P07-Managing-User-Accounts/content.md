@@ -3,7 +3,7 @@ title: "Managing User Accounts"
 slug: managing-user-accounts
 ---
 
-`FirebaseAuth` & `FIRUser` allow us to authenticate users but don't provide much functionality outside of that. Although each `FIRUser` object contains a few properties for storing basic user information, we can't add additional properties that can be stored with the `FIRUser`. 
+`FirebaseAuth` & `FIRUser` allow us to authenticate users but don't provide much functionality outside of that. Although each `FIRUser` object contains a few properties for storing basic user information, we can't add additional properties that can be stored with the `FIRUser`.
 
 The default fields within `FIRUser` include:
 
@@ -150,6 +150,7 @@ Next, let's implement reading the user JSON object from our database if it exist
 func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
     if let error = error {
         assertionFailure("Error signing in: \(error.localizedDescription)")
+        return
     }
 
     // 1

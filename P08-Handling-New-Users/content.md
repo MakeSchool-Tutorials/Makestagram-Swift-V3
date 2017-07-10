@@ -262,9 +262,7 @@ Now, whenever you sign up with a user email you should be redirected to the `Cre
 
 ![Created Database User](assets/created_db_user.png)
 
-Now, if we try logging in with the same existing user, you'll notice that our `LoginViewController` logic for the `FUIAuthDelegate` works correctly as well. Notice in the print statement in the debug console:
-
-![Existing User Print](assets/existing_user.png)
+Now, if we try logging in with the same existing user, you'll notice that our `LoginViewController` logic for the `FUIAuthDelegate` works correctly as well. You should see the print statement in the debug console.
 
 Now that our code is running, let's take a moment to refactor our current code.
 
