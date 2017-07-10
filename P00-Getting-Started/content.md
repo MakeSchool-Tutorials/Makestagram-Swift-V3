@@ -32,6 +32,7 @@ sudo gem install cocoapods
 ```
 >
 Next run the following command:
+>
 ```
 pod setup --verbose
 ```
