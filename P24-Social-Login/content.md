@@ -251,10 +251,16 @@ end
 >
 Don't forget you have to run `pod install` to install new dependencies from FirebaseUI.
 
-Last, we'll need to add a line of code so FirebaseAuthUI will know to display the correct UI.
+Last, we'll need to modify our code so FirebaseAuthUI will know to display the correct UI.
 
 > [action]
-Open `LoginViewController` and change `loginButtonTapped(_:)` to the following:
+Open `LoginViewController` and add the following import statement to the top of your code:
+>
+```
+import FirebaseGoogleAuthUI
+```
+>
+Next, change `loginButtonTapped(_:)` to the following:
 >
 ```
 @IBAction func loginButtonTapped(_ sender: UIButton) {
@@ -287,4 +293,4 @@ If you're looking for more control and customization of the UI, you can implemen
 [Facebook Login](https://firebase.google.com/docs/auth/ios/facebook-login)
 [Google Sign-In](https://firebase.google.com/docs/auth/ios/google-signin)
 
-<!-- TODO: consider adding ui costomizations to firebase auth ui -->
+<!-- TODO: consider adding ui customizations to firebase auth ui -->
