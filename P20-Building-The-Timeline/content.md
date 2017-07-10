@@ -331,7 +331,25 @@ override func viewDidLoad() {
 }
 ```
 
-Take this time to test your new timeline! Create a few different user accounts and add posts from each user. Have different users follow each other and make sure your timeline works!
+We'll also need to update the `UITableViewDataSource` to display the correct username.
+
+> [action]
+Open `HomeViewController` and modify `tableView(_:cellForRowAt:)` with the following:
+>
+```
+// ...
+>
+switch indexPath.row {
+case 0:
+    let cell = tableView.dequeueReusableCell(withIdentifier: "PostHeaderCell") as! PostHeaderCell
+    cell.usernameLabel.text = post.poster.username
+>
+    return cell
+>
+// ...
+```
+
+Next, take some time to test your new timeline! Create a few different user accounts and add posts from each user. Have different users follow each other and make sure your timeline works!
 
 # Adding Refresh Control
 
