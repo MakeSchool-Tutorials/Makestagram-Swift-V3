@@ -68,6 +68,17 @@ To add back files that have been rearranged, we'll first need to delete the miss
 
 ![Delete Missing File](assets/delete_missing_file.png)
 
+Delete each of the files below from your project navigator:
+
+- ViewController.swift
+- Main.storyboard
+- LaunchScreen.storyboard
+- Info.plist
+- GoogleService-Info.plist
+
+> [info]
+You should only be deleting the greyed-out files listed above. Make sure you don't delete your `AppDelegate.swift` or `Assets.xcassets` folder because we didn't move or rearrange them in our file directory.
+
 Next, we'll need to either right-click in our project navigator or click on the plus button in the bottom left corner of the project navigator and select the option `Add Files to "Makestagram"`:
 
 ![Adding Existing Files](assets/add_existing_files.png)
