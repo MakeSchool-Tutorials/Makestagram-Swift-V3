@@ -66,16 +66,17 @@ Stop here! Don't continue until you've tried implementing `CreateUsernameViewCon
 If you got stuck above or just want to review your solution, we'll walk through the process step by step next. If you feel confident in your code, feel free to skip ahead to the next section.
 
 1. Open `Login.storyboard` and drag a new view controller into the storyboard from the object library.
+
 1. Add two new `UILabel`s onto the new view controller. ![Add Two Labels](assets/add_two_labels.png)
-1. Format each label respectively:
->
+
+1. Don't worry about constraints yet, we'll use a stack view to position our views later. Format each label respectively:
 ```
 // Title Label
 Text: Create Username
 Font: System 24
 Alignment: Center
 Color: Black
->
+
 // Subtitle Label
 Text: Add a username so your friends can find you.
 Font: System 16
@@ -83,17 +84,15 @@ Alignment: Center
 Color: Black
 Number of Lines: 0
 ```
->
-Don't worry about constraints yet, we'll use a stack view to position our views later.
 
 1. Add a `UITextField` and `UIButton` from the object library: ![Text Field and Button](assets/raw_subviews.png)
+
 1. Format both the `UITextField` and `UIButton`:
->
 ```
 // Username Text Field
 Placeholder Text: Username
 Background Color: #FAFAFA
->
+
 // Next Button
 Type: Custom
 Background Color: #61A8ED
