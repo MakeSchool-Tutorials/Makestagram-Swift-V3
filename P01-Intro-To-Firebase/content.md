@@ -51,3 +51,4 @@ Once you have finished the steps above, you should have a new Firebase project s
 ![Firebase Initial Project Overview](assets/05_initial_project_overview.png)
 
 Next we'll need to create a new Xcode project!
+
