@@ -39,7 +39,7 @@ Like the others, Google Analytics is a analytics tool that helps you track and a
 
 If you're using another analytics solution, you'll need to install a third-party SDK via CocoaPods. However since Google Analytics is already built into Firebase, we won't need to do anything to use it.
 
-> [note]
+> [info]
 >
 **If you are not using Firebase in your app**, we recommend you use [Fabric Answers](https://www.fabric.io/kits/ios/answers/install) to integrate analytics into your app. There is no need to install the entirity of Firebase just for analytics! Fabric has a really nice [install guide here](https://www.fabric.io/kits/ios/answers/install).
 
