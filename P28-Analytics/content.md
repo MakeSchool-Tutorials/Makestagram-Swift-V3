@@ -142,10 +142,10 @@ For simple tracking, you can use the predefined event names and parameter names 
 You can also define custom event and parameter names using strings. For example, if we wanted to create an app-specific event for tracking when users create new posts, we could create log an event like so:
 
 ```
-Analytics.logEvent("Create Post", parameters: [AnalyticsParameterItemID: post.key, "Poster UID": poster.uid])
+Analytics.logEvent("create_post", parameters: [AnalyticsParameterItemID: post.key, "poster_uid": poster.uid])
 ```
 
-Notice that we're using a custom event name `Create Post` and a custom parameter name `Poster UID`. In both instances, we're able to create a custom name using strings. Be careful of typos when tracking events. It's a good idea to create your own event/parameter name constants to avoid stringly-typed code.
+Notice that we're using a custom event name `create_post` and a custom parameter name `poster_uid`. In both instances, we're able to create a custom name using strings. Be careful of typos when tracking events. It's a good idea to create your own event/parameter name constants to avoid stringly-typed code.
 
 ## What Should I Track?
 
