@@ -33,11 +33,15 @@ In this extension, we'll explore key concepts in analytics, important metrics to
 
 # Installation
 
-There are many solutions for mobile analytics. Some of the most popular include Mixpanel, Amplitude, and Google Analytics. In this tutorial, we'll be using Google Analytics.
+There are many solutions for mobile analytics. Some of the most popular include Mixpanel, Amplitude, Fabric Answers, and Google Analytics. In this tutorial, we'll be using Google Analytics.
 
 Like the others, Google Analytics is a analytics tool that helps you track and analyze app data. However, it's super convenient for our situation because it's built into Firebase and is free!
 
 If you're using another analytics solution, you'll need to install a third-party SDK via CocoaPods. However since Google Analytics is already built into Firebase, we won't need to do anything to use it.
+
+> [info]
+>
+**If you are not using Firebase in your app**, we recommend you use [Fabric Answers](https://www.fabric.io/kits/ios/answers/install) to integrate analytics into your app. There is no need to install the entirity of Firebase just for analytics! Fabric has a really nice [install guide here](https://www.fabric.io/kits/ios/answers/install).
 
 Next, let's take a look at our Firebase Analytics Dashboard!
 
