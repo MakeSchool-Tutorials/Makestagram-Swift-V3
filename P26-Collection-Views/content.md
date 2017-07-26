@@ -200,10 +200,9 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
             mutableData.value = currentCount + 1
 >
             return TransactionResult.success(withValue: mutableData)
-        }, andCompletionBlock: { (error, committed, snapshot) in
+        }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
-                return
             }
 >
             dispatchGroup.leave()
@@ -217,10 +216,9 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
             mutableData.value = currentCount + 1
 >
             return TransactionResult.success(withValue: mutableData)
-        }, andCompletionBlock: { (error, committed, snapshot) in
+        }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
-                return
             }
 >
             dispatchGroup.leave()
@@ -296,10 +294,9 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
             mutableData.value = currentCount - 1
 >
             return TransactionResult.success(withValue: mutableData)
-        }, andCompletionBlock: { (error, committed, snapshot) in
+        }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
-                return
             }
 >
             dispatchGroup.leave()
@@ -312,10 +309,9 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
             mutableData.value = currentCount - 1
 >
             return TransactionResult.success(withValue: mutableData)
-        }, andCompletionBlock: { (error, committed, snapshot) in
+        }, andCompletionBlock: { (error, _, _) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
-                return
             }
 >
             dispatchGroup.leave()
