@@ -199,7 +199,14 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
 >
-            return TransactionResult.success(withValue: mutableData)
+            return FIRTransactionResult.success(withValue: mutableData)
+        }, andCompletionBlock: { (error, committed, snapshot) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return
+            }
+>
+            dispatchGroup.leave()
         })
 >
         // 5
@@ -209,7 +216,14 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
 >
-            return TransactionResult.success(withValue: mutableData)
+            return FIRTransactionResult.success(withValue: mutableData)
+        }, andCompletionBlock: { (error, committed, snapshot) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return
+            }
+>
+            dispatchGroup.leave()
         })
 >
         // 6
@@ -281,7 +295,14 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
 >
-            return TransactionResult.success(withValue: mutableData)
+            return FIRTransactionResult.success(withValue: mutableData)
+        }, andCompletionBlock: { (error, committed, snapshot) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return
+            }
+>
+            dispatchGroup.leave()
         })
 >
         dispatchGroup.enter()
@@ -290,7 +311,14 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
 >
-            return TransactionResult.success(withValue: mutableData)
+            return FIRTransactionResult.success(withValue: mutableData)
+        }, andCompletionBlock: { (error, committed, snapshot) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return
+            }
+>
+            dispatchGroup.leave()
         })
 >
         dispatchGroup.enter()
