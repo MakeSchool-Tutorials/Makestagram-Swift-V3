@@ -199,7 +199,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         }, andCompletionBlock: { (error, committed, snapshot) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
@@ -216,7 +216,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount + 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         }, andCompletionBlock: { (error, committed, snapshot) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
@@ -295,7 +295,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         }, andCompletionBlock: { (error, committed, snapshot) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
@@ -311,7 +311,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
             let currentCount = mutableData.value as? Int ?? 0
             mutableData.value = currentCount - 1
 >
-            return FIRTransactionResult.success(withValue: mutableData)
+            return TransactionResult.success(withValue: mutableData)
         }, andCompletionBlock: { (error, committed, snapshot) in
             if let error = error {
                 assertionFailure(error.localizedDescription)
