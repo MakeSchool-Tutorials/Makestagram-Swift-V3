@@ -45,15 +45,15 @@ Before building a feature, it's always helpful to have an idea of how the featur
 
 Let's start building our _login flow_ by creating a new storyboard. Create a new storyboard file:
 
-![New Storyboard](assets/new_storyboard.png)
+![New Storyboard](assets/new_storyboard_template.png)
 
 Name it `Login.storyboard` and make sure that you're creating the `.storyboard` file in the _Storyboards_ folder:
 
-![Naming Storyboard](assets/naming_storyboard.png)
+![Naming Storyboard](assets/naming_login_storyboard.png)
 
 Keep your project navigator organized by keeping similar files in the same group:
 
-![Organized Project Navigator](assets/storyboard_project_navigator.png)
+![Organized Project Navigator](assets/storyboard_group_files.png)
 
 ## Why multiple storyboards?
 
@@ -76,7 +76,7 @@ To begin, we'll need to create a new view controller within the `Login.storyboar
 > 3. Click on the new view controller and open the attributes inspector.
 > 4. Find the checkbox for `Is Initial View Controller` and make sure the option is selected. You should see an arrow pointing to the left side of the view controller after you've completed this step.
 >
-> ![Login Initial View Controller](assets/login_initial_view_controller.png)
+![Login Initial View Controller](assets/login_storyboard_initial_vc.png)
 
 ## What's the initial view controller?
 
@@ -88,11 +88,11 @@ The initial view controller represents the starting point for a specific storybo
 
 So far we've created a new view controller within interface builder, but we haven't connected it to code. Create a new `LoginViewController.swift` class:
 
-![Login Initial Code](assets/login_vc_initial_code.png)
+![Login Initial Code](assets/login_vc_code_template.png)
 
 Navigate back to the login storyboard, select the view controller we've added and open the class inspector. Under the `Custom Class` section title, set the `Class` property to `LoginViewController`.
 
-![Setting Class Inspector](assets/setting_login_class.png)
+![Setting Class Inspector](assets/set_logic_vc_storyboard_class.png)
 
 # Testing progress thus far
 

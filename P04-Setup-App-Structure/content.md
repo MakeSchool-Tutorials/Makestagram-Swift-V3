@@ -31,15 +31,28 @@ Once you have decided on your app's features, your next step should be to outlin
 
 You should come up with a similar diagram before writing code for your original app - it will give you a better idea of how much effort it will take to build your app.
 
-# Directory Structure
+# Project Navigator Organization
 
-Now let's create our directory structure to better organize our code. Open the Makestagram subdirectory in the root directory of your Makestagram project. You can open this directory in Finder by right-clicking on your `AppDelegate` and selecting the option to `Show in Finder`.
+Now let's create some groups in our _Project Navigator_ to help organize our code.
 
-![Show In Finder](assets/show_in_finder.png)
+> [action]
+Right-click in your _Project Navigator_ to create a new group named _Controllers_:
+>
+![ms-video](assets/create_controllers_group.mov)
+>
+Step-by-step:
+>
+1. Right-click in your _Project Navigator_ to bring up a contextual menu.
+1. In the contextual popup menu, click `New Group`.
+1. Name your new group _Controllers_.
 
-All the new code and files you create will go in this directory. Create the following folders to help organize our files:
+We've created our first _Project Navigator_ group. For the rest of our tutorial, we'll place our controller-related code in our new group.
 
-- Controllers
+We're off to a good start, but we'll need more that one group to organize our code.
+
+> [challenge]
+Follow the same process to add the remaining groups below:
+>
 - Extensions
 - Helpers
 - Models
@@ -48,101 +61,50 @@ All the new code and files you create will go in this directory. Create the foll
 - Supporting
 - Views
 
-Next move all the related files into the correct subdirectories. This will cause some problems with Xcode not being able to find your files. This is ok, we'll fix that next. Your file directory should look like this:
+When you're done, your _Project Navigator_ should look like the following:
 
-![Directory Structure](assets/directory_structure.png)
+![New Groups](assets/new_groups.png)
 
-# Project Structure
+With our new groups, we can move each of the files in our _Project Navigator_ into the correct group.
 
-Within our Xcode workspace, your Project navigator will display a project structure of all your files and resources. The structure of your project navigator is independent of your directory structure. Your project structure will organize your files in your project navigator within Xcode, while your directory structure will organize your files and resources on your computer.
+> [action]
+Drag each of your files in your _Project Navigator_ into the correct group ![Files Organized By Groups](assets/files_organized_in_groups.png)
 
-In the last step, we rearranged the files in our Makestagram directory by creating new subdirectories for storing our `.swift` files. Xcode will no longer be able to find the files that we moved around. Your project navigator should have many greyed out files. Notice when you click on these missing files, nothing will happen.
+This will cause in some side-effects resulting in your Xcode project being unable to locate your Info.plist. This is ok, we'll fix this next.
 
-![Missing Files](assets/missing_files.png)
+# Reconnecting The Info.plist
 
-Keep in mind, if you move or rearrange files on computer, your Xcode project will no longer be able to find them unless you add them back into your project.
-
-## Adding Back Missing Files
-
-To add back files that have been rearranged, we'll first need to delete the missing, greyed out files.
-
-![Delete Missing File](assets/delete_missing_file.png)
-
-Delete each of the files below from your project navigator:
-
-- ViewController.swift
-- Main.storyboard
-- LaunchScreen.storyboard
-- Info.plist
-- GoogleService-Info.plist
-
-> [info]
-You should only be deleting the greyed-out files listed above. Make sure you don't delete your `AppDelegate.swift` or `Assets.xcassets` folder because we didn't move or rearrange them in our file directory.
-
-Next, we'll need to either right-click in our project navigator or click on the plus button in the bottom left corner of the project navigator and select the option `Add Files to "Makestagram"`:
-
-![Adding Existing Files](assets/add_existing_files.png)
-
-Next select the correct file you're trying to add in your file directory and click add:
-
-![Add Missing File](assets/add_missing_file.png)
-
-Repeat this process until you've added back all of the files you've rearranged. You should have deleted and re-added each of the following files:
-
-- ViewController.swift
-- Main.storyboard
-- LaunchScreen.storyboard
-- Info.plist
-- GoogleService-Info.plist
-
-After you've added each file back, you should be able to select each file and open it in Xcode:
-
-![Re-added File](assets/readded_file.png)
-
-Build and run the app to make sure everything's working as expected.
-
-## Setting our Info.plist
-
-Oops! Our app doesn't run and returns the following error:
+If you try to run your project now, it'll return the following error:
 
 ![Missing Info.plist](assets/missing_info_plist.png)
 
-Our Info.plist file is a XML representation of many of our app's settings. After moving it into the _supporting_ folder, we need to reconfigure our project with the _Info.plist_ file.
+Oops! Moving our `Info.plist` seems to have disconnected it from our Xcode project.
 
-To reset the _Info.plist_ file, select your `Makestagram` project in your project navigator.
-
-![Project Settings](assets/project_settings.png)
-
-By default, you should land on the _General_ tab. The first section in _General_ will be _Identity_. You'll notice a prompt to set your Info.plist by choosing a file added to the project. Select the correct Info.plist and re-run your app:
-
-![Selecting Info.plist](assets/resetting_info_plist.png)
-
-After you've reconfigured your _Info.plist_, build the app. You'll notice a warning with the following message: `Warning: The Copy Bundle Resources build phase contains this target's Info.plist file ...`
-
-To remove this warning, we'll need to navigate to our Project _Build Phases_.
+Our `Info.plist` file is a XML representation of many of our app's settings. After moving it into the _Supporting Files_ group, we'll need to reconnect it to our project.
 
 > [action]
-Click on your Project and navigate to the _Build Phases_ tab. Click on the collapsed _Copy Bundle Resources_ and select the _Info.plist_. With your _.plist_ selected, click the remove (-) button just below: ![Fix Info.plist Warning](assets/fix_info_plist_warning.png)
+First, select your `Makestagram` project in your project navigator. ![Project Settings](assets/project_settings.png)
+>
+By default, you should land on the _General_ tab. The first section in _General_ will be _Identity_.
+>
+Next, in the empty _Identity_ section, click on the button to _Choose Info.plist File..._.
+>
+In the popup prompt, set your project's `Info.plist` by choosing the file named `Info.plist`. This will reconnect your project's identity with your `Info.plist` file. ![Selecting Info.plist](assets/resetting_info_plist.png)
 
+When you're done, refresh your project's _General Settings_ by navigating to another file and back. You should see your `Info.plist` connected as before:
+
+![Reconnected Info Plist](assets/reconnected_info_plist.png)
+
+> [info]
+If you run your project, you may find a a warning with the following message: `Warning: The Copy Bundle Resources build phase contains this target's Info.plist file ...`
+>
+To remove this warning, we'll need to navigate to our Project _Build Phases_.
+>
+Click on your Project and navigate to the _Build Phases_ tab. Click on the collapsed _Copy Bundle Resources_ and select the _Info.plist_. With your _.plist_ selected, click the remove (-) button just below: ![Fix Info.plist Warning](assets/fix_info_plist_warning.png)
+>
 Build your app again and the warning should be gone.
 
-## Organize our Project Structure
-
-At this point, our app should now be running again and all our files and resources in our file directory are stored in the correct folders.
-
-Last we'll want to organize the files in our project navigator into groups. Organizing our files will make it easier to find files we're looking for as we start building our app.
-
-We'll do this by creating groups of similar files. Select a file you want to add to a group and right-click. You'll see a menu option for creating a new group from selection:
-
-![Creating Group](assets/creating_group.png)
-
-You can also select and drag files into their appropriate group. Remember that the project navigator structure and file directory structure are completely independent of each other. Rearranging files in one won't organize the structure of the other.
-
-Repeat the previous steps until you've organized our project navigator as below:
-
-![Organizing Project Structure](assets/project_structure.png)
-
-As we build our project and add more files, we'll continue to create and reorganize our files into groups. It's a bit of initial work but this is a good way to make sure your file system and Xcode project structure both stay organized. If you're interested in learning more, [click here.](http://vocaro.com/trevor/blog/2012/10/21/xcode-groups-vs-folder-references/)
+At this point, our app should be running again without errors. In addition, we've organized our files and resources into each of their respective groups. Keeping our project organized will make it easier to find files we're looking for as we start building our app. As we build our project and add more files, we'll continue to create and reorganize our files into groups.
 
 # Intro to App Architecture
 

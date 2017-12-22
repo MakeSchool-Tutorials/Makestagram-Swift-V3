@@ -70,13 +70,14 @@ If you got stuck above or just want to review your solution, we'll walk through 
 1. Add two new `UILabel`s onto the new view controller. ![Add Two Labels](assets/add_two_labels.png)
 
 1. Don't worry about constraints yet, we'll use a stack view to position our views later. Format each label respectively:
+>
 ```
 // Title Label
 Text: Create Username
 Font: System 24
 Alignment: Center
 Color: Black
-
+>
 // Subtitle Label
 Text: Add a username so your friends can find you.
 Font: System 16
@@ -88,11 +89,12 @@ Number of Lines: 0
 1. Add a `UITextField` and `UIButton` from the object library: ![Text Field and Button](assets/raw_subviews.png)
 
 1. Format both the `UITextField` and `UIButton`:
+>
 ```
 // Username Text Field
 Placeholder Text: Username
 Background Color: #FAFAFA
-
+>
 // Next Button
 Type: Custom
 Background Color: #61A8ED
@@ -161,18 +163,18 @@ Open `Login.storyboard` and ctrl-drag from `LoginViewController` to `CreateUsern
 >
 After creating the segue in storyboard, we'll need to perform the segue in code. Add the following line to your `LoginViewController.swift` file:
 >
-    extension LoginViewController: FUIAuthDelegate {
-        func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-            // ...
+```
+extension LoginViewController: FUIAuthDelegate {
+    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+        // ...
 >
-            userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
-                if let user = User(snapshot: snapshot) {
-                    print("Welcome back, \(user.username).")
-                } else {
-                    self.performSegue(withIdentifier: "toCreateUsername", sender: self)
-                }
-            })
-        }
+        userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
+            if let user = User(snapshot: snapshot) {
+                print("Welcome back, \(user.username).")
+            } else {
+                self.performSegue(withIdentifier: "toCreateUsername", sender: self)
+            }
+        })
     }
 }
 ```
