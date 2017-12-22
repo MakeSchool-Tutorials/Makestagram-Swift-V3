@@ -38,7 +38,7 @@ Now let's create some groups in our _Project Navigator_ to help organize our cod
 > [action]
 Right-click in your _Project Navigator_ to create a new group named _Controllers_:
 >
-![ms-video](assets/create_controllers_group.mov)
+![ms-video](https://s3.amazonaws.com/mgwu-misc/Makestagram/create_controllers_group.mp4)
 >
 Step-by-step:
 >
