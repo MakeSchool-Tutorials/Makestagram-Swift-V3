@@ -88,7 +88,7 @@ Currently the tab bar has three entries and looks like this:
 
 ![Undecorated Tab Bar](assets/three_tab_bar.png)
 
-The empty tab bar looks pretty bad, so let's add an image to each tab bar item to make things look nicer. (Images will also have the benefit of making it easier to identify the different tabs.)
+The empty tab bar looks pretty bad, so let's add an image to each tab bar item to make things look nicer. Images will also have the benefit of making it easier to identify the different tabs.
 
 > [action]
 Download the .zip file for image resources for this app: [Asset Pack](https://www.dropbox.com/s/147e63jb9nvjsp4/makestagram_assets.zip?dl=1)

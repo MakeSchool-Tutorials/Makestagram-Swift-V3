@@ -132,10 +132,10 @@ Regarding structure, let's discuss the process step-by-step:
 
 ![image](assets/photo_taking_structure.png)
 
-1. The user taps the camera button, which triggers an event in the `MainTabBarController`. (Currently, we are printing "take photo" to the console during this step.)
-1. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. (We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.)
-1. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.)
-1. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. (The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.)
+1. The user taps the camera button, which triggers an event in the `MainTabBarController`. Currently, we are printing "take photo" to the console during this step.
+1. The `HomeViewController` notifies a helper class, called `MGPhotoHelper`, that the camera button was pressed. We use the `MGPhotoHelper` to handle all of our photo related features to help make our code more modular and easier to read.
+1. The `MGPhotoHelper` presents the alert dialog that allows the user to choose between taking a photo with the camera or picking one from the library. (The popover is implemented as a `UIAlertController`, a standard iOS component.
+1. Once the user has selected one of the two options, we present a `UIImagePickerController`, another standard iOS component. The `UIImagePickerController` handles the actual image picking - either by letting the user take a picture, or by letting them pick one from their library.
 1. Once the user is finished, the selected image gets returned to the `MGPhotoHelper`.
 1. The `MGPhotoHelper` notifies the `MainTabBarController` that a photo has been picked, and returns the image to the `MainTabBarController`.
 

@@ -69,8 +69,8 @@ The first graph you'll notice is _Active Users_. It should look like this:
 This graph shows a general indicator of user engagement: daily active user (DAU), weekly active users (WAU) and monthly active users (MAU).
 
 - **DAU:** total unique users who have opened your app on the current day.
-- **WAU:** total unique users who have opened your app in the last week (previous 7 days.)
-- **MAU:** total unique users who have opened your app in the last month (previous 30 days.)
+- **WAU:** total unique users who have opened your app in the last week (previous 7 days).
+- **MAU:** total unique users who have opened your app in the last month (previous 30 days).
 
 Using your Active Users data, you can also calculate a metric called Stickiness. [Stickiness](https://www.quora.com/What-is-the-utility-of-DAU-MAU-as-an-engagement-metric) is widely-used benchmark for app retention. Your DAU/MAU ratio represents the percentage of monthly active users that engage with your app every day.
 
@@ -170,7 +170,7 @@ A couple helpful mental frameworks are:
 
 Next, ask yourself:
 
-- How can you use event tracking to monitor whether you're successfully delivering your value proposition? 
+- How can you use event tracking to monitor whether you're successfully delivering your value proposition?
 - What KPI would define success for your app goals or objectives?
 
 As a catch all, it's also helpful to think about what questions you're trying to answer with your data. Start with the questions you want to answer and work back to what events or metrics would help clarify the answers to those questions.
