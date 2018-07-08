@@ -55,7 +55,9 @@ Oops! What happened? If you ran the app, you'll notice that our app just display
 
 If you look at your debug console, you'll also notice the following error:
 
+```
 Makestagram[79956:42367980] [Application] Failed to instantiate the default view controller for UIMainStoryboardFile 'Main' - perhaps the designated entry point is not set?
+```
 
 ## Why Are We Seeing This Error?
 
