@@ -34,8 +34,8 @@ Go to the Firebase website by [clicking here.](https://firebase.google.com/) You
 
 ## Creating a new Firebase project
 
-<!-- TODO: figure out why list isn't properly formatted -->
-
+> [action]
+>
 1. Get started by clicking on the `GET STARTED FOR FREE` button or the top right `Go to Console` button in the navigation bar.
 ![Navigate to Firebase Console](assets/01_go_to_console.png)
 1. This is your Firebase console. Here, you will see an overview of all your Firebase projects. Click `Add project` to create your first project.
@@ -43,7 +43,7 @@ Go to the Firebase website by [clicking here.](https://firebase.google.com/) You
 1. Set your project name to "Makestagram" and select your country.
 ![Create New Project](assets/03_create_new_project.png)
 1. Wait for Firebase to setup your new project and redirect you to the project overview. It can take 15-30 seconds for this process to complete.
-
+>
 ![Loading New Project](assets/04_loading_project.png)
 
 Once you have finished the steps above, you should have a new Firebase project setup. This is the place where we can see and manage our data, user accounts and interface with all the tools Firebase has to offer. It should look like this:
@@ -51,4 +51,3 @@ Once you have finished the steps above, you should have a new Firebase project s
 ![Firebase Initial Project Overview](assets/05_initial_project_overview.png)
 
 Next we'll need to create a new Xcode project!
-

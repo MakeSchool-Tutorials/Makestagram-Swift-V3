@@ -26,7 +26,7 @@ Even if that approach works, you will have a hard time updating the library. You
 
 To avoid these kinds of problems, software developers have built dependency managers. The most popular one for iOS is _CocoaPods_.
 
-# How Does CocoaPods Work?
+## How Does CocoaPods Work?
 
 _CocoaPods_ provides a huge repository of available iOS libraries. When you want to use _CocoaPods_ you add a special file to your project in which you can list your dependencies. That file is called a _Podfile_.
 

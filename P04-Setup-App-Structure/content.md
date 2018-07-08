@@ -7,7 +7,7 @@ Although the term _architecture_ can be intimidating to new programmers, it's no
 
 In this step, we'll take some time to think about how we'll build our app and organize our code.
 
-# Makestagram Features
+## Makestagram Features
 
 The goal of this tutorial is to build a photo sharing app. Users shall be able to share photos, follow users and interact with other users through likes.
 
@@ -23,7 +23,7 @@ This is a detailed list of features our app will have:
 
 You are probably familiar with most of these features from popular social network apps. You might wonder why we included _flagging_ content in this simple photo sharing app. It turns out that it's an important feature to get your app into Apple's App Store. Apple requires apps with user created content to have a _flag_ feature - this way users can report inappropriate content. Since you will likely need this feature in your own apps, we have included it as part of the tutorial.
 
-# App Outline
+## App Outline
 
 Once you have decided on your app's features, your next step should be to outline your app's structure. The outline should contain all the screens in your app, and should include how they will be connected. For **Makestagram**, the outline would look like this:
 

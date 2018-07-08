@@ -11,20 +11,6 @@ FirebaseAuth is an SDK that lets developers easily authenticate users through Fi
 
 Together, these libraries will make it extremely easy for us to setup and implement the authentication process for our Makestagram app. Keep in mind, it's also possible to implement your own custom authentication flow.
 
-# Setting up FirebaseUI
-
-Import the FirebaseAuth and FirebaseAuthUI library to `LoginViewController.swift` right below `import UIKit`. Whenever we want to use a third-party library that we've downloaded from Cocoapods, we'll need to import it to use it in our code.
-
-```
-import UIKit
-import FirebaseAuth
-import FirebaseAuthUI
-
-// ...
-```
-
-Now that we can access the `FirebaseAuthUI` library, our next focus will be to hand-off the authentication process to FirebaseUI.
-
 ## Enabling Firebase Sign-in Providers
 
 To use FirebaseUI to manage our user accounts, we'll need to tell Firebase which sign-in methods it accepts. Open your Firebase project in your browser and navigate to the Authentication tab. Click the `SET UP SIGN-IN METHOD` button and enable the email/password sign-in provider.
@@ -44,6 +30,20 @@ After enabling the Email/Password provider, your have a status of `Enabled`:
 ![Enabled Email Provider](assets/enabled_email.png)
 
 Now that we've enabled our Email/Password provider, we can switch back to Xcode to continue implementing authentication.
+
+# Setting up FirebaseUI
+
+Import the FirebaseAuth and FirebaseAuthUI library to `LoginViewController.swift` right below `import UIKit`. Whenever we want to use a third-party library that we've downloaded from Cocoapods, we'll need to import it to use it in our code.
+
+```
+import UIKit
+import FirebaseAuth
+import FirebaseAuthUI
+
+// ...
+```
+
+Now that we can access the `FirebaseAuthUI` library, our next focus will be to hand-off the authentication process to FirebaseUI.
 
 ## Using FirebaseUI's AuthViewController
 
@@ -129,7 +129,7 @@ Now, whenever there's an error while we're in development, the app will crash wi
 
 There are much more elegant solutions for error handling, but for the sake of complexity we'll keep our error handling simple.
 
-## The Firebase User
+# The Firebase User
 
 Another important parameter is the `User` object as defined in `FirebaseAuth` class. Each `User` represents an authenticated user within our Firebase dashboard. There's a few bits of information stored within the `User` object, but the most important is the user's UID.
 
