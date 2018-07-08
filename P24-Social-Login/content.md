@@ -3,7 +3,7 @@ title: "Social Login"
 slug: social-login
 ---
 
-In this extension, we'll be customizing `FirebaseAuthUI` by adding support for Facebook and Google login. Setting up 3rd party login is tedious but luckily, `FirebaseAuth` will help alleviate some of the setup.
+In this extension, we'll be customizing `FirebaseUI` by adding support for Facebook and Google login. Setting up 3rd party login is tedious but luckily, `FirebaseAuth` will help alleviate some of the setup.
 
 For our users, it's really easy to confuse, mix-up, or even forgetting all the emails, usernames, and passwords used to sign up for different apps. Implementing 3rd party login, such as with Facebook and Google, will make it easier for users to authenticate without having to worrying about remembering their credentials.
 
@@ -74,7 +74,7 @@ When prompted, select the iOS platform. You'll be directed to a list of instruct
 >
 **Skip** steps 1 and 2. You have already installed the Facebook SDK via Cocoapods.
 >
-To finish the configuration for Facebook login, you'll need to follow steps 3 through 5. You don't need to complete steps 6-10 because we'll be using `FirebaseAuthUI` to handle our Facebook login UI.
+To finish the configuration for Facebook login, you'll need to follow steps 3 through 5. You don't need to complete steps 6-10 because we'll be using `FirebaseUI` to handle our Facebook login UI.
 
 # Setting Up Firebase for Facebook Login
 
@@ -117,15 +117,15 @@ Open terminal and navigate to the root directory of the project. Type `pod insta
 
 Last, we'll need to add some code to implement our new Facebook login UI.
 
-# Implementing FirebaseAuthUI for Facebook Login
+# Implementing FirebaseUI for Facebook Login
 
 First, we'll add a new method to our `AppDelegate`:
 
 > [action]
-Open `AppDelegate` and make sure you import `FirebaseAuthUI` at the top of the file:
+Open `AppDelegate` and make sure you import `FirebaseUI` at the top of the file:
 >
 ```
-import FirebaseAuthUI
+import FirebaseUI
 ```
 >
 Next add the following method to your app delegate:
@@ -226,7 +226,7 @@ We've successfully set up the functionality to implement Google Sign-In. Let's l
 
 ## Configuring the UI
 
-We've already done a lot of setup previous when we added the Facebook login UI to FirebaseAuthUI. This time will be a lot easier. First we'll need to install the corresponding dependencies for FirebaseAuthUI.
+We've already done a lot of setup previous when we added the Facebook login UI to FirebaseUI. This time will be a lot easier. First we'll need to install the corresponding dependencies for FirebaseUI.
 
 > [challenge]
 Install the pod `FirebaseUI/Google`.
@@ -251,7 +251,7 @@ end
 >
 Don't forget you have to run `pod install` to install new dependencies from FirebaseUI.
 
-Last, we'll need to modify our code so FirebaseAuthUI will know to display the correct UI.
+Last, we'll need to modify our code so FirebaseUI will know to display the correct UI.
 
 > [action]
 Open `LoginViewController` and add the following import statement to the top of your code:
@@ -286,7 +286,7 @@ Let's run the app to test things out! You might need to delete the app off of yo
 
 Whew! That was a lot of setup and configuration.
 
-We've now successfully implemented the functionality for Facebook and Google authentication with FirebaseAuthUI. Providing 3rd party authentication for are users makes it easier for them to log in without having to remember their credentials.
+We've now successfully implemented the functionality for Facebook and Google authentication with FirebaseUI. Providing 3rd party authentication for are users makes it easier for them to log in without having to remember their credentials.
 
 If you're looking for more control and customization of the UI, you can implement your own custom UI while using Firebase authentication with Facebook and Google. You can look into the documentation of how to do that here:
 

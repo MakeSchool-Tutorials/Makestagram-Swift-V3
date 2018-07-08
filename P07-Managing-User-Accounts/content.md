@@ -146,7 +146,7 @@ Open our `LoginViewController`. To reference our Firebase Realtime Database, let
 ```
 import UIKit
 import FirebaseAuth
-import FirebaseAuthUI
+import FirebaseUI
 import FirebaseDatabase
 ```
 >

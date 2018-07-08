@@ -32,7 +32,7 @@ Let's take a look at what you have learned so far.
 - how to create a new Firebase project
 - how to setup and connect to a Firebase project
 - app architecture for managing complex apps
-- handling authentication with FirebaseAuth and FirebaseAuthUI
+- handling authentication with FirebaseAuth and FirebaseUI
 - managing multiple user flows with multiple storyboards
 - managing user accounts with FirebaseAuth and FirebaseDatabase
 - handling persistence with UserDefaults

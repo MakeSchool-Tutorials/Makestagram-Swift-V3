@@ -33,17 +33,17 @@ Now that we've enabled our Email/Password provider, we can switch back to Xcode 
 
 # Setting up FirebaseUI
 
-Import the FirebaseAuth and FirebaseAuthUI library to `LoginViewController.swift` right below `import UIKit`. Whenever we want to use a third-party library that we've downloaded from Cocoapods, we'll need to import it to use it in our code.
+Import the FirebaseAuth and FirebaseUI library to `LoginViewController.swift` right below `import UIKit`. Whenever we want to use a third-party library that we've downloaded from Cocoapods, we'll need to import it to use it in our code.
 
 ```
 import UIKit
 import FirebaseAuth
-import FirebaseAuthUI
+import FirebaseUI
 
 // ...
 ```
 
-Now that we can access the `FirebaseAuthUI` library, our next focus will be to hand-off the authentication process to FirebaseUI.
+Now that we can access the `FirebaseUI` library, our next focus will be to hand-off the authentication process to FirebaseUI.
 
 ## Using FirebaseUI's AuthViewController
 
