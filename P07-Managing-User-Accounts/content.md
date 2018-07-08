@@ -16,7 +16,7 @@ What if we want to store a custom property such as an username? Although `Fireba
 
 # Introducing the Firebase Realtime Database
 
-The Firebase Realtime Database is a NoSQL database that can be used to store and retrieve data for our app. The Realtime Database is optimized for reading and writing quickly. Data is stored as a JSON object and the entire database can be thought of as a giant JSON tree. Data is written at specific locations defined by relative paths (associated keys) and can be retrieved using the same path. As data is added to the JSON tree, it becomes a node in the existing JSON structure.
+>_The Firebase Realtime Database_ is a NoSQL database that can be used to store and retrieve data for our app. _The Realtime Database_ is optimized for reading and writing quickly. Data is stored as JSON and the entire database can be thought of as a giant JSON tree. Data is written at specific locations defined by relative paths (associated keys) and can be retrieved using the same path. As data is added to the JSON tree, it becomes a node in the existing JSON structure.
 
 ![JSON Tree](assets/json_tree.png)
 
