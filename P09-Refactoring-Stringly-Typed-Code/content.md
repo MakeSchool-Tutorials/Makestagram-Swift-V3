@@ -7,12 +7,14 @@ In the previous few sections we implemented our first feature: authentication an
 
 Refactoring and cleaning up your code will make it easier to build and debug your app in the future.
 
-# Refactoring Show User
+## Refactoring Show User
 
 We refactored the method for creating a user to our `UserService` but we haven't refactored our `LoginViewController` to remove all networking logic as well. If you open your `LoginViewController`, you'll notice we still use create our `DatabaseReference` and read from our database in the `authUI(_:didSignInWith:error:)` method. Let's refactor that code to our `UserService`.
 
+> [action]
+>
 Create a new class method in our `UserService` for reading a user from the database:
-
+>
 ```
 struct UserService {
     static func show(forUID uid: String, completion: @escaping (User?) -> Void) {
@@ -21,11 +23,11 @@ struct UserService {
             guard let user = User(snapshot: snapshot) else {
                 return completion(nil)
             }
-
+>
             completion(user)
         })
     }
-
+>
     // ...
 }
 ```
@@ -79,22 +81,26 @@ Two letters off! You can see how these mistakes are very easy to make. Let's tak
 
 ## Creating Constants
 
-Let's start with the more basic of the two solutions: constants. Create a new `Constants.swift` file in your Supporting directory. We'll store our string identifiers as static constants so we can reuse them throughout the app without worrying about misspelling them. In fact, Xcode can now help us out with autocomplete!
+Let's start with the more basic of the two solutions: constants. We'll store our string identifiers as static constants so we can reuse them throughout the app without worrying about misspelling them. In fact, Xcode can now help us out with autocomplete!
 
+> [action]
+>
+Create a new `Constants.swift` file in your Supporting directory.
+>
 ![Create Constants File](assets/create_constants_file.png)
-
+>
 Create a Constants struct inside of your `Constants.swift` file:
-
+>
 ```
 import Foundation
-
+>
 struct Constants {
     // ...
 }
 ```
-
-Let's add our first constant to get rid of our stringly-typed segue identifier in our LoginViewController. Let's add the following to our constants file:
-
+>
+Let's add our first constant to get rid of our stringly-typed segue identifier in our `LoginViewController`. Let's add the following to our constants file:
+>
 ```
 struct Constants {
     struct Segue {
@@ -102,9 +108,9 @@ struct Constants {
     }
 }
 ```
-
+>
 Now back in our `LoginViewController` file we can change the following:
-
+>
 ```
 ref.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in
     if let user = User(snapshot: snapshot) {
@@ -139,20 +145,22 @@ let storyboard = UIStoryboard(name: "Main", bundle: .main)
 
 You can see we have a stringly typed identifier of Main that refers to the filename of our `Main.storyboard` file.
 
+> [action]
+>
 Let's see how enums help solve this problem. First create a new file called `Storyboard+Utility.swift` to contain some useful extensions for the `UIStoryboard` class. Make sure you create the new file in the appropriate directory and create a new group for it as well:
-
+>
 ![Extension Group](assets/extension_group.png)
-
+>
 Inside our new `Storyboard+Utility.swift` file, extend `UIStoryboard` with the following enum:
-
+>
 ```
 import UIKit
-
+>
 extension UIStoryboard {
     enum MGType: String {
         case main
         case login
-
+>
         var filename: String {
             return rawValue.capitalized
         }
@@ -164,12 +172,14 @@ You'll notice we created a new enum within the `UIStoryboard` class called `MGTy
 
 Our enum contains a case for each of our app's storyboards. We also create a computed variable that capitalizes the `rawValue` of each case. This computed variable returns the corresponding filename for each storyboard.
 
+> [action]
+>
 Next, we create a convenience initializer that will make user of our enum. It'll allow us to initialize the correct storyboard based each enum case. Right below the closing curly brace of `MGType` add the following convenience initializer:
-
+>
 ```
 extension UIStoryboard {
     // ...
-
+>
     convenience init(type: MGType, bundle: Bundle? = nil) {
         self.init(name: type.filename, bundle: bundle)
     }
@@ -184,25 +194,27 @@ let loginStoryboard = UIStoryboard(type: .login)
 
 Wait! But we can do even better. If you notice all the times we use storyboard, there's other boilerplate code that we use that we can get rid of with our extension.
 
+> [action]
+>
 Inside our extension, we can add the following:
-
+>
 ```
 extension UIStoryboard {
     // ...
-
+>
     static func initialViewController(for type: MGType) -> UIViewController {
         let storyboard = UIStoryboard(type: type)
         guard let initialViewController = storyboard.instantiateInitialViewController() else {
             fatalError("Couldn't instantiate initial view controller for \(type.filename) storyboard.")
         }
-
+>
         return initialViewController
     }
 }
 ```
-
+>
 Now we can reduce our original code from:
-
+>
 ```
 let storyboard = UIStoryboard(type: .main)
 if let initialViewController = storyboard.instantiateInitialViewController() {
@@ -210,9 +222,9 @@ if let initialViewController = storyboard.instantiateInitialViewController() {
     self.view.window?.makeKeyAndVisible()
 }
 ```
-
+>
 And change it to the following:
-
+>
 ```
 let initialViewController = UIStoryboard.initialViewController(for: .main)
 self.view.window?.rootViewController = initialViewController
