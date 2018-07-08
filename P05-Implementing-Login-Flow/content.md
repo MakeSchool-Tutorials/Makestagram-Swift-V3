@@ -196,7 +196,7 @@ Set the following constraints for the header view:
 
 ![Header View Constraints](assets/header_constraints.png)
 
-Make sure that the `Constraint to Margin` checkbox is unchecked and that the top constraint is relative to the view, not the top layout guide.
+Make sure that the `Constraint to Margin` checkbox is _not_ checked and that the top constraint is from `View.Top` to `Superview.Top`, not to `Safe Area.Top`.
 
 ## Adding a Title and Tagline
 
