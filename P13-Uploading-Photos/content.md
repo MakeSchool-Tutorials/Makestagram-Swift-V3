@@ -20,12 +20,16 @@ let riversRef = storageRef.child("images/rivers.jpg")
 
 // 3 Upload the file to the path "images/rivers.jpg"
 let uploadTask = riversRef.putData(data, metadata: nil) { (metadata, error) in
-  guard let metadata = metadata else {
+  if let error = error {
     // 4 Uh-oh, an error occurred!
     return
   }
-  // 5 Metadata contains file metadata such as size, content-type, and download URL.
-  let downloadURL = metadata.downloadURL
+>
+  // 5
+  reference.downloadURL(completion: { (url, error) in
+    if let error = error { return }
+    // 6
+  })
 }
 ```
 
@@ -34,8 +38,9 @@ In the code above, we do the following:
 1. First we need to convert our media to type `Data`
 1. We need to create a relative path to the location at which we'll store our media and what we'll name the data. In this example, data is being stored in the `/images` location with a filename of `rivers.jpg`
 1. With `Data` and a location to store the data, we can upload our `Data` to the location specified in the previous step
-1. After the upload has completed, if there an error, we'll be able to handle it here
-1. If there was no error, we'll be able to access a download URL for where our `Data` was stored
+1. After the upload has completed, if there is an error, we'll be able to handle it here
+1. If there was no error, we'll ask for a download URL for where our `Data` was stored
+1. If it makes it here, `url` contains the download URL 💯
 
 You can confirm that your data is stored in `Firebase Storage` by opening your Firebase dashboard in your browser and navigating to the `Storage` tab. Here, you'll be able to see an overview of all media files store in `Firebase Storage`. You can also view, delete and download files stored here:
 
