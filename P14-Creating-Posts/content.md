@@ -22,9 +22,9 @@ class Post {
     // properties and initializers
 }
 ```
-
+>
 Next let's add properties to store all the additional information we need. Add the following to your post class.
-
+>
 ```
 class Post {
     var key: String?
@@ -33,9 +33,9 @@ class Post {
     let creationDate: Date
 }
 ```
-
-You'll get some compiler errors for not having any initialiers or default values for certain properties. Let's go ahead and fix that:
-
+>
+You'll get some compiler errors for not having any initializers or default values for certain properties. Let's go ahead and fix that:
+>
 ```
 init(imageURL: String, imageHeight: CGFloat) {
     self.imageURL = imageURL
@@ -50,8 +50,10 @@ Here we create an initializer that creates a new `Post` from an image URL and im
 
 After successfully uploading an image to `Firebase Storage`, we want to create a new `Post` object that gets stored in the database.
 
+> [action]
+>
 First add a new service method in `PostService` called `create(forURLString:aspectHeight:)`. We'll use this method to write a new `Post` object to our database.
-
+>
 ```
 private static func create(forURLString urlString: String, aspectHeight: CGFloat) {
     // create new post in database
@@ -89,12 +91,14 @@ This will create a JSON object in our database. Let's break down our steps:
 1. Construct the relative path to the location where we want to store the new post data. Notice that we're using the current user's UID as child nodes to keep track of which `Post` belongs to which user.
 1. Write the data to the specified location.
 
+> [action]
+>
 To fix the compiler error, add the following computed variable to our `Post` class. This will be convenient for turning our `Post` objects into dictionaries of type `[String : Any]`:
-
+>
 ```
 var dictValue: [String : Any] {
     let createdAgo = creationDate.timeIntervalSince1970
-
+>
     return ["image_url" : imageURL,
             "image_height" : imageHeight,
             "created_at" : createdAgo]
@@ -136,7 +140,7 @@ As you create apps with Firebase and practice structuring your data, you'll want
 To use the service method we just created, we'll need to make some modifications to hook up `create(for:)` to `create(forURLString:aspectHeight:)`.
 
 > [action]
-Modify the `create(for:)` method to the following:
+Modify the `create(for:)` method in `PostService.swift` to the following:
 >
 ```
 static func create(for image: UIImage) {
@@ -154,7 +158,7 @@ static func create(for image: UIImage) {
 
 You'll notice here that we hardcode the aspect height of the image. The reason we want to store the aspect height is because when we render our image, we'll need to know the height of the image to display. We do this by calculating what the height of the image should be based on the maximum width and height of an iPhone.
 
-We'll create a new image extension that calculates the aspect height based on the size of the iPhone 7 plus.
+We'll create a new image extension that calculates the aspect height based on the size of the iPhone 8 plus.
 
 > [action]
 Create a new file under extensions called `UIImage+Size.swift`:
@@ -174,6 +178,10 @@ extension UIImage {
 ```
 
 We added a computed property to `UIImage` that will calculate the aspect height for the instance of a `UIImage` based on the size property of an image.
+
+> [challenge]
+>
+This solution overlooks a lot of complexity for the sake of being easy to implement. What would happen if we ran the app on an iPhone X or iPad?
 
 This solution overlooks a lot of complexity for the sake of being easy to implement. What would happen if we ran the app on an iPad?
 
