@@ -36,15 +36,19 @@ Similarly, if we wanted to write a user, we would write to a specific location w
 
 # Reading from the Database
 
+> [info]
+>
+> The following section is an example, you'll start implementing something similar in the next section.
+
 To read data from the database, we need to implement the following steps:
 
 1. Build a `DatabaseReference` to the location you want to read from
 1. Use `observe(_:with)` or `observeSingleEvent(of:with:)` method of `DatabaseReference` to observe `DataEventType.value` events
 1. Handle the event callback that is passed a snapshot that contains all data at the location
 
-Let's walk through an example with each of these steps to see what reading looks like in code:
+Let's walk through an example with each of these steps to see what reading looks like in code...
 
-## Build a DatabaseReference
+## Building a DatabaseReference
 
 First, we'll need to import the appropriate library to use the Firebase Realtime Database:
 
@@ -72,7 +76,7 @@ Let's break this down:
 1. If a `FIRUser` exists, we get a reference to the root of our JSON dictionary with the `Database.database().reference()` singleton
 1. We create a `DatabaseReference` by adding a relative path of `/users/#{user.uid}`
 
-We've successfully created a relative path to the location we want to read from! Now we need to read the data at the location we specified.
+We've created a relative path to the location we want to read from! Now we need to read the data at the location we specified.
 
 ## Reading Data from a DatabaseReference Location
 
@@ -135,31 +139,33 @@ Our logic for managing new and existing users will be:
 
 ## Implementing Database User Accounts
 
+> [action]
+>
 Open our `LoginViewController`. To reference our Firebase Realtime Database, let's import the corresponding library. Add the following line at the top of our file with the rest of our imports:
-
+>
 ```
 import UIKit
 import FirebaseAuth
 import FirebaseAuthUI
 import FirebaseDatabase
 ```
-
+>
 Next, let's implement reading the user JSON object from our database if it exists. Add the following in our `FUIAuthDelegate` method:
-
+>
 ```
 func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
     if let error = error {
         assertionFailure("Error signing in: \(error.localizedDescription)")
         return
     }
-
+>
     // 1
     guard let user = user
         else { return }
-
+>
     // 2
     let userRef = Database.database().reference().child("users").child(user.uid)
-
+>
     // 3
     userRef.observeSingleEvent(of: .value, with: { (snapshot) in
         // 4 retrieve user data from snapshot
@@ -190,8 +196,12 @@ Data will be returned as one of the following native types:
 - NSNumber (includes booleans)
 - NSString
 
-In the case of our user that we retrieved, we'll expect the data to be returned as a dictionary. Add the following code inside the `observeSingleEvent(of:with:)` closure:
+In the case of our user that we retrieved, we'll expect the data to be returned as a dictionary.
 
+> [action]
+>
+Add the following code inside the `observeSingleEvent(of:with:)` closure:
+>
 ```
 userRef.observeSingleEvent(of: .value, with: { (snapshot) in
     // 1
@@ -227,26 +237,28 @@ We'll fix this by handling the new user login flow in the next section, but befo
 
 # Refactoring Users
 
-Fetching user information as a dictionary is very error prone because it forces us to retrieve values with keys that are _stringly_ typed. Let's refactor this by creating our first data model: User.
+Fetching user information as a dictionary is very error prone because it forces us to retrieve values with keys that are _stringly_ typed. Let's refactor this by creating our first data model: `User`.
 
+> [action]
+>
 Create a new `.swift` file called `User.swift` and add it into the Models folder. Create a new grouping in your project navigator for your Models.
-
+>
 ![Models Group](assets/models_grouping.png)
-
+>
 Insert the following code into your `User.swift` class:
-
+>
 ```
 import Foundation
-
+>
 class User {
-
+>
     // MARK: - Properties
-
+>
     let uid: String
     let username: String
-
+>
     // MARK: - Init
-
+>
     init(uid: String, username: String) {
         self.uid = uid
         self.username = username
@@ -254,10 +266,14 @@ class User {
 }
 ```
 
-Here we've created a basic user class that has two properties, a UID and username. Notice that we pre-emptively solved our namespace conflict between `Makestagram.User` and `FirebaseAuth.User` by using type alias `FIRUser`.
+Here we've created a basic user class that has two properties, a UID and username. Notice that we preemptively solved our namespace conflict between `Makestagram.User` and `FirebaseAuth.User` by using type alias `FIRUser`.
 
-Next we're going to create a special initializer to take a `DataSnapshot` to make things easier. First let's import `DataSnapshot` into our `User` model:
+Next we're going to create a special initializer to take a `DataSnapshot` to make things easier.
 
+> [action]
+>
+First let's import `DataSnapshot` into our `User` model:
+>
 ```
 import Foundation
 import FirebaseDatabase.FIRDataSnapshot
@@ -267,16 +283,20 @@ Next, we'll look at creating our first failable initializer to initialize a user
 
 ## What is a Failable Initializer?
 
-Failable initializers allow the initialization of an object to fail. If an initializer fails, it'll return nil instead. This is useful for requiring the initialization to have key information. In our case, if a user doesn't have a UID or a username, we'll fail the initialization and return nil. Add the following under your current User init method:
+Failable initializers allow the initialization of an object to fail. If an initializer fails, it'll return nil instead. This is useful for requiring the initialization to have key information. In our case, if a user doesn't have a UID or a username, we'll fail the initialization and return nil.
 
+> [action]
+>
+Add the following under your current User init method:
+>
 ```
 init(uid: String, username: String) {...}
-
+>
 init?(snapshot: DataSnapshot) {
     guard let dict = snapshot.value as? [String : Any],
         let username = dict["username"] as? String
         else { return nil }
-
+>
     self.uid = snapshot.key
     self.username = username
 }
@@ -284,8 +304,12 @@ init?(snapshot: DataSnapshot) {
 
 Here we guard by requiring the snapshot to be casted to a dictionary and checking that the dictionary contains `username` key/value. If either of these requirements fail, we return nil. Note that we also store the key property of `DataSnapshot` which is the UID that correlates with the user being initialized.
 
-This cleans up our code by creating a reusable initializer that we can use to create user objects from snapshots. In addition, we no longer have to fetch information directly from snapshots using _stringly-typed_ key/value pairs. Let's go ahead and finish by refactoring our original code to use our failable initializer.
+This cleans up our code by creating a reusable initializer that we can use to create user objects from snapshots. In addition, we no longer have to fetch information directly from snapshots using _stringly-typed_ key/value pairs.
 
+> [action]
+>
+Let's go ahead and finish by refactoring our original code to use our failable initializer.
+>
 ```
 userRef.observeSingleEvent(of: .value, with: { (snapshot) in
     if let user = User(snapshot: snapshot) {
