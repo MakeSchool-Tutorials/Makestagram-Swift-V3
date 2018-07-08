@@ -41,7 +41,9 @@ You can confirm that your data is stored in `Firebase Storage` by opening your F
 
 ![Firebase Storage Overview](assets/firebase_storage.png)
 
- Right now your `Storage` tab should be empty because you haven't uploaded any media yet. Let's change that now!
+> [action]
+>
+Go to the `Storage` tab in your Firebase dashboard. Make sure to click _Get Started_ and accept the popup. Right now your `Storage` tab should be empty because you haven't uploaded any media yet. Let's change that now!
 
 # Adding the Upload Code
 
@@ -58,25 +60,25 @@ First, let's create a method that will help us upload an image to Firebase. We'l
 
 > [action]
 Create a new file called `StorageService.swift` in the `Services` directory:
-
+>
 ```
 import UIKit
 import FirebaseStorage
-
+>
 struct StorageService {
     // provide method for uploading images
 }
 ```
-
+>
 Next we'll create a class method that will help us upload images to `Firebase Storage`. Add the following code in `StorageService.swift`:
-
+>
 ```
 static func uploadImage(_ image: UIImage, at reference: StorageReference, completion: @escaping (URL?) -> Void) {
     // 1
     guard let imageData = UIImageJPEGRepresentation(image, 0.1) else {
         return completion(nil)
     }
-
+>
     // 2
     reference.putData(imageData, metadata: nil, completion: { (metadata, error) in
         // 3
@@ -84,9 +86,15 @@ static func uploadImage(_ image: UIImage, at reference: StorageReference, comple
             assertionFailure(error.localizedDescription)
             return completion(nil)
         }
-
+>
         // 4
-        completion(metadata?.downloadURL())
+        reference.downloadURL(completion: { (url, error) in
+            if let error = error {
+                assertionFailure(error.localizedDescription)
+                return completion(nil)
+            }
+            completion(url)
+        })
     })
 }
 ```
@@ -96,7 +104,7 @@ Let's break down the code:
 1. First we change the image from an `UIImage` to `Data` and reduce the quality of the image. It is important to reduce the quality of the image because otherwise the images will take a long time to upload and download from `Firebase Storage`. If we can't convert the image into `Data`, we return nil to the completion callback to signal something went wrong.
 1. We upload our media data to the path provided as a parameter to the method.
 1. After the upload completes, we check if there was an error. If there is an error, we return nil to our completion closure to signal there was an error. Our `assertFailure` will crash the app and print the error when we're running in debug mode.
-1. If everything was successful, we return the download URL for the image.
+1. If everything was successful, call `downloadURL` to get a URL reference and return it to the completion handler.
 
 ## Creating a Post
 
@@ -114,9 +122,9 @@ struct PostService {
 >
 }
 ```
-
+>
 Next let's create a static method within our new service for creating a `Post` from an image:
-
+>
 ```
 static func create(for image: UIImage) {
     let imageRef = Storage.storage().reference().child("test_image.jpg")
@@ -124,15 +132,19 @@ static func create(for image: UIImage) {
         guard let downloadURL = downloadURL else {
             return
         }
-
+>
         let urlString = downloadURL.absoluteString
         print("image url: \(urlString)")
     }
 }
 ```
 
-To tie things together, let's use our new service to upload a new image to `Firebase Storage`. Once the user selected an image from the `UIImagePickerController`, the `completionHandler` property of our `MGPhotoHelper` will be executed. Let's change the closure we pass to upload the image once it's selected. Open `MainTabBarController` and change the following in `viewDidLoad`:
+To tie things together, let's use our new service to upload a new image to `Firebase Storage`. Once the user selected an image from the `UIImagePickerController`, the `completionHandler` property of our `MGPhotoHelper` will be executed. Let's change the closure we pass to upload the image once it's selected.
 
+> [action]
+>
+Open `MainTabBarController` and change the following in `viewDidLoad`:
+>
 ```
 photoHelper.completionHandler = { image in
     PostService.create(for: image)
