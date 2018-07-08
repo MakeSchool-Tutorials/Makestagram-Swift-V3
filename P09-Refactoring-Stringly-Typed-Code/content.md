@@ -213,7 +213,7 @@ extension UIStoryboard {
 }
 ```
 >
-Now we can reduce our original code from:
+Now we can reduce our original code (in `LoginViewController` and `CreateUsernameViewController`) from:
 >
 ```
 let storyboard = UIStoryboard(type: .main)
@@ -232,6 +232,18 @@ self.view.window?.makeKeyAndVisible()
 ```
 
 We no longer have to optionally unwrap the initial view controller and instead can use our convenience class method for getting a reference to the initial view controller of a storyboard. On top of that, everything is type safe!
+
+> [challenge]
+>
+Refactor these lines in `AppDelegate` to use your new `UIStoryboard` extension.
+>
+```
+let storyboard = UIStoryboard(name: "Login", bundle: .main)
+if let initialViewController = storyboard.instantiateInitialViewController() {
+    window?.rootViewController = initialViewController
+    window?.makeKeyAndVisible()
+}
+```
 
 # Wrapping Up
 
