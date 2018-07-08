@@ -7,7 +7,7 @@ Our app is now able to create and store posts in Firebase. In this section, we'l
 
 As a first step in implementing the _Timeline_ feature, we will set up the basic UI for the `HomeViewController`.
 
-# Creating a Home Storyboard
+## Creating a Home Storyboard
 
 As we've discussed in previous sections, we want to keep our storyboard files small and contained to individual user flows of the app. We'll begin by refactoring our existing `HomeViewController` into its own storyboard file.
 
@@ -158,9 +158,10 @@ class HomeViewController: UIViewController {
 >
     // ...
 }
-
+```
+>
 Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` array.
-
+>
 ```
 // MARK: - UITableViewDataSource
 
@@ -177,9 +178,9 @@ extension HomeViewController: UITableViewDataSource {
     }
 }
 ```
-
+>
 Now our table view will display the same number of cells as in our `posts` array. Last, we'll add the following code to our `viewDidLoad` to fetch our posts from Firebase:
-
+>
 ```
 override func viewDidLoad() {
     super.viewDidLoad()
