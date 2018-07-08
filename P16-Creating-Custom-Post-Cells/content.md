@@ -14,11 +14,12 @@ In this section we'll go through the process of create a custom image cell that 
 Each `Post` image will be of varying size depending on the aspect height of the image. We'll need a way to dynamically adjust height of each image cell. We'll do this using the `tableView(_:heightForRowAt:)` method of `UITableViewDelegate`. This will first require us to make sure the table view's delegate property is set.
 
 > [action]
+>
 Open `Home.storyboard` and select the table view of your `HomeViewController`. Ctrl-drag from your storyboard to your view controller to set the delegate:
 ![Set Table View Delegate](assets/set_delegate.png)
-
+>
 Next we'll need to conform `HomeViewController` to `UITableViewDelegate`. Open `HomeViewController.swift` and add the following:
-
+>
 ```
 // MARK: - UITableViewDelegate
 
@@ -38,6 +39,7 @@ Implementing this method returns the height that each cell should be given an in
 Next, to implement our custom cells, we'll verify our attributes of our cells to be the following.
 
 > [action]
+>
 Select your _Prototype Cell_ and open the attributes inspector. Make sure your cell has the following attributes:
 >
 - **Style**: Custom
@@ -53,9 +55,9 @@ Next we'll need to install a pod to download our image and display it in our tab
 
 [Kingfisher](https://github.com/onevcat/Kingfisher) is a popular Swift library for asynchronously downloading and caching images. We'll be using _Kingfisher_ to display our post images. But first, we'll need to install Kingfisher via **CocoaPods**.
 
-Navigate to the _Kingfisher_ installation guide by [clicking here](https://github.com/onevcat/Kingfisher/wiki/Installation-Guide). Follow the instructions under **CocoaPods** to install the library.
-
-You should be instructed to add _Kingfisher_ pod to your _Podfile_. Don't forget to run the `pod install` command in your Makestagram root directory.
+> [action]
+>
+Navigate to the _Kingfisher_ installation guide by [clicking here](https://github.com/onevcat/Kingfisher/wiki/Installation-Guide). Follow the instructions under **CocoaPods** to install the library. You should be instructed to add _Kingfisher_ pod to your _Podfile_. Don't forget to run the `pod install` command in your Makestagram root directory.
 
 Once you have _Kingfisher_ installed, you should be able to use it as follows:
 
@@ -83,10 +85,8 @@ class PostImageCell: UITableViewCell {
     }
 }
 ```
-
+>
 Next open `Home.storyboard` and do the following:
-
-> [action]
 >
 1. Set the class of the cell to `PostImageCell` in the Identity Inspector
 2. Open the Size Inspector and change the default height of the prototype cell to be 375
@@ -95,7 +95,7 @@ Next open `Home.storyboard` and do the following:
 5. Create an `IBOutlet` for your `postImageView` in your `PostImageCell.swift` class
 ![Post Image Cell](assets/post_image_cell.png)
 
-Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them. To do that we change the `Content Mode` to `Aspect Fill`.
+Additionally we need to change the `Content Mode` of the image view. Currently it is set to the default value which is `Scale To Fill`. That will distort the image to fit into the size of the image view. Distorted images look ugly! It's much better to crop them.
 
 > [action]
 Select the `UIImageView` on the cell in `Home.storyboard` and click on the _Attributes Inspector_. Change the _Content Mode_ from `Scale To Fill` to `Aspect Fill`. ![Change Content Mode](assets/change_content_mode.png)
@@ -125,7 +125,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
 }
 ```
 
-# Configuring our TableView
+## Configuring our TableView
 
 Next let's add some styling for our table view. This code will add some minor UI changes to your table view.
 
