@@ -39,16 +39,18 @@ Our solution involves two steps:
 
 ## Custom UITabBarController
 
+> [action]
+>
 First let's create a new file `MainTabBarController.swift`. Make sure you don't forget to go to the Main storyboard and set the class of the tab bar to `MainTabBarController` in the identity inspector.
-
+>
 In the `MainTabBarController.swift` file add the following code:
-
+>
 ```
 class MainTabBarController: UITabBarController {
-
+>
     override func viewDidLoad() {
         super.viewDidLoad()
-
+>
         // 1
         delegate = self
         // 2
@@ -60,8 +62,12 @@ class MainTabBarController: UITabBarController {
 1. First we set the `MainTabBarController` as the delegate of its tab bar
 1. We set the tab bar's `unselectedItemTintColor` from the default of gray to black
 
-Build the app and you'll notice we'll get an error that `MainTabBarController` doesn't implement `UITabBarControllerDelegate`. Let's add an extension and implement `tabBarController(_:shouldSelect:)` to fix this error:
+Build the app and you'll notice we'll get an error that `MainTabBarController` doesn't implement `UITabBarControllerDelegate`.
 
+> [action]
+>
+Let's add an extension and implement `tabBarController(_:shouldSelect:)` to fix this error:
+>
 ```
 extension MainTabBarController: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
@@ -75,6 +81,7 @@ The `UITabBarControllerDelegate` method `tabBarController(_:shouldSelect:)` retu
 Don't forget, we'll need to set the _Custom Class_ property in the `Main.storyboard` _Identity Inspector_ for our `UITabBarController`. Otherwise `UITabBarController` won't know it's a custom subclass.
 
 > [action]
+>
 Open Main.storyboard and select the Tab Bar Controller. Open the _Class Inspector_ in the right pane and set the `Class` to `MainTabBarController`: ![Tab Bar Identity Inspector](assets/tab_bar_identity.png)
 
 ## Identifying Tab Bar Items
@@ -150,7 +157,7 @@ Create a new source file called `MGPhotoHelper.swift`:
 > [action]
 >
 1. Create a new Cocoa Touch class within the _Helpers_ directory
-1. Name this class _MGPhotoHelper_ and make it a subclass of _NSObject_ (we will discuss why this is necessary later on):
+1. Name this class _MGPhotoHelper_ and make it a subclass of _NSObject_ (it's necessary for protocols we are using later)
 1. Select your new helper class and add it to a _Helpers_ group
 
 ![image](assets/new_photo_helper.png)
@@ -254,28 +261,30 @@ func presentActionSheet(from viewController: UIViewController) {
 
 None of this code will run at this point - to test it we need to connect it to the `MainTabBarController`. Let's do that next! After we've connected the `MainTabBarController` and the `MGPhotoHelper`, we will come back to complete this code so that we actually present the camera or the photo library when one of the two options is selected.
 
-## Connecting the MGPhotoHelper
+# Connecting the MGPhotoHelper
 
 Time to switch back to the `MainTabBarController`. Currently we are printing a string to the console whenever the camera button is tapped; now we want to create an instance of a `MGPhotoHelper` that will display our action sheet.
 
+> [action]
+>
 First, let's create an instance of the `MGPhotoHelper` object in `MainTabBarController.swift`:
-
+>
 ```
 // MARK: - Properties
-
+>
 let photoHelper = MGPhotoHelper()
 ```
-
+>
 Next, let's set the `completionHandler` property of `MGPhotoHelper` in `viewDidLoad`:
-
+>
 ```
 override func viewDidLoad() {
     super.viewDidLoad()
-
+>
     photoHelper.completionHandler = { image in
         print("handle image")
     }
-
+>
     delegate = self
     tabBar.unselectedItemTintColor = .black
 }
@@ -298,6 +307,7 @@ Whenever `MGPhotoHelper` receives an image, it will call this closure. This is w
 Last, we'll change the tab bar related code:
 
 > [action]
+>
 Change the tab bar related code to call the `presentActionSheet(from:)` method in our `MGPhotoHelper`, instead of printing to the console:
 >
 ```
@@ -410,12 +420,12 @@ Take a short look at the documentation for the [`UIImagePickerControllerDelegate
 
 Can you see which method we can use?
 
-Correct! We'll use the `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)` method!
+Correct! We'll use the `imagePickerController(UIImagePickerController, didFinishPickingMediaWithInfo: [UIImagePickerController.InfoKey : Any])` method!
 
 We'll need to implement this in two steps:
 
 1. Sign up to become the delegate of the `UIImagePickerController`
-1. Implement `imagePickerController(picker: UIImagePickerController, didFinishPickingImage: UIImage!, editingInfo: [NSObject : AnyObject]!)`
+1. Implement `imagePickerController(_:didFinishPickingMediaWithInfo:)`
 
 Let's start with the simple part - becoming the delegate of `UIImagePickerController`.
 
