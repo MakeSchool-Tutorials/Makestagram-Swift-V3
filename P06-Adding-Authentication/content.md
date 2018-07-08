@@ -54,19 +54,21 @@ Within FirebaseUI, we'll be using the AuthViewController. To implement the `Auth
 1. present the auth view controller
 1. implement `FUIAuthDelegate` protocol
 
+> [action]
+>
 Within our `LoginViewController`, add the following to our `loginButtonTapped(sender:)` method:
-
+>
 ```
 // MARK: - IBActions
-
+>
 @IBAction func loginButtonTapped(_ sender: UIButton) {
     // 1
     guard let authUI = FUIAuth.defaultAuthUI()
         else { return }
-
+>
     // 2
     authUI.delegate = self
-
+>
     // 3
     let authViewController = authUI.authViewController()
     present(authViewController, animated: true)
@@ -83,13 +85,15 @@ When `authViewController` is presented, Firebase presents its own UI to handle s
 
 However, we haven't finished all 4 steps we previously defined and that's why Xcode is yelling at us with a compiler error. In step 2, we set our `LoginViewController` to be a delegate of `authUI`, however our `LoginViewController` hasn't conformed to the `FUIAuthDelegate` protocol. Let's do that now!
 
+> [action]
+>
 After the closing curly brace of the `LoginViewController` class, add the following extension:
-
+>
 ```
 class LoginViewController: UIViewController {
     // ...
 }
-
+>
 extension LoginViewController: FUIAuthDelegate {
     func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
         print("handle user signup / login")
