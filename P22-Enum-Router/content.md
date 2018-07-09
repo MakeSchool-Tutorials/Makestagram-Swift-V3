@@ -3,7 +3,7 @@ title: "Firebase Router"
 slug: firebase-router
 ---
 
-In the base Makestgram tutorial, we built a service layer to interface between our app and Firebase. Within many of our service methods, we define relative paths to different locations our database. Let's take a look at one now:
+In the base Makestagram tutorial, we built a service layer to interface between our app and Firebase. Within many of our service methods, we define relative paths to different locations our database. Let's take a look at one now:
 
 > [action]
 Open `UserService` and navigate to `posts(for:completion:)`. Look at the first line within the method, setting a constant `ref` to a `DatabaseReference`:
@@ -34,7 +34,7 @@ In this extension we'll look at using some of the advanced language features of 
 
 In Swift, we use enums to declare _a common type for a group of related values_. This is especially useful because our code becomes type-safe.
 
-Let's look at an example we've already used in our Makestgram project:
+Let's look at an example we've already used in our Makestagram project:
 
 ```
 enum StoryboardType: String {

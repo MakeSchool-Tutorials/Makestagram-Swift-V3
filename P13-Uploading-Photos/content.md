@@ -24,7 +24,7 @@ let uploadTask = riversRef.putData(data, metadata: nil) { (metadata, error) in
     // 4 Uh-oh, an error occurred!
     return
   }
->
+
   // 5
   reference.downloadURL(completion: { (url, error) in
     if let error = error { return }

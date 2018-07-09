@@ -75,6 +75,7 @@ static func followers(for user: User, completion: @escaping ([String]) -> Void) 
             completion(followersKeys)
         })
     }
+```
 
 In the service method above, we fetch the UIDs of all of a given user's followers and return them as an `String` array. We'll use this for constructing a batch update to multiple user's timelines when posting a new post.
 
@@ -156,7 +157,7 @@ private static func followUser(_ user: User, forCurrentUserWithSuccess success: 
         // 1
         UserService.posts(for: user) { (posts) in
             // 2
-            let postKeys = posts.flatMap { $0.key }
+            let postKeys = posts.compactMap { $0.key }
 >
             // 3
             var followData = [String : Any]()
@@ -210,7 +211,7 @@ private static func unfollowUser(_ user: User, forCurrentUserWithSuccess success
 >
         UserService.posts(for: user, completion: { (posts) in
             var unfollowData = [String : Any]()
-            let postsKeys = posts.flatMap { $0.key }
+            let postsKeys = posts.compactMap { $0.key }
             postsKeys.forEach {
                 // Use NSNull() object instead of nil because updateChildValues expects type [Hashable : Any]
                 unfollowData["timeline/\(currentUID)/\($0)"] = NSNull()
@@ -377,7 +378,7 @@ override func viewDidLoad() {
     reloadTimeline()
 }
 >
-func reloadTimeline() {
+@objc func reloadTimeline() {
     UserService.timeline { (posts) in
         self.posts = posts
 >
@@ -390,7 +391,7 @@ func reloadTimeline() {
 }
 ```
 
-Here we create a new method to `reloadTimeline` to retrieve our timeline and refresh the table view. You'll notice the method also checks if the `refreshControl` is refreshing. This will stop and hide the acitivity indicator of the refresh control if it is currently being displayed to the user.
+Here we create a new method to `reloadTimeline` to retrieve our timeline and refresh the table view. You'll notice the method also checks if the `refreshControl` is refreshing. This will stop and hide the activity indicator of the refresh control if it is currently being displayed to the user. `@objc` is needed to use the `#selector()` syntax in the next step.
 
 For everything to work together, we'll need to add our refresh control to our table view.
 
