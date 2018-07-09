@@ -130,7 +130,7 @@ static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
             return completion([])
         }
 >
-        let posts = snapshot.reversed().flatMap(Post.init)
+        let posts = snapshot.reversed().compactMap(Post.init)
         completion(posts)
     })
 }

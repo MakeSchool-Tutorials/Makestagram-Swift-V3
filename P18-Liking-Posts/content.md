@@ -79,7 +79,7 @@ makestagram-b3260 : {
 
 It might not be immediately obvious why we need an additional `like_count` for each post. Instead, couldn't we read all of the likes a post has from the `postLikes` node and sum the number of children? Can you think of any reasons why a `like_count` would be useful?
 
-Although, it's not immediately obvious, a `like_count` is an read optimization that allows us to know the number of likes a post has just by reading from the `posts` node. This also prevents us from:
+Adding `like_count` is a read optimization that allows us to know the number of likes a post has just by reading from the `posts` node. This also prevents us from:
 
 - having to make two network requests to display a post
 - reading all likes into memory (imagine if a user had a couple million likes!)
@@ -339,10 +339,9 @@ To keep our database post data consistent, we'll need to delete any current post
 > [action]
 Hover over the `posts` node in your database and a delete button should appear:
 ![Hover Delete](assets/posts_hover_delete.png)
-
+>
 Clicking the delete button will prompt you with a warning.
-
-> [action]
+>
 Proceed and delete all of your current posts:
 ![Delete Warning](assets/delete_warning.png)
 
@@ -494,6 +493,7 @@ Open `HomeViewController` and modify `tableView(_:cellForRowAt:)` to the followi
 case 2:
     let cell = tableView.dequeueReusableCell(withIdentifier: "PostActionCell") as! PostActionCell
     cell.likeCountLabel.text = "\(post.likeCount) likes"
+    cell.timeAgoLabel.text = timestampFormatter.string(from: post.creationDate)
 >
     return cell
 ```
@@ -504,8 +504,10 @@ We'll also need to connect our like button to use our service class to create an
 
 We need to return whether the post is already liked so we know which state the post is currently in. This will require us to re-do some of the code we've already done to factor in likes.
 
-First, let's add an `isLiked` property to our post. This will tell us whether the current user has liked the current post:
-
+> [action]
+>
+First, let's add an `isLiked` property to `Post`. This will tell us whether the current user has liked the current post:
+>
 ```
 var isLiked = false
 ```
@@ -513,7 +515,8 @@ var isLiked = false
 We'll give this a default value of `false` because initially when we first read the post from the database, we won't know the initial value. In addition, we'll make this a variable instead of a constant because we want to be able to change the state of this property later to match whether the current user has actually liked the post. Next we'll need to add a class method to our `LikeService` to tell whether a post is liked by the current user.
 
 > [action]
-Create a new service method for determining whether the current `Post` is liked:
+>
+Create a new service method in `LikeService` for determining whether the current `Post` is liked:
 >
 ```
 static func isPostLiked(_ post: Post, byCurrentUserWithCompletion completion: @escaping (Bool) -> Void) {
@@ -554,23 +557,20 @@ static func posts(for user: User, completion: @escaping ([Post]) -> Void) {
 >
         let dispatchGroup = DispatchGroup()
 >
-        let posts: [Post] =
-            snapshot
-                .reversed()
-                .flatMap {
-                    guard let post = Post(snapshot: $0)
-                        else { return nil }
+        let posts: [Post] = snapshot.reversed().compactMap {
+            guard let post = Post(snapshot: $0)
+                else { return nil }
 >
-                    dispatchGroup.enter()
+            dispatchGroup.enter()
 >
-                    LikeService.isPostLiked(post) { (isLiked) in
-                        post.isLiked = isLiked
+            LikeService.isPostLiked(post) { (isLiked) in
+                post.isLiked = isLiked
 >
-                        dispatchGroup.leave()
-                    }
+                dispatchGroup.leave()
+            }
 >
-                    return post
-                }
+            return post
+        }
 >
         dispatchGroup.notify(queue: .main, execute: {
             completion(posts)
@@ -583,7 +583,7 @@ In the code above, we rewrite our code to check whether each of our posts is lik
 
 ## What are Dispatch Groups?
 
-Dispatch groups are an advanced GCD topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed.
+Dispatch groups are an advanced Global Central Dispatch (GCD) topic that allow you to monitor the completion of a group of tasks. We won't dive deep into GCD or dispatch groups here, but we use them to notify us after all of our network requests have been executed.
 
 They work by matching the number of items that have been started with the number that have been finished. You can begin and complete a new item by calling `enter()` and `leave()` on the dispatch group instance respectively. When the number of tasks that have been started equal the number completed, the dispatch group can notify you that all tasks have been executed.
 
