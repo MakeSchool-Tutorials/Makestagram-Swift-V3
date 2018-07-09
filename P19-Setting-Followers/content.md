@@ -7,7 +7,7 @@ Social media apps aren't very social if you're not able to interact with other u
 
 To get started, let's think about any new data we'll need to handle or store in the database to implement our new functionality!
 
-# Structuring Follow Data
+## Structuring Follow Data
 
 Creating follow relationships between users will require us to store new data within our database. We'll create two new root nodes: `followers` and `following`. Breaking our follow data into two new subtrees will allow us to easily keep track of relationships between different users.
 
@@ -371,7 +371,7 @@ Open `User.swift` and add a new property:
 var isFollowed = false
 ```
 >
-Next, we'll edit our `configure(cell:atIndexPath:)` with the following:
+Next, we'll edit our `configure(cell:atIndexPath:)` in `FindFriendsViewController` with the following:
 >
 ```
 func configure(cell: FindFriendsCell, atIndexPath indexPath: IndexPath) {
@@ -401,10 +401,7 @@ static func usersExcludingCurrentUser(completion: @escaping ([User]) -> Void) {
             else { return completion([]) }
 >
         // 3
-        let users =
-            snapshot
-                .flatMap(User.init)
-                .filter { $0.uid != currentUser.uid }
+        let users = snapshot.compactMap(User.init).filter { $0.uid != currentUser.uid }
 >
         // 4
         let dispatchGroup = DispatchGroup()
