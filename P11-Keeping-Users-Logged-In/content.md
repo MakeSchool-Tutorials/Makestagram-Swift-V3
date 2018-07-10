@@ -60,7 +60,7 @@ We'll create an option in our `setCurrent(_:)` method to persist the current use
 
 ```
 // 1
-class func setCurrent(_ user: User, writeToUserDefaults: Bool = false) {
+static func setCurrent(_ user: User, writeToUserDefaults: Bool = false) {
     // 2
     if writeToUserDefaults {
         // 3
