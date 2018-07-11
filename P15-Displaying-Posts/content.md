@@ -28,6 +28,7 @@ Next we'll refactor our first tab into its own storyboard.
 1. Select both the `UINavigationController` and `HomeViewController` by clicking and dragging so that both are selected
 1. Click on the top menu item `Editor`>`Refactor to Storyboard`
 1. Create your new `Home.storyboard` file in the Storyboards folder
+1. In your new file, select the `UINavigationController` and in the `Bottom Bar` dropdown of the `Attributes Inspector`, select the `Translucent Tab Bar` option so that your Tab Bar Item reappears.
 
 You have now refactored one of the tab bar view controllers into another storyboard. Your `Main.storyboard` file should now look like this:
 
