@@ -165,7 +165,7 @@ Next we'll setup our `TableViewDataSource` to retrieve data from our `Post` arra
 >
 ```
 // MARK: - UITableViewDataSource
-
+>
 extension HomeViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return posts.count
