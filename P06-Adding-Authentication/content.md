@@ -95,7 +95,7 @@ class LoginViewController: UIViewController {
 }
 >
 extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
+    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
         print("handle user signup / login")
     }
 }
@@ -118,7 +118,7 @@ Modify your `FUIAuthDelegate` as follows:
 >
 ```
 extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
+    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
         if let error = error {
             assertionFailure("Error signing in: \(error.localizedDescription)")
             return
@@ -181,17 +181,6 @@ class LoginViewController: UIViewController {
 ```
 
 Now we can use `FIRUser` to refer to the `FirebaseAuth.User` type. Let's change our delegate method to user our new type alias.
-
-> [action]
-In `LoginViewController`, change the `FUIAuthDelegate` delegate method definition to the following:
->
-```
-extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
-        // ...
-    }
-}
-```
 
 From this point, we'll use `FIRUser` instead of `User` to refer to the `FirebaseAuth.User` type.
 

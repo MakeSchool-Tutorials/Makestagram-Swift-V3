@@ -163,7 +163,7 @@ After creating the segue in storyboard, we'll need to perform the segue in code.
 >
 ```
 extension LoginViewController: FUIAuthDelegate {
-    func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
         // ...
 >
         userRef.observeSingleEvent(of: .value, with: { [unowned self] (snapshot) in

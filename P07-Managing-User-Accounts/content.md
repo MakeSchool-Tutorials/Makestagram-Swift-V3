@@ -153,14 +153,14 @@ import FirebaseDatabase
 Next, let's implement reading the user JSON object from our database if it exists. Add the following in our `FUIAuthDelegate` method:
 >
 ```
-func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
     if let error = error {
         assertionFailure("Error signing in: \(error.localizedDescription)")
         return
     }
 >
     // 1
-    guard let user = user
+    guard let user = authDataResult?.user
         else { return }
 >
     // 2

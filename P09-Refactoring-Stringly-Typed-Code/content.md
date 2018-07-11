@@ -38,7 +38,7 @@ Now we can remove the networking code in `LoginViewController`.
 Modify `authUI(_:didSignInWith:error:)` to the following:
 >
 ```
-func authUI(_ authUI: FUIAuth, didSignInWith user: FIRUser?, error: Error?) {
+func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
     // ...
 >
     UserService.show(forUID: user.uid) { (user) in
