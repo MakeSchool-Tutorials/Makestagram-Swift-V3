@@ -22,7 +22,7 @@ Next we'll need to conform `HomeViewController` to `UITableViewDelegate`. Open `
 >
 ```
 // MARK: - UITableViewDelegate
-
+>
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let post = posts[indexPath.row]
