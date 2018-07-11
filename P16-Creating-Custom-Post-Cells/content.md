@@ -26,7 +26,7 @@ Next we'll need to conform `HomeViewController` to `UITableViewDelegate`. Open `
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let post = posts[indexPath.row]
-
+>
         return post.imageHeight
     }
 }
