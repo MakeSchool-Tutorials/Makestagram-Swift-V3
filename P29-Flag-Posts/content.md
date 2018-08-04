@@ -81,7 +81,7 @@ Next, let's implement the user flow so we can put our new service method into us
 
 Let's take another look at the `PostHeaderCell`.
 
-[Post Header Cell](assets/options_btn_highlight.png)
+![Post Header Cell](assets/options_btn_highlight.png)
 
 As you can see in the image above, on the left side of the cell is an options button. If a user taps on that button, we'll display an action sheet using `UIAlertController` that gives them the ability to flag the corresponding `Post`. As discussed earlier, we'll be using the `UIAlertController` to display the action sheet.
 
